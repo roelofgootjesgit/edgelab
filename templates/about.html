@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - EdgeLab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'edgelab-blue': '#2c5aa0',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold text-edgelab-blue">EdgeLab</a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-edgelab-blue">Home</a>
+                    <a href="/upload" class="text-gray-700 hover:text-edgelab-blue">Upload</a>
+                    <a href="/about" class="text-edgelab-blue font-semibold">About</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-8">About EdgeLab</h1>
+        
+        <div class="bg-white rounded-xl shadow-md p-8 mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                EdgeLab helps traders distinguish between genuine trading edge and random luck. 
+                We provide professional-grade analysis with proprietary metrics that go beyond 
+                standard backtesting.
+            </p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Contact</h2>
+            <p class="text-gray-700">
+                Questions? Reach out at <a href="mailto:support@edgelab.io" class="text-edgelab-blue hover:underline">support@edgelab.io</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

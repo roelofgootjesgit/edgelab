@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Complete - EdgeLab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'edgelab-blue': '#2c5aa0',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold text-edgelab-blue">EdgeLab</a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-edgelab-blue">Home</a>
+                    <a href="/upload" class="text-gray-700 hover:text-edgelab-blue">Upload</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <!-- Success Message -->
+        <div class="text-center mb-8">
+            <div class="inline-block p-4 bg-green-100 rounded-full mb-4">
+                <svg class="h-16 w-16 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Analysis Complete!</h1>
+            <p class="text-gray-600">
+                Analyzed {{ trades_count }} trades successfully
+            </p>
+        </div>
+
+        <!-- Key Metrics Summary -->
+        <div class="bg-white rounded-xl shadow-md p-8 mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Key Metrics</h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Win Rate -->
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-3xl font-bold {% if results.winrate >= 55 %}text-green-600{% elif results.winrate >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                        {{ results.winrate }}%
+                    </div>
+                    <div class="text-sm text-gray-600 mt-1">Win Rate</div>
+                </div>
+
+                <!-- Profit Factor -->
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-3xl font-bold {% if results.profit_factor >= 2.0 %}text-green-600{% elif results.profit_factor >= 1.5 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                        {{ results.profit_factor }}
+                    </div>
+                    <div class="text-sm text-gray-600 mt-1">Profit Factor</div>
+                </div>
+
+                <!-- Expectancy -->
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-3xl font-bold {% if results.expectancy >= 0.5 %}text-green-600{% elif results.expectancy >= 0.3 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                        {{ results.expectancy }}R
+                    </div>
+                    <div class="text-sm text-gray-600 mt-1">Expectancy</div>
+                </div>
+            </div>
+
+            <!-- Advanced Metrics -->
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <h3 class="font-semibold text-gray-900 mb-4">Advanced Metrics (Pro)</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <!-- ESI -->
+                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
+                        <span class="text-gray-700">ESI (Edge Stability)</span>
+                        <span class="font-bold text-edgelab-blue">{{ results.esi }}</span>
+                    </div>
+                    <!-- PVS -->
+                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
+                        <span class="text-gray-700">PVS (Prop Score)</span>
+                        <span class="font-bold text-edgelab-blue">{{ results.pvs }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="bg-white rounded-xl shadow-md p-8 mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">💡 Recommendation</h2>
+            <p class="text-gray-700 leading-relaxed">
+                {{ results.recommendation }}
+            </p>
+        </div>
+
+        <!-- Download Button -->
+        <div class="text-center">
+            <a href="/download/{{ pdf_filename }}" 
+               class="inline-block bg-edgelab-blue text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition transform hover:scale-105">
+                📥 Download Full PDF Report
+            </a>
+            <p class="text-sm text-gray-500 mt-4">
+                Includes detailed metrics, charts, and analysis
+            </p>
+        </div>
+
+        <!-- Upload Another -->
+        <div class="text-center mt-8">
+            <a href="/upload" class="text-edgelab-blue hover:underline">
+                ← Analyze Another Strategy
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8 mt-20">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2025 EdgeLab. Trading involves risk.</p>
+        </div>
+    </footer>
+</body>
+</html>
