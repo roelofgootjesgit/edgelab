@@ -6,7 +6,7 @@ Pattern detection and analysis for trading strategies.
 Identifies timing patterns, directional bias, execution quality, and loss causes.
 
 Author: EdgeLab Development Team
-Version: 1.3
+Version: 1.4
 """
 
 from typing import List, Dict
@@ -886,3 +886,400 @@ class LossForensics:
         # Return most severe finding
         critical = max(findings, key=lambda x: x['severity'])
         return critical['message']
+
+
+class InsightGenerator:
+    """
+    Synthesize pattern analysis into prioritized findings
+    Reports OBSERVATIONS only - no trading advice
+    """
+    
+    def generate(self, 
+                 timing_results: Dict,
+                 directional_results: Dict,
+                 execution_results: Dict,
+                 loss_results: Dict,
+                 basic_metrics: Dict,
+                 trades: List[EdgeLabTrade]) -> Dict:
+        """
+        Generate prioritized findings from all analyzers
+        
+        Args:
+            timing_results: Results from TimingAnalyzer
+            directional_results: Results from DirectionalAnalyzer
+            execution_results: Results from ExecutionAnalyzer
+            loss_results: Results from LossForensics
+            basic_metrics: Basic trading metrics (WR, total trades, etc)
+            trades: Original list of trades for additional analysis
+            
+        Returns:
+            {
+                'critical_findings': [...],
+                'notable_patterns': [...],
+                'performance_correlations': {...},
+                'statistical_summary': {...}
+            }
+        """
+        
+        all_findings = []
+        
+        # Collect findings from each analyzer
+        all_findings.extend(self._analyze_timing_patterns(timing_results, trades))
+        all_findings.extend(self._analyze_directional_patterns(directional_results, trades))
+        all_findings.extend(self._analyze_execution_patterns(execution_results, trades))
+        all_findings.extend(self._analyze_loss_patterns(loss_results, trades))
+        
+        # Prioritize by severity and statistical significance
+        prioritized = self._prioritize_findings(all_findings)
+        
+        # Group by priority level
+        critical = [f for f in prioritized if f['priority'] == 'CRITICAL']
+        notable = [f for f in prioritized if f['priority'] == 'NOTABLE']
+        
+        # Generate correlations
+        correlations = self._find_correlations(timing_results, directional_results, 
+                                              execution_results, basic_metrics)
+        
+        # Statistical summary
+        summary = self._generate_statistical_summary(all_findings, basic_metrics)
+        
+        return {
+            'critical_findings': critical,
+            'notable_patterns': notable,
+            'performance_correlations': correlations,
+            'statistical_summary': summary
+        }
+    
+    def _analyze_timing_patterns(self, timing_results: Dict, trades: List[EdgeLabTrade]) -> List[Dict]:
+        """Extract findings from timing analysis"""
+        
+        findings = []
+        sessions = timing_results.get('session_breakdown', {})
+        
+        # Find session with worst performance
+        worst_session = None
+        worst_expectancy = 999
+        
+        for session_name, stats in sessions.items():
+            if stats['total_trades'] > 0 and stats['expectancy'] < worst_expectancy:
+                worst_expectancy = stats['expectancy']
+                worst_session = session_name
+        
+        # Check if there's a significant session difference
+        if worst_session:
+            best_session = max(sessions.items(), 
+                             key=lambda x: x[1]['expectancy'] if x[1]['total_trades'] > 0 else -999)
+            
+            if best_session[1]['expectancy'] - worst_expectancy > 0.5:
+                findings.append({
+                    'type': 'SESSION_PERFORMANCE_GAP',
+                    'priority': 'CRITICAL',
+                    'title': f'Significant Session Performance Difference',
+                    'observation': (
+                        f"{worst_session} session shows {sessions[worst_session]['winrate']}% WR "
+                        f"({sessions[worst_session]['expectancy']}R expectancy) compared to "
+                        f"{best_session[0]} session at {best_session[1]['winrate']}% WR "
+                        f"({best_session[1]['expectancy']}R expectancy)"
+                    ),
+                    'data_points': {
+                        'worst_session': worst_session,
+                        'worst_wr': sessions[worst_session]['winrate'],
+                        'worst_exp': sessions[worst_session]['expectancy'],
+                        'best_session': best_session[0],
+                        'best_wr': best_session[1]['winrate'],
+                        'best_exp': best_session[1]['expectancy'],
+                        'sample_size': sessions[worst_session]['total_trades']
+                    },
+                    'statistical_strength': 'HIGH' if sessions[worst_session]['total_trades'] > 20 else 'MEDIUM'
+                })
+        
+        # Check for best hour pattern
+        best_hour = timing_results.get('best_hour', {})
+        if best_hour.get('hour') is not None:
+            findings.append({
+                'type': 'OPTIMAL_TIME_WINDOW',
+                'priority': 'NOTABLE',
+                'title': f'Peak Performance Hour Identified',
+                'observation': (
+                    f"Hour {best_hour['hour']}:00 UTC shows strongest performance: "
+                    f"{best_hour['winrate']}% WR, {best_hour['expectancy']}R expectancy"
+                ),
+                'data_points': {
+                    'hour': best_hour['hour'],
+                    'winrate': best_hour['winrate'],
+                    'expectancy': best_hour['expectancy'],
+                    'sample_size': best_hour.get('total_trades', 0)
+                },
+                'statistical_strength': 'MEDIUM'
+            })
+        
+        return findings
+    
+    def _analyze_directional_patterns(self, directional_results: Dict, trades: List[EdgeLabTrade]) -> List[Dict]:
+        """Extract findings from directional analysis"""
+        
+        findings = []
+        
+        long_stats = directional_results.get('long_stats', {})
+        short_stats = directional_results.get('short_stats', {})
+        bias = directional_results.get('bias', 'NEUTRAL')
+        
+        # Check for significant directional asymmetry
+        if bias != 'NEUTRAL':
+            if bias == 'LONG':
+                stronger = long_stats
+                weaker = short_stats
+                stronger_dir = 'LONG'
+                weaker_dir = 'SHORT'
+            else:
+                stronger = short_stats
+                weaker = long_stats
+                stronger_dir = 'SHORT'
+                weaker_dir = 'LONG'
+            
+            expectancy_diff = stronger['expectancy'] - weaker['expectancy']
+            
+            if expectancy_diff > 0.5:
+                findings.append({
+                    'type': 'DIRECTIONAL_ASYMMETRY',
+                    'priority': 'CRITICAL',
+                    'title': f'Significant Directional Performance Gap',
+                    'observation': (
+                        f"{stronger_dir} trades show {stronger['winrate']}% WR "
+                        f"({stronger['expectancy']}R expectancy) while "
+                        f"{weaker_dir} trades show {weaker['winrate']}% WR "
+                        f"({weaker['expectancy']}R expectancy). "
+                        f"Performance difference: {expectancy_diff:.2f}R"
+                    ),
+                    'data_points': {
+                        'stronger_direction': stronger_dir,
+                        'stronger_wr': stronger['winrate'],
+                        'stronger_exp': stronger['expectancy'],
+                        'weaker_direction': weaker_dir,
+                        'weaker_wr': weaker['winrate'],
+                        'weaker_exp': weaker['expectancy'],
+                        'expectancy_gap': expectancy_diff,
+                        'stronger_sample': stronger['total_trades'],
+                        'weaker_sample': weaker['total_trades']
+                    },
+                    'statistical_strength': 'HIGH' if stronger['total_trades'] > 20 else 'MEDIUM'
+                })
+        
+        return findings
+    
+    def _analyze_execution_patterns(self, execution_results: Dict, trades: List[EdgeLabTrade]) -> List[Dict]:
+        """Extract findings from execution analysis"""
+        
+        findings = []
+        
+        tp_behavior = execution_results.get('tp_behavior', {})
+        sl_behavior = execution_results.get('sl_behavior', {})
+        
+        # Check for early exit pattern
+        if tp_behavior.get('early_exits', 0) > 0:
+            early_pct = (tp_behavior['early_exits'] / tp_behavior['total_wins']) * 100
+            
+            if early_pct > 20:
+                findings.append({
+                    'type': 'EARLY_EXIT_PATTERN',
+                    'priority': 'NOTABLE',
+                    'title': 'Early Exit Pattern Detected',
+                    'observation': (
+                        f"{tp_behavior['early_exits']} winning trades ({early_pct:.0f}%) "
+                        f"closed before reaching target. "
+                        f"Estimated unrealized potential: {tp_behavior['estimated_missed_profit']:.1f}R"
+                    ),
+                    'data_points': {
+                        'early_exits': tp_behavior['early_exits'],
+                        'total_wins': tp_behavior['total_wins'],
+                        'percentage': early_pct,
+                        'missed_profit': tp_behavior['estimated_missed_profit']
+                    },
+                    'statistical_strength': 'MEDIUM'
+                })
+        
+        # Check for stop loss deviation
+        if sl_behavior.get('held_past_sl', 0) > 0:
+            violation_pct = (sl_behavior['held_past_sl'] / sl_behavior['total_losses']) * 100
+            
+            if violation_pct > 10:
+                findings.append({
+                    'type': 'SL_DEVIATION_PATTERN',
+                    'priority': 'CRITICAL',
+                    'title': 'Stop Loss Deviation Pattern',
+                    'observation': (
+                        f"{sl_behavior['held_past_sl']} losing trades ({violation_pct:.0f}%) "
+                        f"exceeded planned stop loss. "
+                        f"Additional loss incurred: {sl_behavior['extra_loss_cost']:.1f}R"
+                    ),
+                    'data_points': {
+                        'violations': sl_behavior['held_past_sl'],
+                        'total_losses': sl_behavior['total_losses'],
+                        'percentage': violation_pct,
+                        'extra_cost': sl_behavior['extra_loss_cost']
+                    },
+                    'statistical_strength': 'HIGH'
+                })
+        
+        # Check execution score
+        exec_score = execution_results.get('execution_score', 0)
+        if exec_score < 70:
+            findings.append({
+                'type': 'EXECUTION_QUALITY',
+                'priority': 'NOTABLE',
+                'title': 'Execution Quality Below Optimal',
+                'observation': (
+                    f"Overall execution quality score: {exec_score}/100. "
+                    f"Analysis suggests potential for systematic improvement in trade management."
+                ),
+                'data_points': {
+                    'score': exec_score,
+                    'tp_discipline': tp_behavior.get('full_tp_pct', 0),
+                    'sl_discipline': sl_behavior.get('proper_sl_pct', 100)
+                },
+                'statistical_strength': 'MEDIUM'
+            })
+        
+        return findings
+    
+    def _analyze_loss_patterns(self, loss_results: Dict, trades: List[EdgeLabTrade]) -> List[Dict]:
+        """Extract findings from loss analysis"""
+        
+        findings = []
+        
+        loss_causes = loss_results.get('loss_causes', {})
+        emotional = loss_results.get('emotional_trades', {})
+        
+        # Check for dominant loss cause
+        if loss_causes:
+            dominant_cause = max(loss_causes.items(), 
+                               key=lambda x: x[1].get('percentage', 0))
+            
+            if dominant_cause[1]['percentage'] > 40:
+                cause_labels = {
+                    'wrong_direction': 'Directional Bias Mismatch',
+                    'wrong_session': 'Session Timing Issues',
+                    'poor_timing': 'Entry Timing Patterns',
+                    'other': 'Mixed Factors'
+                }
+                
+                findings.append({
+                    'type': 'LOSS_CAUSE_PATTERN',
+                    'priority': 'CRITICAL',
+                    'title': f'Primary Loss Pattern: {cause_labels.get(dominant_cause[0], dominant_cause[0])}',
+                    'observation': (
+                        f"{dominant_cause[1]['percentage']:.0f}% of losses ({dominant_cause[1]['count']} trades) "
+                        f"correlate with {cause_labels.get(dominant_cause[0], dominant_cause[0]).lower()}"
+                    ),
+                    'data_points': {
+                        'cause': dominant_cause[0],
+                        'percentage': dominant_cause[1]['percentage'],
+                        'count': dominant_cause[1]['count']
+                    },
+                    'statistical_strength': 'HIGH'
+                })
+        
+        # Check for revenge trading
+        if emotional.get('count', 0) > 0:
+            findings.append({
+                'type': 'EMOTIONAL_TRADING_PATTERN',
+                'priority': 'NOTABLE',
+                'title': 'Potential Emotional Trading Detected',
+                'observation': (
+                    f"{emotional['count']} trades occurred within 30 minutes of a loss. "
+                    f"These trades showed {emotional['winrate']:.0f}% WR, "
+                    f"resulting in {emotional['cost']:.1f}R loss"
+                ),
+                'data_points': {
+                    'count': emotional['count'],
+                    'winrate': emotional['winrate'],
+                    'cost': emotional['cost']
+                },
+                'statistical_strength': 'MEDIUM'
+            })
+        
+        return findings
+    
+    def _prioritize_findings(self, findings: List[Dict]) -> List[Dict]:
+        """Sort findings by priority and statistical strength"""
+        
+        priority_order = {'CRITICAL': 0, 'NOTABLE': 1, 'LOW': 2}
+        
+        return sorted(findings, 
+                     key=lambda x: (priority_order.get(x['priority'], 3), 
+                                   -x['data_points'].get('sample_size', 0)))
+    
+    def _find_correlations(self, timing_results: Dict, directional_results: Dict,
+                          execution_results: Dict, basic_metrics: Dict) -> Dict:
+        """Identify correlations between different patterns"""
+        
+        correlations = []
+        
+        # Session + Direction correlation
+        sessions = timing_results.get('session_breakdown', {})
+        bias = directional_results.get('bias', 'NEUTRAL')
+        
+        if bias != 'NEUTRAL':
+            # Check if directional bias is stronger in certain sessions
+            for session_name, stats in sessions.items():
+                if stats['total_trades'] > 0:
+                    correlations.append({
+                        'type': 'SESSION_DIRECTION',
+                        'description': (
+                            f"{session_name} session: {stats['winrate']}% WR, "
+                            f"overall {bias} bias detected"
+                        ),
+                        'strength': 'MODERATE'
+                    })
+        
+        # Execution + Results correlation
+        exec_score = execution_results.get('execution_score', 0)
+        wr = basic_metrics.get('winrate', 0)
+        
+        correlations.append({
+            'type': 'EXECUTION_PERFORMANCE',
+            'description': (
+                f"Execution score {exec_score}/100 with {wr:.0f}% overall win rate. "
+                f"Correlation suggests systematic patterns in trade management."
+            ),
+            'strength': 'MODERATE'
+        })
+        
+        return {
+            'identified_correlations': correlations,
+            'correlation_count': len(correlations)
+        }
+    
+    def _generate_statistical_summary(self, findings: List[Dict], basic_metrics: Dict) -> Dict:
+        """Generate statistical summary of all findings"""
+        
+        critical_count = len([f for f in findings if f['priority'] == 'CRITICAL'])
+        notable_count = len([f for f in findings if f['priority'] == 'NOTABLE'])
+        
+        return {
+            'total_findings': len(findings),
+            'critical_findings': critical_count,
+            'notable_patterns': notable_count,
+            'overall_assessment': self._generate_overall_assessment(
+                critical_count, notable_count, basic_metrics
+            )
+        }
+    
+    def _generate_overall_assessment(self, critical: int, notable: int, metrics: Dict) -> str:
+        """Generate overall assessment statement"""
+        
+        if critical >= 2:
+            return (
+                f"Analysis identified {critical} critical patterns and {notable} notable patterns. "
+                f"Performance data suggests significant opportunities for optimization."
+            )
+        elif critical == 1:
+            return (
+                f"Analysis identified 1 critical pattern and {notable} notable patterns. "
+                f"Performance shows clear areas with asymmetric results."
+            )
+        else:
+            return (
+                f"Analysis identified {notable} notable patterns. "
+                f"Performance appears relatively consistent across analyzed dimensions."
+            )
