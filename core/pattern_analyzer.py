@@ -3,10 +3,10 @@ pattern_analyzer.py
 ==================
 
 Pattern detection and analysis for trading strategies.
-Identifies timing patterns, directional bias, and execution quality.
+Identifies timing patterns, directional bias, execution quality, and loss causes.
 
 Author: EdgeLab Development Team
-Version: 1.2
+Version: 1.3
 """
 
 from typing import List, Dict
@@ -382,7 +382,6 @@ class ExecutionAnalyzer:
             }
         
         # Detect full TP vs early exits
-        # Assumption: Full TP = profit_r >= (tp - entry) / (entry - sl)
         full_tp_hits = []
         early_exits = []
         
@@ -529,7 +528,6 @@ class ExecutionAnalyzer:
         sl_score = sl_behavior['proper_sl_pct'] * 0.4
         
         # Duration optimization (20% weight)
-        # If optimal duration has >50% WR, +20 points
         optimal = duration_analysis['optimal_duration']
         duration_wr = duration_analysis['breakdown'][optimal]['winrate']
         duration_score = 20 if duration_wr >= 50 else 10
@@ -604,3 +602,287 @@ class ExecutionAnalyzer:
             )
         
         return recommendations
+
+
+class LossForensics:
+    """
+    Deep dive into why trades fail
+    Categorize loss types and identify root causes
+    """
+    
+    def analyze(self, trades: List[EdgeLabTrade]) -> Dict:
+        """
+        Analyze losing trades in detail
+        
+        Returns:
+            {
+                'loss_breakdown': {...},
+                'loss_causes': {...},
+                'emotional_trades': {...},
+                'preventable_cost': float,
+                'critical_finding': str
+            }
+        """
+        
+        losses = [t for t in trades if t.result == 'LOSS']
+        
+        if not losses:
+            return {
+                'loss_breakdown': {},
+                'loss_causes': {},
+                'emotional_trades': {},
+                'preventable_cost': 0.0,
+                'critical_finding': 'No losses to analyze'
+            }
+        
+        # Categorize losses
+        loss_breakdown = self._categorize_losses(losses)
+        
+        # Identify root causes
+        loss_causes = self._identify_causes(losses, trades)
+        
+        # Detect emotional/revenge trading
+        emotional_trades = self._detect_emotional_trades(trades)
+        
+        # Calculate preventable cost
+        preventable_cost = self._calculate_preventable_cost(loss_breakdown, emotional_trades)
+        
+        # Generate critical finding
+        critical_finding = self._generate_critical_finding(
+            loss_breakdown, loss_causes, emotional_trades
+        )
+        
+        return {
+            'loss_breakdown': loss_breakdown,
+            'loss_causes': loss_causes,
+            'emotional_trades': emotional_trades,
+            'preventable_cost': preventable_cost,
+            'critical_finding': critical_finding
+        }
+    
+    def _categorize_losses(self, losses: List[EdgeLabTrade]) -> Dict:
+        """Categorize losses by type"""
+        
+        proper_losses = []      # Expected losses (SL hit correctly)
+        early_exits = []        # Exited before SL (panic)
+        held_past_sl = []       # Held past SL (hope)
+        
+        for trade in losses:
+            # Expected loss = -1R
+            if -1.2 <= trade.profit_r <= -0.8:
+                proper_losses.append(trade)
+            elif trade.profit_r > -0.8:
+                # Less than -1R = early exit (panic)
+                early_exits.append(trade)
+            else:
+                # More than -1R = held past SL
+                held_past_sl.append(trade)
+        
+        # Calculate costs
+        proper_cost = sum(abs(t.profit_r) for t in proper_losses)
+        early_cost = sum(abs(t.profit_r) for t in early_exits)
+        held_cost = sum(abs(t.profit_r) for t in held_past_sl)
+        
+        # Calculate what SHOULD have been if rules followed
+        early_should_have = len(early_exits) * 1.0  # Should be -1R each
+        early_actual = sum(abs(t.profit_r) for t in early_exits)
+        early_difference = early_actual - early_should_have
+        
+        held_should_have = len(held_past_sl) * 1.0
+        held_actual = sum(abs(t.profit_r) for t in held_past_sl)
+        held_extra_cost = held_actual - held_should_have
+        
+        return {
+            'proper': {
+                'count': len(proper_losses),
+                'avg_loss': round(proper_cost / len(proper_losses), 2) if proper_losses else 0,
+                'total_cost': round(proper_cost, 2),
+                'verdict': 'EXPECTED'
+            },
+            'early_exits': {
+                'count': len(early_exits),
+                'avg_loss': round(early_cost / len(early_exits), 2) if early_exits else 0,
+                'total_cost': round(early_cost, 2),
+                'extra_cost': round(early_difference, 2),
+                'verdict': 'PANIC'
+            },
+            'held_past_sl': {
+                'count': len(held_past_sl),
+                'avg_loss': round(held_cost / len(held_past_sl), 2) if held_past_sl else 0,
+                'total_cost': round(held_cost, 2),
+                'extra_cost': round(held_extra_cost, 2),
+                'verdict': 'HOPE'
+            }
+        }
+    
+    def _identify_causes(self, losses: List[EdgeLabTrade], all_trades: List[EdgeLabTrade]) -> Dict:
+        """Identify why losses occurred"""
+        
+        causes = {
+            'wrong_direction': 0,
+            'poor_timing': 0,
+            'wrong_session': 0,
+            'other': 0
+        }
+        
+        # Analyze each loss
+        for loss in losses:
+            # Check if direction was the problem
+            direction_losses = [t for t in losses if t.direction == loss.direction]
+            direction_wins = [t for t in all_trades 
+                            if t.direction == loss.direction and t.result == 'WIN']
+            
+            if len(direction_losses) > len(direction_wins):
+                causes['wrong_direction'] += 1
+                continue
+            
+            # Check if session was the problem
+            session_losses = [t for t in losses if t.session == loss.session]
+            session_wins = [t for t in all_trades 
+                          if t.session == loss.session and t.result == 'WIN']
+            
+            if len(session_losses) > len(session_wins) * 1.5:
+                causes['wrong_session'] += 1
+                continue
+            
+            # Check if timing within session
+            hour = loss.timestamp_open.hour
+            hour_losses = [t for t in losses if t.timestamp_open.hour == hour]
+            
+            if len(hour_losses) >= 2:
+                causes['poor_timing'] += 1
+                continue
+            
+            causes['other'] += 1
+        
+        # Convert to percentages
+        total = len(losses)
+        return {
+            'wrong_direction': {
+                'count': causes['wrong_direction'],
+                'percentage': round((causes['wrong_direction'] / total) * 100, 1)
+            },
+            'poor_timing': {
+                'count': causes['poor_timing'],
+                'percentage': round((causes['poor_timing'] / total) * 100, 1)
+            },
+            'wrong_session': {
+                'count': causes['wrong_session'],
+                'percentage': round((causes['wrong_session'] / total) * 100, 1)
+            },
+            'other': {
+                'count': causes['other'],
+                'percentage': round((causes['other'] / total) * 100, 1)
+            }
+        }
+    
+    def _detect_emotional_trades(self, trades: List[EdgeLabTrade]) -> Dict:
+        """Detect revenge trading and emotional decisions"""
+        
+        emotional_trades = []
+        
+        # Sort by time
+        sorted_trades = sorted(trades, key=lambda t: t.timestamp_open)
+        
+        for i in range(1, len(sorted_trades)):
+            prev_trade = sorted_trades[i-1]
+            current_trade = sorted_trades[i]
+            
+            # Check if current trade is within 30 min of previous loss
+            if prev_trade.result == 'LOSS':
+                time_diff = (current_trade.timestamp_open - prev_trade.timestamp_close).total_seconds() / 60
+                
+                if time_diff < 30:
+                    emotional_trades.append({
+                        'trade': current_trade,
+                        'time_after_loss': round(time_diff, 1),
+                        'result': current_trade.result
+                    })
+        
+        # Calculate statistics
+        if not emotional_trades:
+            return {
+                'count': 0,
+                'win_count': 0,
+                'loss_count': 0,
+                'winrate': 0.0,
+                'cost': 0.0,
+                'verdict': 'NONE'
+            }
+        
+        wins = len([t for t in emotional_trades if t['result'] == 'WIN'])
+        losses = len([t for t in emotional_trades if t['result'] == 'LOSS'])
+        winrate = (wins / len(emotional_trades)) * 100
+        
+        cost = sum(abs(t['trade'].profit_r) for t in emotional_trades if t['result'] == 'LOSS')
+        
+        return {
+            'count': len(emotional_trades),
+            'win_count': wins,
+            'loss_count': losses,
+            'winrate': round(winrate, 1),
+            'cost': round(cost, 2),
+            'verdict': 'REVENGE_TRADING' if len(emotional_trades) > 0 else 'NONE'
+        }
+    
+    def _calculate_preventable_cost(self, loss_breakdown: Dict, emotional_trades: Dict) -> float:
+        """Calculate total cost of preventable losses"""
+        
+        preventable = 0.0
+        
+        # Early exits cost
+        if 'early_exits' in loss_breakdown:
+            preventable += loss_breakdown['early_exits'].get('extra_cost', 0)
+        
+        # Held past SL cost
+        if 'held_past_sl' in loss_breakdown:
+            preventable += loss_breakdown['held_past_sl'].get('extra_cost', 0)
+        
+        # Emotional trading cost
+        preventable += emotional_trades.get('cost', 0)
+        
+        return round(preventable, 2)
+    
+    def _generate_critical_finding(self, loss_breakdown: Dict, loss_causes: Dict, 
+                                   emotional_trades: Dict) -> str:
+        """Generate the most important finding"""
+        
+        findings = []
+        
+        # Check for held past SL issue
+        held = loss_breakdown.get('held_past_sl', {})
+        if held.get('count', 0) > 0:
+            findings.append({
+                'severity': held['count'] * held.get('extra_cost', 0),
+                'message': f"Held past SL {held['count']} times costing {held.get('extra_cost', 0):.1f}R extra"
+            })
+        
+        # Check for wrong session issue
+        wrong_session = loss_causes.get('wrong_session', {})
+        if wrong_session.get('percentage', 0) > 30:
+            findings.append({
+                'severity': wrong_session['count'],
+                'message': f"{wrong_session['percentage']:.0f}% of losses from wrong session trading"
+            })
+        
+        # Check for emotional trading
+        if emotional_trades.get('count', 0) > 0:
+            findings.append({
+                'severity': emotional_trades.get('cost', 0),
+                'message': f"{emotional_trades['count']} revenge trades cost {emotional_trades.get('cost', 0):.1f}R"
+            })
+        
+        # Check for wrong direction
+        wrong_dir = loss_causes.get('wrong_direction', {})
+        if wrong_dir.get('percentage', 0) > 40:
+            findings.append({
+                'severity': wrong_dir['count'],
+                'message': f"{wrong_dir['percentage']:.0f}% of losses from wrong directional bias"
+            })
+        
+        if not findings:
+            return "Losses appear to be proper risk management (SL hits)"
+        
+        # Return most severe finding
+        critical = max(findings, key=lambda x: x['severity'])
+        return critical['message']
