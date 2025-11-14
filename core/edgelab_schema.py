@@ -1,126 +1,113 @@
 """
-edgelab_schema.py
-=================
-
-Core data structures for EdgeLab platform.
-
-Defines the universal trade format and analysis result structure.
-All modules use these schemas for consistency.
-
-Author: EdgeLab Development Team
-Version: 1.0
+EdgeLab Data Models
+===================
+Modern data structures for trading analysis platform.
 """
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Literal, Optional
 
 
 @dataclass
 class EdgeLabTrade:
-    """
-    Universal trade format for EdgeLab.
+    """Single trade record - universal format."""
     
-    All input formats (MT4, TradingView, CSV) convert to this structure.
-    """
     timestamp_open: datetime
     timestamp_close: datetime
     symbol: str
-    direction: str  # 'LONG' or 'SHORT'
+    direction: Literal['LONG', 'SHORT']
     entry_price: float
     exit_price: float
     sl: float
     tp: float
     profit_usd: float
     profit_r: float
-    result: str  # 'WIN', 'LOSS', 'TIMEOUT'
-    rr: float  # Risk:Reward ratio
-    session: str  # 'Tokyo', 'London', 'NY'
-    source: str  # 'csv_upload', 'mt4', 'tradingview'
-    confidence: int  # 0-100 data quality score
+    result: Literal['WIN', 'LOSS', 'TIMEOUT']
 
 
 @dataclass
 class AnalysisResult:
-    """
-    Complete analysis output
-    Contains all metrics calculated by analyzer
-    """
+    """Complete analysis output with all insights."""
     
-    # Basic Statistics
+    # Basic metrics (REQUIRED - no defaults)
     total_trades: int
     wins: int
     losses: int
-    winrate: float  # Percentage
+    win_rate: float
     profit_factor: float
-    expectancy: float  # R-multiple per trade
-    
-    # Profit Metrics
-    total_profit_r: float  # Total profit in R-multiples
-    avg_win_r: float
-    avg_loss_r: float
-    
-    # Risk Metrics
-    max_drawdown_pct: float
-    
-    # Advanced Metrics (Pro/Elite tier)
-    esi: float  # Edge Stability Index
-    pvs: float  # Prop Verification Score
+    expectancy: float
+    total_profit_r: float
+    esi: float
+    pvs: float
     sharpe_ratio: float
+    max_drawdown: float
     
-    # Pattern Analysis (Pro/Elite tier)
-    best_session: str  # Tokyo/London/NY
-    best_hour: str  # "14:00 UTC"
-    long_winrate: float
-    short_winrate: float
-    
-    # Insights
-    recommendation: str  # Natural language recommendation
+    # Pattern insights (OPTIONAL - with defaults)
+    timing: Optional[dict] = None
+    directional: Optional[dict] = None
+    execution: Optional[dict] = None
+    losses_analysis: Optional[dict] = None
+    insights: Optional[dict] = None
 
+
+# Helper functions
 
 def detect_session(timestamp: datetime) -> str:
     """
-    Detect trading session based on UTC time.
+    Detect trading session based on UTC hour.
     
     Sessions:
-    - Tokyo: 00:00-09:00 UTC
-    - London: 08:00-17:00 UTC  
-    - NY: 13:00-22:00 UTC
+    - Tokyo: 00:00-08:00 UTC
+    - London: 08:00-16:00 UTC
+    - NY: 14:00-22:00 UTC (overlaps with London)
     
     Args:
-        timestamp: Trade timestamp (UTC)
+        timestamp: Trade timestamp (must be UTC)
         
     Returns:
-        Session name: 'Tokyo' | 'London' | 'NY'
+        Session name: 'Tokyo', 'London', or 'NY'
     """
     hour = timestamp.hour
     
     if 0 <= hour < 8:
         return 'Tokyo'
-    elif 8 <= hour < 13:
+    elif 8 <= hour < 14:
         return 'London'
-    else:
+    else:  # 14-23
         return 'NY'
 
 
-def calculate_rr(entry: float, exit: float, sl: float) -> float:
+def calculate_rr(
+    entry: float,
+    exit: float,
+    sl: float,
+    direction: str
+) -> float:
     """
-    Calculate Risk:Reward ratio.
+    Calculate R-multiple (profit in terms of risk).
     
-    Formula: (Profit in pips) / (Risk in pips)
+    R = 1 means profit equals initial risk
+    R = 2 means profit is 2x initial risk
+    R = -1 means loss equals initial risk
     
     Args:
         entry: Entry price
         exit: Exit price
         sl: Stop loss price
+        direction: 'LONG' or 'SHORT'
         
     Returns:
-        R:R ratio (e.g., 2.5 = 2.5R)
+        R-multiple (can be negative)
     """
-    risk = abs(entry - sl)
-    reward = abs(exit - entry)
+    if direction == 'LONG':
+        risk = abs(entry - sl)
+        profit = exit - entry
+    else:  # SHORT
+        risk = abs(sl - entry)
+        profit = entry - exit
     
     if risk == 0:
         return 0.0
     
-    return reward / risk
+    return profit / risk
