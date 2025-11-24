@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Simulator - EdgeLab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    
+    <!-- Header -->
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-bold text-blue-400">EdgeLab</a>
+                <div class="space-x-6">
+                    <a href="/" class="text-gray-300 hover:text-white">Home</a>
+                    <a href="/simulator" class="text-white font-medium">Simulator</a>
+                    <a href="/upload" class="text-gray-300 hover:text-white">Upload CSV</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">Strategy Simulator</h1>
+            <p class="text-xl text-gray-400">Test je trading idee in 30 seconden zonder geld te riskeren</p>
+        </div>
+
+        <!-- Strategy Form -->
+        <form action="/run-backtest" method="POST" class="space-y-8">
+            
+            <!-- Basic Settings -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 class="text-xl font-semibold mb-6 text-blue-400">Basic Settings</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Symbol -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Symbol</label>
+                        <select name="symbol" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="XAUUSD">XAUUSD (Gold)</option>
+                            <option value="EURUSD">EURUSD</option>
+                            <option value="GBPUSD">GBPUSD</option>
+                            <option value="BTCUSD">BTCUSD (Bitcoin)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Timeframe -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Timeframe</label>
+                        <select name="timeframe" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="5m">5 Minutes</option>
+                            <option value="15m" selected>15 Minutes</option>
+                            <option value="1h">1 Hour</option>
+                            <option value="4h">4 Hours</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Direction -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Direction</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="direction" value="LONG" checked class="mr-2 text-blue-500">
+                                <span>LONG</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="direction" value="SHORT" class="mr-2 text-blue-500">
+                                <span>SHORT</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Period -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Test Period</label>
+                        <select name="period" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="1mo">1 Month</option>
+                            <option value="3mo">3 Months</option>
+                            <option value="6mo" selected>6 Months</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entry Conditions -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 class="text-xl font-semibold mb-6 text-blue-400">Entry Condition</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Indicator -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Indicator</label>
+                        <select name="indicator" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="rsi">RSI (14)</option>
+                            <option value="adx">ADX (14)</option>
+                            <option value="sma_20">SMA (20)</option>
+                            <option value="sma_50">SMA (50)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Operator -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Condition</label>
+                        <select name="operator" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="<">Less than</option>
+                            <option value=">">Greater than</option>
+                            <option value="<=">Less or equal</option>
+                            <option value=">=">Greater or equal</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Value -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Value</label>
+                        <input type="number" name="value" value="30" step="0.1" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+                
+                <!-- Session Filter -->
+                <div class="mt-6">
+                    <label class="block text-sm font-medium mb-2">Session Filter (Optional)</label>
+                    <select name="session" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Sessions</option>
+                        <option value="Tokyo">Tokyo (00:00-08:00 UTC)</option>
+                        <option value="London">London (08:00-14:00 UTC)</option>
+                        <option value="NY">New York (14:00-22:00 UTC)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Exit Rules -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 class="text-xl font-semibold mb-6 text-blue-400">Exit Rules</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Take Profit -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Take Profit (R-multiple)</label>
+                        <input type="number" name="tp_r" value="1.5" step="0.1" min="0.5" max="5" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <p class="text-sm text-gray-500 mt-1">1.5R = 1.5x your risk</p>
+                    </div>
+                    
+                    <!-- Stop Loss -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Stop Loss (R-multiple)</label>
+                        <input type="number" name="sl_r" value="1.0" step="0.1" min="0.5" max="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <p class="text-sm text-gray-500 mt-1">1.0R = your defined risk</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-lg text-xl transition duration-200 transform hover:scale-105">
+                    Run Backtest
+                </button>
+                <p class="text-gray-500 mt-4">Takes approximately 30 seconds</p>
+            </div>
+
+        </form>
+
+        <!-- Disclaimer -->
+        <div class="mt-12 p-4 bg-gray-800 rounded-lg border border-yellow-600">
+            <p class="text-yellow-500 text-sm">
+                <strong>Disclaimer:</strong> Backtest results are simulated and do not guarantee future performance. 
+                Past performance is not indicative of future results. Always paper trade before risking real money.
+            </p>
+        </div>
+
+    </main>
+
+</body>
+</html>

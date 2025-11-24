@@ -79,6 +79,24 @@ class DataDownloader:
         ticker = SYMBOL_MAP.get(symbol.upper())
         if ticker is None:
             raise ValueError(f"Symbol not supported: {symbol}. Supported: {list(SYMBOL_MAP.keys())}")
+        def download(
+            self,
+            symbol: str,
+            period: str = "6mo",
+            interval: str = "15m"
+        ) -> pd.DataFrame:
+            """
+            Download historical data for symbol.
+            """
+            # Yahoo Finance limitation: intraday data only available for last 60 days
+            if interval in ['1m', '5m', '15m', '30m', '1h']:
+                if period in ['6mo', '1y', '2y']:
+                    print(f"Note: {interval} data limited to 60 days. Adjusting period.")
+                    period = "60d"
+            
+            # Check cache first
+            cached_data = self._load_from_cache(symbol, period, interval)
+            # ... rest of method    
         
         # Download from Yahoo Finance
         print(f"Downloading {symbol} ({ticker}) - {period} @ {interval}...")
