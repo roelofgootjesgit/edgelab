@@ -10,11 +10,11 @@ Routes:
 - /upload : Upload CSV
 - /analyze : Process and generate report
 - /simulator : Strategy simulator interface
-- /run-backtest : Execute backtest
+- /run-backtest : Execute backtest (multi-condition support)
 - /download/<filename> : Download PDF
 
 Author: EdgeLab Development Team
-Version: 2.0 (with Strategy Simulator)
+Version: 2.1 (Multi-condition support)
 """
 
 from flask import Flask, render_template, request, send_file, redirect, url_for, flash
@@ -27,10 +27,14 @@ from core.analyzer import BasicAnalyzer
 from core.reporter import ModernReporter
 from core.strategy import StrategyDefinition, EntryCondition
 from core.backtest_engine import BacktestEngine
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = 'edgelab-secret-key-change-in-production'
+app.secret_key = os.getenv('SECRET_KEY', 'edgelab-secret-key-change-in-production')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['OUTPUT_FOLDER'] = 'output'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -124,36 +128,78 @@ def analyze():
 
 @app.route('/run-backtest', methods=['POST'])
 def run_backtest():
-    """Run backtest on user-defined strategy"""
+    """
+    Run backtest with multiple entry conditions.
+    
+    Form fields:
+    - symbol, timeframe, direction, period, session
+    - tp_r, sl_r
+    - condition_count (number of conditions)
+    - indicator_0, operator_0, value_0 (first condition)
+    - indicator_1, operator_1, value_1 (second condition, if exists)
+    - ... up to indicator_4, operator_4, value_4
+    """
     
     try:
-        # Parse form data
+        # Basic settings
         symbol = request.form.get('symbol', 'XAUUSD')
         timeframe = request.form.get('timeframe', '15m')
         direction = request.form.get('direction', 'LONG')
-        period = request.form.get('period', '6mo')
-        
-        # Entry condition
-        indicator = request.form.get('indicator', 'rsi')
-        operator = request.form.get('operator', '<')
-        value = float(request.form.get('value', 30))
+        period = request.form.get('period', '2mo')
+        session = request.form.get('session', '') or None
         
         # Exit rules
         tp_r = float(request.form.get('tp_r', 1.5))
         sl_r = float(request.form.get('sl_r', 1.0))
         
-        # Session filter
-        session = request.form.get('session', '') or None
+        # Parse multiple conditions
+        condition_count = int(request.form.get('condition_count', 1))
+        entry_conditions = []
         
-        # Build strategy
+        # Indicator display names for strategy description
+        indicator_labels = {
+            'rsi': 'RSI',
+            'adx': 'ADX', 
+            'macd': 'MACD',
+            'sma_20': 'SMA(20)',
+            'sma_50': 'SMA(50)',
+            'ema_20': 'EMA(20)',
+            'bb_upper': 'BB Upper',
+            'bb_lower': 'BB Lower'
+        }
+        
+        for i in range(condition_count):
+            indicator = request.form.get(f'indicator_{i}')
+            operator = request.form.get(f'operator_{i}')
+            value = request.form.get(f'value_{i}')
+            
+            if indicator and operator and value:
+                entry_conditions.append(EntryCondition(
+                    indicator=indicator,
+                    operator=operator,
+                    value=float(value)
+                ))
+        
+        # Validate at least one condition
+        if not entry_conditions:
+            flash('At least one entry condition is required', 'error')
+            return redirect(url_for('simulator'))
+        
+        # Build strategy name from conditions
+        condition_parts = []
+        for cond in entry_conditions:
+            label = indicator_labels.get(cond.indicator, cond.indicator.upper())
+            condition_parts.append(f"{label}{cond.operator}{cond.value}")
+        
+        strategy_name = f"{direction} {symbol} - {' AND '.join(condition_parts)}"
+        
+        # Create strategy definition
         strategy = StrategyDefinition(
-            name=f"{indicator} {operator} {value} Strategy",
+            name=strategy_name,
             symbol=symbol,
             timeframe=timeframe,
             direction=direction,
-            entry_conditions=[
-                EntryCondition(indicator, operator, value)
-            ],
+            entry_conditions=entry_conditions,
             tp_r=tp_r,
             sl_r=sl_r,
             session=session,
@@ -164,35 +210,52 @@ def run_backtest():
         engine = BacktestEngine()
         trades = engine.run(strategy)
         
-        if len(trades) == 0:
-            flash('No trades generated. Try adjusting your strategy parameters.', 'warning')
+        if not trades:
+            flash('No trades generated. Try adjusting your conditions or period.', 'warning')
             return redirect(url_for('simulator'))
         
-        # Analyze trades
+        # Analyze results
         analyzer = BasicAnalyzer()
         results = analyzer.calculate(trades)
         
         # Generate PDF report
         generator = ModernReporter()
-        pdf_bytes = generator.create_pdf(trades=trades, analysis=results, output_path=None)
+        pdf_bytes = generator.create_pdf(
+            trades=trades,
+            analysis=results,
+            output_path=None,
+            strategy_definition=strategy
+        )
         
         # Save PDF
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        pdf_filename = f"backtest_report_{timestamp}.pdf"
+        pdf_filename = f"backtest_{symbol}_{timestamp}.pdf"
         pdf_path = os.path.join(app.config['OUTPUT_FOLDER'], pdf_filename)
         
         with open(pdf_path, 'wb') as f:
             f.write(pdf_bytes)
+        
+        # Build strategy description for display
+        strategy_display = f"{direction} {symbol} when "
+        strategy_display += " AND ".join([
+            f"{indicator_labels.get(c.indicator, c.indicator)} {c.operator} {c.value}" 
+            for c in entry_conditions
+        ])
+        if session:
+            strategy_display += f" [{session} session]"
         
         return render_template('results.html',
                              results=results,
                              pdf_filename=pdf_filename,
                              trades_count=len(trades),
                              source='backtest',
-                             strategy=str(strategy))
-    
-    except Exception as e:
+                             strategy=strategy_display)
+        
+    except ValueError as e:
         flash(f'Backtest error: {str(e)}', 'error')
+        return redirect(url_for('simulator'))
+    except Exception as e:
+        flash(f'Unexpected error: {str(e)}', 'error')
         return redirect(url_for('simulator'))
 
 

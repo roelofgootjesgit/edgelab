@@ -6,7 +6,7 @@ Simulate strategy execution on historical price data.
 Generates EdgeLabTrade objects compatible with existing analyzer.
 
 Author: EdgeLab Development Team
-Version: 1.0
+Version: 1.1 (Added Bollinger Bands support)
 """
 
 from typing import List, Optional
@@ -145,26 +145,44 @@ class BacktestEngine:
         return True
     
     def _evaluate_condition(self, candle: pd.Series, condition: EntryCondition) -> bool:
-        """Evaluate a single entry condition."""
-        # Get indicator value
-        if condition.indicator == 'rsi':
-            value = candle.get('rsi')
-        elif condition.indicator == 'sma_20':
-            value = candle.get('sma_20')
-        elif condition.indicator == 'sma_50':
-            value = candle.get('sma_50')
-        elif condition.indicator == 'ema_20':
-            value = candle.get('ema_20')
-        elif condition.indicator == 'macd':
-            value = candle.get('macd')
-        elif condition.indicator == 'adx':
-            value = candle.get('adx')
-        elif condition.indicator == 'atr':
-            value = candle.get('atr')
-        elif condition.indicator == 'price':
-            value = candle.get('close')
-        else:
+        """
+        Evaluate a single entry condition.
+        
+        Supported indicators:
+        - rsi: RSI(14)
+        - adx: ADX(14)
+        - macd: MACD line
+        - sma_20: Simple Moving Average (20)
+        - sma_50: Simple Moving Average (50)
+        - ema_20: Exponential Moving Average (20)
+        - atr: Average True Range
+        - bb_upper: Bollinger Band Upper
+        - bb_lower: Bollinger Band Lower
+        - bb_middle: Bollinger Band Middle
+        - price: Current close price
+        """
+        # Map indicator name to DataFrame column
+        indicator_map = {
+            'rsi': 'rsi',
+            'adx': 'adx',
+            'macd': 'macd',
+            'sma_20': 'sma_20',
+            'sma_50': 'sma_50',
+            'ema_20': 'ema_20',
+            'atr': 'atr',
+            'bb_upper': 'bb_upper',
+            'bb_lower': 'bb_lower',
+            'bb_middle': 'bb_middle',
+            'price': 'close'
+        }
+        
+        # Get column name
+        column = indicator_map.get(condition.indicator)
+        if column is None:
             return False
+        
+        # Get value from candle
+        value = candle.get(column)
         
         if value is None or pd.isna(value):
             return False
