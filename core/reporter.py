@@ -52,12 +52,13 @@ class ModernReporter:
         self.margin = 20 * mm
         
     def create_pdf(
-        self,
-        trades: List,
-        analysis: Dict[str, Any],
-        output_path: str = None,
-        include_narrative: bool = True
-    ) -> bytes:
+    self,
+    trades: List,
+    analysis: Dict[str, Any],
+    output_path: str = None,
+    include_narrative: bool = True,
+    strategy_definition = None
+)   -> bytes:
         """
         Generate complete PDF report.
         """
