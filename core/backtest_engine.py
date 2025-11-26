@@ -45,8 +45,19 @@ class BacktestEngine:
     Output is compatible with existing EdgeLab analyzer.
     """
     
-    def __init__(self):
-        self.downloader = DataDownloader()
+    def __init__(self, data_manager=None):
+        """
+        Initialize backtest engine.
+        
+        Args:
+            data_manager: DataManager instance for cached data access.
+                          If None, creates new DataManager (with caching).
+        """
+        if data_manager is None:
+            from core.data_manager import DataManager
+            data_manager = DataManager()
+        
+        self.data_manager = data_manager
         self.indicators = IndicatorEngine()
     
     def run(self, strategy: StrategyDefinition) -> List[EdgeLabTrade]:
@@ -64,12 +75,27 @@ class BacktestEngine:
         if errors:
             raise ValueError(f"Invalid strategy: {errors}")
         
-        # Download data
-        data = self.downloader.download(
+        # Convert period to start/end dates
+        from datetime import datetime, timedelta
+        
+        period_days = {
+            '5d': 5, '7d': 7, '1mo': 30, '2mo': 60,
+            '3mo': 90, '6mo': 180, '1y': 365, '2y': 730
+        }
+        days = period_days.get(strategy.period, 60)
+        end = datetime.now()
+        start = end - timedelta(days=days)
+        
+        # Get data via DataManager (with caching)
+        data = self.data_manager.get_data(
             symbol=strategy.symbol,
-            period=strategy.period,
-            interval=strategy.timeframe
+            timeframe=strategy.timeframe,
+            start=start,
+            end=end
         )
+        
+        if data.empty:
+            raise ValueError(f"No data available for {strategy.symbol}")
         
         # Calculate indicators
         data = self.indicators.calculate_all(data)

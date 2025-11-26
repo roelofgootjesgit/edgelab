@@ -238,14 +238,20 @@ class DataManager:
         """
         days_requested = (end - start).days + 1
         
-        # Intraday limitation warning
+        # Intraday timeframes: Yahoo limits to 60 days
         intraday_timeframes = ['1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h']
         if timeframe in intraday_timeframes:
             if days_requested > 60:
                 print(f"[Warning] {timeframe} data limited to 60 days by Yahoo Finance")
-                return "60d"
+            # Always cap intraday to 60d
+            if days_requested <= 5:
+                return "5d"
+            elif days_requested <= 7:
+                return "7d"
+            else:
+                return "60d"  # Max for intraday
         
-        # Map days to period strings
+        # Daily and longer timeframes (no 60-day limit)
         if days_requested <= 5:
             return "5d"
         elif days_requested <= 7:
