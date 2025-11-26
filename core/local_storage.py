@@ -71,7 +71,7 @@ class LocalStorage(DataStorage):
         self.base_path = Path(base_path)
         self.base_path.mkdir(parents=True, exist_ok=True)
         self.metadata_file = self.base_path / "metadata.json"
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._load_metadata()
     
     def _load_metadata(self) -> None:

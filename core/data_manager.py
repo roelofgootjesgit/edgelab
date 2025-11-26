@@ -25,7 +25,7 @@ Usage:
     manager.preload_symbol('XAUUSD')
 
 Author: EdgeLab Development
-Version: 1.0
+Version: 1.1 (timezone fix)
 """
 
 import pandas as pd
@@ -132,9 +132,7 @@ class DataManager:
         self.storage.save_data(symbol, timeframe, data)
         print(f"[Cache] Saved {symbol} {timeframe}: {len(data)} rows")
         
-        # Filter to exact requested range
-        mask = (data.index >= pd.Timestamp(start)) & (data.index <= pd.Timestamp(end))
-        return data[mask]
+        return data
     
     def _needs_refresh(self, end: datetime) -> bool:
         """Check if end date is recent enough to need refresh."""
@@ -188,6 +186,7 @@ class DataManager:
         Handles:
         - Period string calculation
         - 60-day intraday limitation
+        - Timezone conversion (Yahoo returns UTC)
         - Error handling
         """
         # Calculate period for Yahoo Finance
@@ -213,6 +212,10 @@ class DataManager:
             
             # Standardize column names to lowercase
             data.columns = [c.lower() for c in data.columns]
+            
+            # Convert to timezone-naive if needed (Yahoo returns UTC)
+            if data.index.tz is not None:
+                data.index = data.index.tz_localize(None)
             
             # Filter to requested range
             mask = (data.index >= pd.Timestamp(start)) & (data.index <= pd.Timestamp(end))
