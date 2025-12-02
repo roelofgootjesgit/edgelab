@@ -14,7 +14,7 @@ Routes:
 - /download/<filename> : Download PDF
 
 Author: EdgeLab Development Team
-Version: 2.1 (Multi-condition support)
+Version: 2.3 (Session fix + Debug logging)
 """
 
 from flask import Flask, render_template, request, send_file, redirect, url_for, flash
@@ -24,56 +24,51 @@ from datetime import datetime
 
 from core.csv_parser import CSVParser
 from core.analyzer import BasicAnalyzer
-from core.reporter import ModernReporter
+from core.playwright_reporter import PlaywrightReportGenerator
 from core.strategy import StrategyDefinition, EntryCondition
 from core.backtest_engine import BacktestEngine
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-# Initialize Flask app
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'edgelab-secret-key-change-in-production')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['OUTPUT_FOLDER'] = 'output'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-# Allowed file extensions
 ALLOWED_EXTENSIONS = {'csv'}
 
-# Create necessary directories
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 
+# Startup message to confirm correct version
+print("=" * 60)
+print("EdgeLab v2.3 - Session Fix + Debug Edition")
+print("=" * 60)
+
 
 def allowed_file(filename):
-    """Check if file extension is allowed"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/')
 def index():
-    """Landing page"""
     return render_template('index.html')
 
 
 @app.route('/upload')
 def upload_page():
-    """Upload interface"""
     return render_template('upload.html')
 
 
 @app.route('/simulator')
 def simulator():
-    """Strategy simulator interface"""
     return render_template('simulator.html')
 
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    """Process uploaded CSV and generate report"""
-    
     if 'file' not in request.files:
         flash('No file uploaded', 'error')
         return redirect(url_for('upload_page'))
@@ -89,26 +84,21 @@ def analyze():
         return redirect(url_for('upload_page'))
     
     try:
-        # Save uploaded file
         filename = secure_filename(file.filename)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         safe_filename = f"{timestamp}_{filename}"
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
         file.save(filepath)
         
-        # Parse CSV
         parser = CSVParser()
         trades = parser.parse(filepath)
         
-        # Analyze trades
         analyzer = BasicAnalyzer()
         results = analyzer.calculate(trades)
         
-        # Generate PDF report
-        generator = ModernReporter()
-        pdf_bytes = generator.create_pdf(trades=trades, analysis=results, output_path=None)
+        generator = PlaywrightReportGenerator()
+        pdf_bytes = generator.generate_report(results, trades)
         
-        # Save PDF
         pdf_filename = f"edgelab_report_{timestamp}.pdf"
         pdf_path = os.path.join(app.config['OUTPUT_FOLDER'], pdf_filename)
         
@@ -128,35 +118,24 @@ def analyze():
 
 @app.route('/run-backtest', methods=['POST'])
 def run_backtest():
-    """
-    Run backtest with multiple entry conditions.
-    
-    Form fields:
-    - symbol, timeframe, direction, period, session
-    - tp_r, sl_r
-    - condition_count (number of conditions)
-    - indicator_0, operator_0, value_0 (first condition)
-    - indicator_1, operator_1, value_1 (second condition, if exists)
-    - ... up to indicator_4, operator_4, value_4
-    """
-    
     try:
-        # Basic settings
         symbol = request.form.get('symbol', 'XAUUSD')
         timeframe = request.form.get('timeframe', '15m')
         direction = request.form.get('direction', 'LONG')
         period = request.form.get('period', '2mo')
-        session = request.form.get('session', '') or None
         
-        # Exit rules
+        # SESSION FIX: Properly handle empty strings
+        session_raw = request.form.get('session', '').strip()
+        session = session_raw if session_raw else None
+        
+        print(f"[BACKTEST] Session filter: {session} (raw: '{session_raw}')")
+        
         tp_r = float(request.form.get('tp_r', 1.5))
         sl_r = float(request.form.get('sl_r', 1.0))
         
-        # Parse multiple conditions
         condition_count = int(request.form.get('condition_count', 1))
         entry_conditions = []
         
-        # Indicator display names for strategy description
         indicator_labels = {
             'rsi': 'RSI',
             'adx': 'ADX', 
@@ -180,12 +159,13 @@ def run_backtest():
                     value=float(value)
                 ))
         
-        # Validate at least one condition
         if not entry_conditions:
             flash('At least one entry condition is required', 'error')
             return redirect(url_for('simulator'))
         
-        # Build strategy name from conditions
+        # Debug: Print conditions
+        print(f"[BACKTEST] Conditions: {[(c.indicator, c.operator, c.value) for c in entry_conditions]}")
+        
         condition_parts = []
         for cond in entry_conditions:
             label = indicator_labels.get(cond.indicator, cond.indicator.upper())
@@ -193,7 +173,6 @@ def run_backtest():
         
         strategy_name = f"{direction} {symbol} - {' AND '.join(condition_parts)}"
         
-        # Create strategy definition
         strategy = StrategyDefinition(
             name=strategy_name,
             symbol=symbol,
@@ -206,28 +185,24 @@ def run_backtest():
             period=period
         )
         
-        # Run backtest
+        print(f"[BACKTEST] Running strategy: {strategy_name}")
         engine = BacktestEngine()
         trades = engine.run(strategy)
+        
+        print(f"[BACKTEST] Generated {len(trades)} trades")
         
         if not trades:
             flash('No trades generated. Try adjusting your conditions or period.', 'warning')
             return redirect(url_for('simulator'))
         
-        # Analyze results
         analyzer = BasicAnalyzer()
         results = analyzer.calculate(trades)
         
-        # Generate PDF report
-        generator = ModernReporter()
-        pdf_bytes = generator.create_pdf(
-            trades=trades,
-            analysis=results,
-            output_path=None,
-            strategy_definition=strategy
-        )
+        print(f"[BACKTEST] Analysis complete - Win Rate: {results.get('win_rate', 0):.1f}%")
         
-        # Save PDF
+        generator = PlaywrightReportGenerator()
+        pdf_bytes = generator.generate_report(results, trades, strategy=strategy)
+        
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         pdf_filename = f"backtest_{symbol}_{timestamp}.pdf"
         pdf_path = os.path.join(app.config['OUTPUT_FOLDER'], pdf_filename)
@@ -235,7 +210,8 @@ def run_backtest():
         with open(pdf_path, 'wb') as f:
             f.write(pdf_bytes)
         
-        # Build strategy description for display
+        print(f"[BACKTEST] PDF saved: {pdf_filename}")
+        
         strategy_display = f"{direction} {symbol} when "
         strategy_display += " AND ".join([
             f"{indicator_labels.get(c.indicator, c.indicator)} {c.operator} {c.value}" 
@@ -252,17 +228,19 @@ def run_backtest():
                              strategy=strategy_display)
         
     except ValueError as e:
+        print(f"[ERROR] ValueError in backtest: {str(e)}")
         flash(f'Backtest error: {str(e)}', 'error')
         return redirect(url_for('simulator'))
     except Exception as e:
+        print(f"[ERROR] Unexpected error in backtest: {str(e)}")
+        import traceback
+        traceback.print_exc()
         flash(f'Unexpected error: {str(e)}', 'error')
         return redirect(url_for('simulator'))
 
 
 @app.route('/download/<filename>')
 def download(filename):
-    """Download generated PDF report"""
-    
     filepath = os.path.join(app.config['OUTPUT_FOLDER'], filename)
     
     if not os.path.exists(filepath):
@@ -277,7 +255,6 @@ def download(filename):
 
 @app.route('/about')
 def about():
-    """About page"""
     return render_template('about.html')
 
 
