@@ -5,130 +5,280 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analysis Complete - EdgeLab</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'edgelab-blue': '#2563eb',
+                        'edgelab-navy': '#1e3a8a',
+                        'edgelab-purple': '#8b5cf6',
+                        'edgelab-cyan': '#06b6d4',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-gray-800 border-b border-gray-700">
-        <div class="max-w-6xl mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
-                <a href="/" class="text-2xl font-bold text-blue-400">EdgeLab</a>
-                <div class="space-x-6">
-                    <a href="/" class="text-gray-300 hover:text-white">Home</a>
-                    <a href="/simulator" class="text-gray-300 hover:text-white">Simulator</a>
-                    <a href="/upload" class="text-gray-300 hover:text-white">Upload CSV</a>
+<body class="bg-gray-50">
+    
+    <!-- Navigation - Clean White with Logo -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <img src="/static/images/logo.png" alt="EdgeLab Logo" class="h-8 w-auto">
+                    <span class="text-2xl font-bold text-edgelab-navy">EDGELABFX</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-edgelab-blue transition">Home</a>
+                    <a href="/simulator" class="text-gray-700 hover:text-edgelab-blue transition">Simulator</a>
+                    <a href="/upload" class="text-gray-700 hover:text-edgelab-blue transition">Upload CSV</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-12">
-
-        <!-- Success Header -->
-        <div class="text-center mb-10">
-            <div class="inline-block p-4 bg-green-900 rounded-full mb-4">
-                <svg class="h-16 w-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-            <h1 class="text-4xl font-bold mb-2">Analysis Complete!</h1>
-            <p class="text-gray-400">Analyzed {{ trades_count }} trades</p>
-            {% if source == 'backtest' %}
-            <p class="text-blue-400 mt-2">Source: Strategy Backtest</p>
-            {% if strategy %}
-            <p class="text-gray-500 text-sm mt-1">{{ strategy }}</p>
-            {% endif %}
-            {% else %}
-            <p class="text-green-400 mt-2">Source: CSV Upload</p>
-            {% endif %}
+    <!-- Hero Section - Blue Gradient with Building Background (PDF Style) -->
+    <div class="relative bg-gradient-to-br from-edgelab-blue via-blue-600 to-edgelab-navy overflow-hidden">
+        <!-- Background Image -->
+        <div class="absolute inset-0 opacity-20">
+            <img src="/static/images/cover-building.png" alt="" class="w-full h-full object-cover">
         </div>
+        
+        <!-- Content -->
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <!-- Success Badge -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center p-3 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+                    <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-3">Analysis Complete!</h1>
+                <p class="text-xl text-blue-100 mb-2">Analyzed {{ trades_count }} trades</p>
+                
+                {% if source == 'backtest' %}
+                <div class="inline-block bg-edgelab-purple/30 backdrop-blur-sm px-4 py-2 rounded-full">
+                    <p class="text-white font-medium">📊 Source: Strategy Backtest</p>
+                    {% if strategy %}
+                    <p class="text-blue-100 text-sm mt-1">{{ strategy }}</p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="inline-block bg-green-500/30 backdrop-blur-sm px-4 py-2 rounded-full">
+                    <p class="text-white font-medium">📁 Source: CSV Upload</p>
+                </div>
+                {% endif %}
+            </div>
 
-        <!-- Key Metrics -->
-        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-6">
-            <h2 class="text-xl font-semibold mb-6 text-blue-400">Key Metrics</h2>
-            
-            <div class="grid grid-cols-3 gap-4 mb-6">
+            <!-- Key Metrics - White Cards (PDF Style) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                 <!-- Win Rate -->
-                <div class="text-center p-4 bg-gray-700 rounded-lg">
-                    <div class="text-3xl font-bold {% if results.winrate >= 55 %}text-green-400{% elif results.winrate >= 45 %}text-yellow-400{% else %}text-red-400{% endif %}">
+                <div class="bg-white rounded-xl shadow-xl p-6 text-center transform hover:scale-105 transition">
+                    <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Win Rate</div>
+                    <div class="text-5xl font-bold mb-2 {% if results.winrate >= 55 %}text-green-600{% elif results.winrate >= 45 %}text-yellow-500{% else %}text-red-500{% endif %}">
                         {{ results.winrate }}%
                     </div>
-                    <div class="text-sm text-gray-400 mt-1">Win Rate</div>
+                    <div class="text-xs text-gray-500">
+                        {% if results.winrate >= 55 %}✓ Strong{% elif results.winrate >= 45 %}⚠ Fair{% else %}⚠ Needs Work{% endif %}
+                    </div>
                 </div>
 
+                <!-- Total Trades -->
+                <div class="bg-white rounded-xl shadow-xl p-6 text-center transform hover:scale-105 transition">
+                    <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Total Trades</div>
+                    <div class="text-5xl font-bold text-edgelab-navy mb-2">
+                        {{ trades_count }}
+                    </div>
+                    <div class="text-xs text-gray-500">Analyzed</div>
+                </div>
+
+                <!-- Edge Score (ESI) -->
+                <div class="bg-white rounded-xl shadow-xl p-6 text-center transform hover:scale-105 transition">
+                    <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Edge Score</div>
+                    <div class="text-5xl font-bold mb-2 {% if results.esi >= 0.7 %}text-green-600{% elif results.esi >= 0.5 %}text-yellow-500{% else %}text-red-500{% endif %}">
+                        {{ results.esi }}
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        {% if results.esi >= 0.7 %}✓ Stable{% elif results.esi >= 0.5 %}⚠ Moderate{% else %}⚠ Unstable{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content - Light Background -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <!-- Performance Metrics Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Performance Metrics</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Profit Factor -->
-                <div class="text-center p-4 bg-gray-700 rounded-lg">
-                    <div class="text-3xl font-bold {% if results.profit_factor >= 1.5 %}text-green-400{% elif results.profit_factor >= 1.0 %}text-yellow-400{% else %}text-red-400{% endif %}">
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 {% if results.profit_factor >= 1.5 %}border-green-500{% elif results.profit_factor >= 1.0 %}border-yellow-500{% else %}border-red-500{% endif %}">
+                    <div class="text-sm font-medium text-gray-500 mb-2">Profit Factor</div>
+                    <div class="text-3xl font-bold {% if results.profit_factor >= 1.5 %}text-green-600{% elif results.profit_factor >= 1.0 %}text-yellow-600{% else %}text-red-600{% endif %}">
                         {{ results.profit_factor }}
                     </div>
-                    <div class="text-sm text-gray-400 mt-1">Profit Factor</div>
+                    <div class="text-xs text-gray-500 mt-1">
+                        {% if results.profit_factor >= 1.5 %}Strong{% elif results.profit_factor >= 1.0 %}Acceptable{% else %}Weak{% endif %}
+                    </div>
                 </div>
 
                 <!-- Expectancy -->
-                <div class="text-center p-4 bg-gray-700 rounded-lg">
-                    <div class="text-3xl font-bold {% if results.expectancy >= 0.3 %}text-green-400{% elif results.expectancy >= 0 %}text-yellow-400{% else %}text-red-400{% endif %}">
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 {% if results.expectancy >= 0.3 %}border-green-500{% elif results.expectancy >= 0 %}border-yellow-500{% else %}border-red-500{% endif %}">
+                    <div class="text-sm font-medium text-gray-500 mb-2">Expectancy</div>
+                    <div class="text-3xl font-bold {% if results.expectancy >= 0.3 %}text-green-600{% elif results.expectancy >= 0 %}text-yellow-600{% else %}text-red-600{% endif %}">
                         {{ results.expectancy }}R
                     </div>
-                    <div class="text-sm text-gray-400 mt-1">Expectancy</div>
+                    <div class="text-xs text-gray-500 mt-1">Per Trade</div>
                 </div>
-            </div>
 
-            <!-- Secondary Metrics -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
-                    <span class="text-gray-300">Total Profit</span>
-                    <span class="font-bold {% if results.total_profit_r >= 0 %}text-green-400{% else %}text-red-400{% endif %}">{{ results.total_profit_r }}R</span>
+                <!-- Total Profit -->
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 {% if results.total_profit_r >= 0 %}border-green-500{% else %}border-red-500{% endif %}">
+                    <div class="text-sm font-medium text-gray-500 mb-2">Total Profit</div>
+                    <div class="text-3xl font-bold {% if results.total_profit_r >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        {{ results.total_profit_r }}R
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">Cumulative</div>
                 </div>
-                <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
-                    <span class="text-gray-300">Max Drawdown</span>
-                    <span class="font-bold text-yellow-400">{{ results.max_drawdown_pct }}%</span>
+
+                <!-- Max Drawdown -->
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+                    <div class="text-sm font-medium text-gray-500 mb-2">Max Drawdown</div>
+                    <div class="text-3xl font-bold text-yellow-600">
+                        {{ results.max_drawdown_pct }}%
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">Peak to Trough</div>
                 </div>
             </div>
         </div>
 
-        <!-- Advanced Metrics -->
-        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-6">
-            <h2 class="text-xl font-semibold mb-6 text-blue-400">Edge Analysis</h2>
+        <!-- Edge Analysis Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Edge Analysis</h2>
             
-            <div class="grid grid-cols-2 gap-4">
-                <!-- ESI -->
-                <div class="p-4 bg-gray-700 rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-300">ESI (Edge Stability)</span>
-                        <span class="text-2xl font-bold {% if results.esi >= 0.7 %}text-green-400{% elif results.esi >= 0.5 %}text-yellow-400{% else %}text-red-400{% endif %}">{{ results.esi }}</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- ESI Card -->
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-lg p-8 border border-blue-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">ESI - Edge Stability Index</h3>
+                            <p class="text-sm text-gray-600">Measures consistency of performance</p>
+                        </div>
+                        <div class="text-4xl font-bold {% if results.esi >= 0.7 %}text-green-600{% elif results.esi >= 0.5 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                            {{ results.esi }}
+                        </div>
                     </div>
-                    <p class="text-sm text-gray-500 mt-2">
-                        {% if results.esi >= 0.7 %}Stable edge - consistent performance{% elif results.esi >= 0.5 %}Moderate stability{% else %}Unstable - needs improvement{% endif %}
-                    </p>
+                    <div class="bg-white/60 rounded-lg p-4">
+                        <p class="text-sm text-gray-700">
+                            {% if results.esi >= 0.7 %}
+                            <span class="font-semibold text-green-600">✓ Stable Edge</span> - Your strategy shows consistent performance across different market conditions.
+                            {% elif results.esi >= 0.5 %}
+                            <span class="font-semibold text-yellow-600">⚠ Moderate Stability</span> - Strategy shows promise but needs refinement for consistency.
+                            {% else %}
+                            <span class="font-semibold text-red-600">⚠ Unstable</span> - Strategy lacks consistency. Focus on identifying reliable patterns.
+                            {% endif %}
+                        </p>
+                    </div>
                 </div>
-                
-                <!-- PVS -->
-                <div class="p-4 bg-gray-700 rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-300">PVS (Prop Score)</span>
-                        <span class="text-2xl font-bold {% if results.pvs >= 0.8 %}text-green-400{% elif results.pvs >= 0.6 %}text-yellow-400{% else %}text-red-400{% endif %}">{{ results.pvs }}</span>
+
+                <!-- PVS Card -->
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl shadow-lg p-8 border border-purple-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">PVS - Prop Verification Score</h3>
+                            <p class="text-sm text-gray-600">Readiness for prop firm challenges</p>
+                        </div>
+                        <div class="text-4xl font-bold {% if results.pvs >= 0.8 %}text-green-600{% elif results.pvs >= 0.6 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                            {{ results.pvs }}
+                        </div>
                     </div>
-                    <p class="text-sm text-gray-500 mt-2">
-                        {% if results.pvs >= 0.8 %}Prop firm ready{% elif results.pvs >= 0.6 %}Getting close{% else %}Needs work{% endif %}
-                    </p>
+                    <div class="bg-white/60 rounded-lg p-4">
+                        <p class="text-sm text-gray-700">
+                            {% if results.pvs >= 0.8 %}
+                            <span class="font-semibold text-green-600">✓ Prop Ready</span> - Your strategy meets prop firm requirements. Consider applying for funded accounts.
+                            {% elif results.pvs >= 0.6 %}
+                            <span class="font-semibold text-yellow-600">⚠ Getting Close</span> - Continue refining. Focus on consistency and risk management.
+                            {% else %}
+                            <span class="font-semibold text-red-600">⚠ Needs Work</span> - More development needed before prop firm applications.
+                            {% endif %}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Download Button -->
-        <div class="text-center mb-8">
-            <a href="/download/{{ pdf_filename }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-lg text-xl transition duration-200 transform hover:scale-105">
-                Download Full PDF Report
-            </a>
-            <p class="text-gray-500 mt-4">Includes detailed metrics, charts, and pattern analysis</p>
+        <!-- Win/Loss Breakdown -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Win/Loss Analysis</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Average Win -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-medium text-gray-500 mb-1">Average Win</div>
+                            <div class="text-3xl font-bold text-green-600">${{ results.average_win_usd }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Per winning trade</div>
+                        </div>
+                        <div class="text-5xl">📈</div>
+                    </div>
+                </div>
+
+                <!-- Average Loss -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-medium text-gray-500 mb-1">Average Loss</div>
+                            <div class="text-3xl font-bold text-red-600">${{ results.average_loss_usd }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Per losing trade</div>
+                        </div>
+                        <div class="text-5xl">📉</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Actions -->
-        <div class="flex justify-center space-x-6">
-            <a href="/simulator" class="text-blue-400 hover:underline">Test Another Strategy</a>
-            <a href="/upload" class="text-gray-400 hover:underline">Upload CSV</a>
+        <!-- Download Section -->
+        <div class="text-center mb-12">
+            <div class="bg-gradient-to-r from-edgelab-blue to-edgelab-purple rounded-2xl shadow-2xl p-12">
+                <h2 class="text-3xl font-bold text-white mb-4">Get Your Full Report</h2>
+                <p class="text-blue-100 mb-8 text-lg">Complete analysis with charts, pattern insights, and recommendations</p>
+                <a href="/download/{{ pdf_filename }}" class="inline-block bg-white text-edgelab-blue font-bold py-4 px-12 rounded-xl text-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-200">
+                    📄 Download PDF Report
+                </a>
+            </div>
+        </div>
+
+        <!-- Action Links -->
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-6 text-center">
+            <a href="/simulator" class="inline-flex items-center text-edgelab-purple hover:text-purple-700 font-semibold text-lg transition">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Test Another Strategy
+            </a>
+            <span class="text-gray-400">|</span>
+            <a href="/upload" class="inline-flex items-center text-edgelab-blue hover:text-blue-700 font-semibold text-lg transition">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                Upload CSV Data
+            </a>
         </div>
 
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="mb-2">© 2025 EdgeLab. All rights reserved.</p>
+            <p class="text-sm">Confidential Analysis • Your vision tested. Your trading explained.</p>
+        </div>
+    </footer>
+
 </body>
 </html>

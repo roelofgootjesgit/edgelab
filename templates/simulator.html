@@ -5,42 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Strategy Simulator - EdgeLab</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'edgelab-blue': '#2563eb',
+                        'edgelab-navy': '#1e3a8a',
+                        'edgelab-purple': '#8b5cf6',
+                        'edgelab-cyan': '#06b6d4',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
+<body class="bg-gray-50">
     
-    <!-- Header -->
-    <nav class="bg-gray-800 border-b border-gray-700">
-        <div class="max-w-6xl mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
-                <a href="/" class="text-2xl font-bold text-blue-400">EdgeLab</a>
-                <div class="space-x-6">
-                    <a href="/" class="text-gray-300 hover:text-white">Home</a>
-                    <a href="/simulator" class="text-white font-medium">Simulator</a>
-                    <a href="/upload" class="text-gray-300 hover:text-white">Upload CSV</a>
+    <!-- Navigation - Clean White with Logo -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <img src="/static/images/logo.png" alt="EdgeLab Logo" class="h-8 w-auto">
+                    <span class="text-2xl font-bold text-edgelab-navy">EDGELABFX</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-edgelab-blue transition">Home</a>
+                    <a href="/simulator" class="text-edgelab-purple font-semibold">Simulator</a>
+                    <a href="/upload" class="text-gray-700 hover:text-edgelab-blue transition">Upload CSV</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-12">
-        
-        <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold mb-4">Strategy Simulator</h1>
-            <p class="text-xl text-gray-400">Test je trading idee in 30 seconden zonder geld te riskeren</p>
+    <!-- Hero Section - Purple Gradient (Strategy Focus) -->
+    <div class="relative bg-gradient-to-br from-edgelab-purple via-purple-600 to-purple-800 overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <img src="/static/images/cover-building.png" alt="" class="w-full h-full object-cover">
         </div>
+        
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+            <div class="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-4">
+                <span class="text-white font-semibold">⚡ Strategy Backtester</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Test Your Trading Strategy</h1>
+            <p class="text-xl text-purple-100 max-w-3xl mx-auto">
+                No code required. No risk. Get professional analysis in 30 seconds.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
         <!-- Strategy Form -->
         <form id="strategyForm" action="/run-backtest" method="POST" class="space-y-8">
             
-            <!-- Basic Settings -->
-            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h2 class="text-xl font-semibold mb-6 text-blue-400">Basic Settings</h2>
+            <!-- Basic Settings Card -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                <div class="flex items-center mb-6">
+                    <div class="bg-edgelab-blue text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">1</div>
+                    <h2 class="text-2xl font-bold text-gray-900">Basic Settings</h2>
+                </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Symbol</label>
-                        <select name="symbol" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Symbol</label>
+                        <select name="symbol" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-blue focus:border-transparent transition">
                             <option value="XAUUSD">XAUUSD (Gold)</option>
                             <option value="EURUSD">EURUSD</option>
                             <option value="GBPUSD">GBPUSD</option>
@@ -49,8 +81,8 @@
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium mb-2">Timeframe</label>
-                        <select name="timeframe" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Timeframe</label>
+                        <select name="timeframe" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-blue focus:border-transparent transition">
                             <option value="5m">5 Minutes</option>
                             <option value="15m" selected>15 Minutes</option>
                             <option value="1h">1 Hour</option>
@@ -60,45 +92,51 @@
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium mb-2">Direction</label>
-                        <div class="flex space-x-4">
-                            <label class="flex items-center">
-                                <input type="radio" name="direction" value="LONG" checked class="mr-2 text-blue-500">
-                                <span>LONG</span>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Direction</label>
+                        <div class="flex space-x-4 bg-gray-50 rounded-lg p-3">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="direction" value="LONG" checked class="mr-2 text-edgelab-blue focus:ring-edgelab-blue">
+                                <span class="font-medium text-gray-700">📈 LONG</span>
                             </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="direction" value="SHORT" class="mr-2 text-blue-500">
-                                <span>SHORT</span>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="direction" value="SHORT" class="mr-2 text-edgelab-blue focus:ring-edgelab-blue">
+                                <span class="font-medium text-gray-700">📉 SHORT</span>
                             </label>
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium mb-2">Test Period</label>
-                        <select name="period" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Test Period</label>
+                        <select name="period" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-blue focus:border-transparent transition">
                             <option value="1mo">1 Month</option>
                             <option value="2mo" selected>2 Months</option>
                             <option value="3mo">3 Months</option>
                         </select>
-                        <p class="text-xs text-gray-500 mt-1">Note: Intraday data limited to ~60 days</p>
+                        <p class="text-xs text-gray-500 mt-1">💡 Intraday data limited to ~60 days</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Entry Conditions - DYNAMIC -->
-            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold text-blue-400">Entry Conditions</h2>
-                    <span class="text-sm text-gray-400">All conditions must be true (AND logic)</span>
+            <!-- Entry Conditions Card -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="bg-edgelab-purple text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">2</div>
+                        <h2 class="text-2xl font-bold text-gray-900">Entry Conditions</h2>
+                    </div>
+                    <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">All must be TRUE</span>
                 </div>
                 
+                <!-- Hidden counter -->
+                <input type="hidden" id="conditionCount" name="condition_count" value="1">
+                
                 <!-- Conditions Container -->
-                <div id="conditionsContainer" class="space-y-4">
+                <div id="conditionsContainer" class="space-y-4 mb-6">
                     <!-- Condition 1 (default) -->
-                    <div class="condition-row flex flex-wrap items-center gap-3 p-4 bg-gray-700 rounded-lg" data-index="0">
-                        <span class="text-gray-400 font-medium w-8">1.</span>
+                    <div class="condition-row flex flex-wrap items-center gap-3 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200" data-index="0">
+                        <span class="text-edgelab-blue font-bold w-8">IF</span>
                         
-                        <select name="indicator_0" class="flex-1 min-w-32 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <select name="indicator_0" class="flex-1 min-w-32 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-blue transition">
                             <option value="rsi">RSI (14)</option>
                             <option value="adx">ADX (14)</option>
                             <option value="macd">MACD</option>
@@ -109,7 +147,7 @@
                             <option value="bb_lower">Bollinger Lower</option>
                         </select>
                         
-                        <select name="operator_0" class="w-36 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <select name="operator_0" class="w-36 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-blue transition">
                             <option value="<">< Less than</option>
                             <option value=">">Greater than</option>
                             <option value="<="><= Less/equal</option>
@@ -117,10 +155,10 @@
                         </select>
                         
                         <input type="number" name="value_0" value="30" step="0.1" 
-                               class="w-24 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                               class="w-24 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-blue transition">
                         
                         <button type="button" onclick="removeCondition(this)" 
-                                class="text-red-400 hover:text-red-300 p-2 opacity-50 cursor-not-allowed" 
+                                class="text-red-500 hover:text-red-700 p-2 opacity-50 cursor-not-allowed transition" 
                                 disabled title="Cannot remove last condition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -131,78 +169,112 @@
                 
                 <!-- Add Condition Button -->
                 <button type="button" onclick="addCondition()" 
-                        class="mt-4 flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium transition">
+                        class="flex items-center gap-2 text-edgelab-purple hover:text-purple-700 font-semibold transition bg-purple-50 px-4 py-2 rounded-lg hover:bg-purple-100">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
-                    Add Condition
+                    Add Condition (Max 5)
                 </button>
                 
                 <!-- Session Filter -->
-                <div class="mt-6 pt-6 border-t border-gray-600">
-                    <label class="block text-sm font-medium mb-2">Session Filter (Optional)</label>
-                    <select name="session" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">📅 Session Filter (Optional)</label>
+                    <select name="session" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-purple focus:border-transparent transition">
                         <option value="">All Sessions</option>
                         <option value="Tokyo">Tokyo (00:00-08:00 UTC)</option>
-                        <option value="London">London (08:00-14:00 UTC)</option>
+                        <option value="London">London (08:00-16:00 UTC)</option>
                         <option value="NY">New York (14:00-22:00 UTC)</option>
                     </select>
-                </div>
-                
-                <!-- Strategy Preview -->
-                <div class="mt-6 pt-6 border-t border-gray-600">
-                    <label class="block text-sm font-medium mb-2 text-gray-400">Strategy Preview</label>
-                    <div id="strategyPreview" class="bg-gray-900 rounded-lg p-4 font-mono text-sm text-green-400">
-                        LONG when RSI < 30
-                    </div>
+                    <p class="text-xs text-gray-500 mt-1">💡 Trade only during specific market hours</p>
                 </div>
             </div>
 
-            <!-- Exit Rules -->
-            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h2 class="text-xl font-semibold mb-6 text-blue-400">Exit Rules</h2>
+            <!-- Exit Rules Card -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                <div class="flex items-center mb-6">
+                    <div class="bg-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">3</div>
+                    <h2 class="text-2xl font-bold text-gray-900">Exit Rules</h2>
+                </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Take Profit (R-multiple)</label>
-                        <input type="number" name="tp_r" value="1.5" step="0.1" min="0.5" max="5" 
-                               class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <p class="text-sm text-gray-500 mt-1">1.5R = 1.5x your risk</p>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">🎯 Take Profit</label>
+                        <div class="relative">
+                            <input type="number" name="take_profit" value="1.5" step="0.1" min="0.1" required
+                                   class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                            <span class="absolute right-4 top-3 text-gray-500 font-medium">R</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Target profit in R-multiples</p>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium mb-2">Stop Loss (R-multiple)</label>
-                        <input type="number" name="sl_r" value="1.0" step="0.1" min="0.5" max="3" 
-                               class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <p class="text-sm text-gray-500 mt-1">1.0R = your defined risk</p>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">🛑 Stop Loss</label>
+                        <div class="relative">
+                            <input type="number" name="stop_loss" value="1.0" step="0.1" min="0.1" required
+                                   class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+                            <span class="absolute right-4 top-3 text-gray-500 font-medium">R</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Maximum loss per trade</p>
+                    </div>
+                </div>
+
+                <!-- Risk:Reward Preview -->
+                <div class="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">Risk:Reward Ratio</span>
+                        <span class="text-lg font-bold text-green-600" id="rrPreview">1:1.5</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Hidden field for condition count -->
-            <input type="hidden" name="condition_count" id="conditionCount" value="1">
+            <!-- Strategy Preview -->
+            <div class="bg-gradient-to-r from-edgelab-blue to-edgelab-purple rounded-xl shadow-lg p-6 text-white">
+                <h3 class="text-sm font-semibold uppercase tracking-wide mb-2 opacity-90">Strategy Preview</h3>
+                <p class="text-lg font-mono" id="strategyPreview">LONG when RSI < 30</p>
+            </div>
 
             <!-- Submit Button -->
             <div class="text-center">
-                <button type="submit" id="submitBtn"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-lg text-xl transition duration-200 transform hover:scale-105">
-                    Run Backtest
+                <button type="submit" 
+                        id="submitBtn"
+                        class="bg-gradient-to-r from-edgelab-purple to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-5 px-16 rounded-xl text-xl shadow-2xl transform hover:scale-105 transition duration-200">
+                    🚀 Run Backtest
                 </button>
-                <p class="text-gray-500 mt-4">Takes approximately 30 seconds</p>
+                <p class="text-sm text-gray-500 mt-4">⏱️ Results in ~30 seconds</p>
             </div>
 
         </form>
 
-        <!-- Disclaimer -->
-        <div class="mt-12 p-4 bg-gray-800 rounded-lg border border-yellow-600">
-            <p class="text-yellow-500 text-sm">
-                <strong>Disclaimer:</strong> Backtest results are simulated and do not guarantee future performance. 
-                Past performance is not indicative of future results. Always paper trade before risking real money.
-            </p>
+        <!-- Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <div class="text-3xl mb-2">⚡</div>
+                <h3 class="font-semibold text-gray-900 mb-1">Fast Results</h3>
+                <p class="text-sm text-gray-600">Analysis in 30 seconds</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <div class="text-3xl mb-2">🎯</div>
+                <h3 class="font-semibold text-gray-900 mb-1">Professional Metrics</h3>
+                <p class="text-sm text-gray-600">ESI, PVS, and more</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <div class="text-3xl mb-2">📄</div>
+                <h3 class="font-semibold text-gray-900 mb-1">Full PDF Report</h3>
+                <p class="text-sm text-gray-600">Ready to download</p>
+            </div>
         </div>
 
     </main>
 
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="mb-2">© 2025 EdgeLab. All rights reserved.</p>
+            <p class="text-sm">Your vision tested. Your trading explained.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
     <script>
         let conditionCount = 1;
         const maxConditions = 5;
@@ -217,10 +289,10 @@
             const index = conditionCount;
             
             const conditionHTML = `
-                <div class="condition-row flex flex-wrap items-center gap-3 p-4 bg-gray-700 rounded-lg" data-index="${index}">
-                    <span class="text-blue-400 font-medium w-8">AND</span>
+                <div class="condition-row flex flex-wrap items-center gap-3 p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200" data-index="${index}">
+                    <span class="text-edgelab-purple font-bold w-8">AND</span>
                     
-                    <select name="indicator_${index}" class="flex-1 min-w-32 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    <select name="indicator_${index}" class="flex-1 min-w-32 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-purple transition">
                         <option value="rsi">RSI (14)</option>
                         <option value="adx" selected>ADX (14)</option>
                         <option value="macd">MACD</option>
@@ -231,7 +303,7 @@
                         <option value="bb_lower">Bollinger Lower</option>
                     </select>
                     
-                    <select name="operator_${index}" class="w-36 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    <select name="operator_${index}" class="w-36 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-purple transition">
                         <option value="<">< Less than</option>
                         <option value=">" selected>Greater than</option>
                         <option value="<="><= Less/equal</option>
@@ -239,10 +311,10 @@
                     </select>
                     
                     <input type="number" name="value_${index}" value="25" step="0.1" 
-                           class="w-24 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                           class="w-24 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-purple transition">
                     
                     <button type="button" onclick="removeCondition(this)" 
-                            class="text-red-400 hover:text-red-300 p-2 transition">
+                            class="text-red-500 hover:text-red-700 p-2 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
@@ -276,11 +348,11 @@
                 
                 const label = row.querySelector('span');
                 if (i === 0) {
-                    label.textContent = '1.';
-                    label.className = 'text-gray-400 font-medium w-8';
+                    label.textContent = 'IF';
+                    label.className = 'text-edgelab-blue font-bold w-8';
                 } else {
                     label.textContent = 'AND';
-                    label.className = 'text-blue-400 font-medium w-8';
+                    label.className = 'text-edgelab-purple font-bold w-8';
                 }
                 
                 row.querySelector('select[name^="indicator"]').name = `indicator_${i}`;
@@ -328,20 +400,36 @@
             document.getElementById('strategyPreview').textContent = preview;
         }
 
+        function updateRRRatio() {
+            const tp = parseFloat(document.querySelector('input[name="take_profit"]').value) || 1.5;
+            const sl = parseFloat(document.querySelector('input[name="stop_loss"]').value) || 1.0;
+            const ratio = (tp / sl).toFixed(2);
+            document.getElementById('rrPreview').textContent = `1:${ratio}`;
+        }
+
+        // Event listeners
         document.addEventListener('change', (e) => {
-            if (e.target.matches('select, input')) updatePreview();
+            if (e.target.matches('select, input[type="radio"]')) updatePreview();
+            if (e.target.matches('input[name="take_profit"], input[name="stop_loss"]')) updateRRRatio();
         });
+        
         document.addEventListener('input', (e) => {
-            if (e.target.matches('input[type="number"]')) updatePreview();
+            if (e.target.matches('input[type="number"]')) {
+                updatePreview();
+                if (e.target.matches('input[name="take_profit"], input[name="stop_loss"]')) updateRRRatio();
+            }
         });
 
         document.getElementById('strategyForm').addEventListener('submit', function() {
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Running Backtest...';
+            btn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-6 w-6 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Running Backtest...';
         });
 
+        // Initialize
         updatePreview();
+        updateRRRatio();
     </script>
+
 </body>
 </html>

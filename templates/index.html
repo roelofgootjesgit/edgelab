@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EdgeLab - Discover Your Trading Edge</title>
+    <title>EdgeLab - Your vision tested. Your trading explained.</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,29 +14,33 @@
             theme: {
                 extend: {
                     colors: {
-                        'edgelab-blue': '#2c5aa0',
-                        'edgelab-dark': '#1a1a1a',
+                        'edgelab-blue': '#2563eb',
+                        'edgelab-navy': '#1e3a8a',
+                        'edgelab-purple': '#8b5cf6',
+                        'edgelab-cyan': '#06b6d4',
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-gray-50">
+<body class="bg-white">
+    
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm">
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center">
-                    <h1 class="text-2xl font-bold text-edgelab-blue">EdgeLab</h1>
+                <div class="flex items-center space-x-3">
+                    <img src="/static/images/logo.png" alt="EdgeLab Logo" class="h-8 w-auto">
+                    <span class="text-2xl font-bold text-edgelab-navy">EDGELABFX</span>
                 </div>
                 <div class="hidden md:flex space-x-8">
-                    <a href="/" class="text-gray-700 hover:text-edgelab-blue">Home</a>
-                    <a href="/upload" class="text-gray-700 hover:text-edgelab-blue">Upload</a>
-                    <a href="/about" class="text-gray-700 hover:text-edgelab-blue">About</a>
+                    <a href="/" class="text-edgelab-blue font-semibold">Home</a>
+                    <a href="/upload" class="text-gray-700 hover:text-edgelab-blue transition">Upload</a>
+                    <a href="/about" class="text-gray-700 hover:text-edgelab-blue transition">About</a>
                 </div>
                 <div>
-                    <a href="/upload" class="bg-edgelab-blue text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <a href="/upload" class="bg-edgelab-blue text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition shadow-md">
                         Get Started
                     </a>
                 </div>
@@ -44,75 +48,254 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div class="text-center">
-            <h1 class="text-5xl font-bold text-gray-900 mb-6">
-                Discover Your Trading Edge
-            </h1>
-            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                Upload your trading data and get professional analysis with our proprietary ESI and PVS metrics. 
-                Know if your strategy is truly profitable or just lucky.
-            </p>
-            
-            <!-- TWO BUTTONS: CSV Upload + Strategy Tester -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/upload" class="inline-block bg-edgelab-blue text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition transform hover:scale-105">
-                    Analyze Your Trades →
-                </a>
-                <a href="/simulator" class="inline-block bg-purple-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-purple-700 transition transform hover:scale-105">
-                    Test Strategy →
-                </a>
+    <!-- Hero Section - PDF Cover Style -->
+    <div class="relative bg-gradient-to-br from-edgelab-blue via-blue-600 to-edgelab-navy overflow-hidden">
+        <!-- Background Image -->
+        <div class="absolute inset-0 opacity-20">
+            <img src="/static/images/cover-building.png" alt="" class="w-full h-full object-cover">
+        </div>
+        
+        <!-- Diagonal White Accent (PDF Style) -->
+        <div class="absolute bottom-0 left-0 right-0 h-32 bg-white transform origin-bottom-left -skew-y-2"></div>
+        
+        <!-- Content -->
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+            <div class="text-center max-w-4xl mx-auto">
+                <!-- Badge -->
+                <div class="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                    <span class="text-white font-semibold">🏆 Professional Trading Analytics</span>
+                </div>
+                
+                <h1 class="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                    Your vision tested.<br/>
+                    Your trading explained.
+                </h1>
+                
+                <p class="text-xl md:text-2xl text-blue-100 mb-10 leading-relaxed">
+                    Stop losing money learning the hard way. Test your strategies with professional analysis 
+                    and know if your edge is real or just luck.
+                </p>
+                
+                <!-- CTA Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                    <a href="/upload" class="inline-flex items-center justify-center bg-white text-edgelab-blue px-10 py-4 rounded-xl text-lg font-bold hover:shadow-2xl transition transform hover:scale-105">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        Analyze Your Trades
+                    </a>
+                    <a href="/simulator" class="inline-flex items-center justify-center bg-edgelab-purple text-white px-10 py-4 rounded-xl text-lg font-bold hover:shadow-2xl transition transform hover:scale-105 border-2 border-white/30">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Test Strategy
+                    </a>
+                </div>
+                
+                <!-- Trust Indicators -->
+                <div class="flex flex-wrap justify-center gap-6 text-white/80 text-sm">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        No credit card required
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        Results in 30 seconds
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        Your data stays private
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Features Grid -->
-        <div class="grid md:grid-cols-3 gap-8 mt-20">
+    <!-- Features Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Why Traders Choose EdgeLab</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Professional-grade analysis that distinguishes between genuine trading edge and random luck
+            </p>
+        </div>
+
+        <!-- Feature Grid -->
+        <div class="grid md:grid-cols-3 gap-8">
             <!-- Feature 1 -->
-            <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition">
-                <div class="text-4xl mb-4">📊</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Professional Analysis</h3>
-                <p class="text-gray-600">
-                    Get comprehensive metrics including Win Rate, Profit Factor, Expectancy, and advanced risk analysis.
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition border border-blue-100">
+                <div class="bg-edgelab-blue text-white rounded-full w-16 h-16 flex items-center justify-center mb-6 text-3xl">
+                    📊
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Professional Analysis</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    Get comprehensive metrics including Win Rate, Profit Factor, Expectancy, Risk:Reward, 
+                    and advanced pattern recognition that reveals when your strategy performs best.
                 </p>
             </div>
 
             <!-- Feature 2 -->
-            <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition">
-                <div class="text-4xl mb-4">🎯</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Edge Stability Index (ESI)</h3>
-                <p class="text-gray-600">
-                    Our proprietary metric distinguishes between genuine edge and random luck. Know if your strategy is stable.
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition border border-purple-100">
+                <div class="bg-edgelab-purple text-white rounded-full w-16 h-16 flex items-center justify-center mb-6 text-3xl">
+                    🎯
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Edge Stability Index (ESI)</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    Our proprietary metric that distinguishes between genuine trading edge and random luck. 
+                    Know if your strategy is stable across different market conditions.
                 </p>
             </div>
 
             <!-- Feature 3 -->
-            <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition">
-                <div class="text-4xl mb-4">✅</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Prop Firm Ready</h3>
-                <p class="text-gray-600">
-                    PVS (Prop Verification Score) tells you if your strategy meets prop firm challenge requirements.
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition border border-green-100">
+                <div class="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center mb-6 text-3xl">
+                    ✅
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Prop Firm Ready</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    PVS (Prop Verification Score) tells you if your strategy meets prop firm challenge requirements. 
+                    Save hundreds in failed challenge fees.
                 </p>
             </div>
         </div>
 
-        <!-- Social Proof -->
-        <div class="mt-20 text-center">
-            <p class="text-gray-600 mb-4">Trusted by traders worldwide</p>
-            <div class="flex justify-center space-x-8 text-gray-400">
-                <div class="text-2xl font-bold">1,000+ <span class="text-sm block">Analyses</span></div>
-                <div class="text-2xl font-bold">50+ <span class="text-sm block">Prop Traders</span></div>
-                <div class="text-2xl font-bold">4.8★ <span class="text-sm block">Rating</span></div>
+        <!-- Secondary Features -->
+        <div class="grid md:grid-cols-2 gap-8 mt-12">
+            <!-- Strategy Simulator -->
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200 hover:border-edgelab-purple transition">
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-lg p-3 mr-4">
+                        <svg class="w-8 h-8 text-edgelab-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Strategy Simulator</h3>
+                        <p class="text-gray-600 mb-3">
+                            Test any trading idea without risking real money. No coding required - 
+                            just define your entry, exit, and indicators.
+                        </p>
+                        <a href="/simulator" class="text-edgelab-purple font-semibold hover:underline">
+                            Try it now →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSV Analysis -->
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200 hover:border-edgelab-blue transition">
+                <div class="flex items-start">
+                    <div class="bg-blue-100 rounded-lg p-3 mr-4">
+                        <svg class="w-8 h-8 text-edgelab-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">CSV Trade Analysis</h3>
+                        <p class="text-gray-600 mb-3">
+                            Upload your trading history from MT4, MT5, or any platform. 
+                            Get insights from your actual trading performance.
+                        </p>
+                        <a href="/upload" class="text-edgelab-blue font-semibold hover:underline">
+                            Upload now →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Social Proof -->
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8">
+                <p class="text-gray-600 font-semibold mb-6">Trusted by traders worldwide</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="text-4xl font-bold text-edgelab-blue mb-2">1,000+</div>
+                    <div class="text-sm text-gray-600 font-medium">Analyses Completed</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="text-4xl font-bold text-edgelab-purple mb-2">50+</div>
+                    <div class="text-sm text-gray-600 font-medium">Prop Traders</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="text-4xl font-bold text-green-600 mb-2">4.8⭐</div>
+                    <div class="text-sm text-gray-600 font-medium">Average Rating</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="text-4xl font-bold text-edgelab-cyan mb-2">€2M+</div>
+                    <div class="text-sm text-gray-600 font-medium">Losses Prevented</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-gradient-to-br from-edgelab-blue to-edgelab-navy py-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl font-bold text-white mb-6">
+                Ready to discover your trading edge?
+            </h2>
+            <p class="text-xl text-blue-100 mb-10">
+                Join thousands of traders who stopped guessing and started knowing
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/upload" class="inline-block bg-white text-edgelab-blue px-10 py-4 rounded-xl text-lg font-bold hover:shadow-2xl transition transform hover:scale-105">
+                    Get Started Free
+                </a>
+                <a href="/simulator" class="inline-block bg-edgelab-purple text-white px-10 py-4 rounded-xl text-lg font-bold hover:shadow-2xl transition transform hover:scale-105 border-2 border-white/30">
+                    Test a Strategy
+                </a>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-400 py-12 mt-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="mb-2">© 2025 EdgeLab. All rights reserved.</p>
-            <p class="text-sm">Disclaimer: Past performance does not guarantee future results. Trading involves risk.</p>
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <img src="/static/images/logo.png" alt="EdgeLab Logo" class="h-6 w-auto">
+                        <span class="text-xl font-bold text-white">EDGELABFX</span>
+                    </div>
+                    <p class="text-sm">
+                        Your vision tested. Your trading explained.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-3">Product</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/upload" class="hover:text-white transition">CSV Analysis</a></li>
+                        <li><a href="/simulator" class="hover:text-white transition">Strategy Simulator</a></li>
+                        <li><a href="/about" class="hover:text-white transition">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-3">Contact</h3>
+                    <p class="text-sm">
+                        Questions? Reach out at<br/>
+                        <a href="mailto:support@edgelab.io" class="text-edgelab-cyan hover:underline">support@edgelab.io</a>
+                    </p>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-center text-sm">
+                <p class="mb-2">© 2025 EdgeLab. All rights reserved.</p>
+                <p class="text-xs">
+                    Disclaimer: Past performance does not guarantee future results. Trading involves risk. 
+                    This platform is for educational and analytical purposes only.
+                </p>
+            </div>
         </div>
     </footer>
+
 </body>
 </html>
