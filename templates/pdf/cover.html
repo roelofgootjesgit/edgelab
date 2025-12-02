@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="cover-page">
+    <div class="cover-title">EdgeLab</div>
+    <div class="cover-subtitle">Trading Analysis Report</div>
+    
+    <div style="margin-top: 48pt;">
+        <div style="font-size: 14pt; color: var(--text-secondary); margin-bottom: 8pt;">
+            Analysis Period
+        </div>
+        <div style="font-size: 16pt; font-weight: 600; color: var(--text-primary);">
+            {{ start_date }} - {{ end_date }}
+        </div>
+    </div>
+    
+    <div style="margin-top: 32pt;">
+        <div style="font-size: 14pt; color: var(--text-secondary); margin-bottom: 8pt;">
+            Total Trades Analyzed
+        </div>
+        <div style="font-size: 24pt; font-weight: 700; color: var(--accent-blue);">
+            {{ total_trades }}
+        </div>
+    </div>
+    
+    <div class="cover-metadata">
+        <div style="margin-bottom: 4pt;">Generated: {{ generation_date }}</div>
+        <div style="margin-bottom: 4pt;">Report Version: 5.0 (HTML)</div>
+        <div style="color: var(--text-muted); font-size: 9pt; margin-top: 16pt;">
+            Professional Trading Analytics Platform
+        </div>
+    </div>
+</div>
+{% endblock %}

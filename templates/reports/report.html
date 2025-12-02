@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EdgeLab Trading Report</title>
+    
+    <style>
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+        }
+        
+        /* Page Breaks */
+        @media print {
+            .page-break {
+                page-break-after: always;
+            }
+        }
+        
+        /* Cover Page */
+        .cover {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 40px;
+        }
+        
+        .cover h1 {
+            font-size: 72px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .cover .subtitle {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .cover .strategy-name {
+            font-size: 20px;
+            opacity: 0.85;
+            margin-top: 20px;
+        }
+        
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 80px;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .metric-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0.8;
+            margin-bottom: 12px;
+        }
+        
+        .metric-value {
+            font-size: 48px;
+            font-weight: 700;
+        }
+        
+        .cover-footer {
+            margin-top: auto;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
+        /* Content Pages */
+        .content-page {
+            padding: 60px 80px;
+        }
+        
+        .section-title {
+            font-size: 36px;
+            font-weight: 700;
+            border-bottom: 4px solid #2563eb;
+            padding-bottom: 12px;
+            margin-bottom: 30px;
+            color: #1a1a1a;
+        }
+        
+        .text-large {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        
+        .text-large strong {
+            color: #2563eb;
+            font-weight: 600;
+        }
+        
+        /* Alert Boxes */
+        .alert-box {
+            border-left: 4px solid;
+            padding: 20px 24px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .alert-blue {
+            background: #eff6ff;
+            border-color: #2563eb;
+        }
+        
+        .alert-blue p {
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+        
+        .alert-green {
+            background: #f0fdf4;
+            border-color: #16a34a;
+        }
+        
+        .alert-green p {
+            color: #166534;
+            font-weight: 600;
+        }
+        
+        .alert-orange {
+            background: #fff7ed;
+            border-color: #ea580c;
+        }
+        
+        .alert-orange p {
+            color: #9a3412;
+        }
+        
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        
+        thead {
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        th {
+            padding: 16px 24px;
+            text-align: left;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        th.text-right {
+            text-align: right;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        tbody tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        
+        td {
+            padding: 16px 24px;
+            font-size: 15px;
+        }
+        
+        td.text-right {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+        
+        td.font-semibold {
+            font-weight: 600;
+        }
+        
+        td.text-blue {
+            color: #2563eb;
+        }
+        
+        td.text-green {
+            color: #16a34a;
+        }
+        
+        td.text-red {
+            color: #dc2626;
+        }
+        
+        /* Insights Section */
+        .insights-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 40px 0 20px 0;
+        }
+        
+        .insights-title.orange {
+            color: #ea580c;
+        }
+        
+        .insights-title.blue {
+            color: #2563eb;
+        }
+        
+        .pattern-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+        
+        .pattern-list li {
+            display: flex;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        
+        .pattern-list .bullet {
+            color: #2563eb;
+            font-size: 24px;
+            margin-right: 15px;
+            line-height: 1;
+        }
+        
+        .pattern-list .text {
+            color: #4b5563;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        /* Disclaimer */
+        .disclaimer {
+            padding: 60px 80px;
+            background: #f3f4f6;
+        }
+        
+        .disclaimer h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .disclaimer p {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- COVER PAGE -->
+    <div class="cover page-break">
+        <div>
+            <h1>EdgeLab</h1>
+            <p class="subtitle">Trading Performance Report</p>
+            
+            {% if strategy %}
+            <p class="strategy-name">Strategy: {{ strategy.name }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Win Rate</div>
+                <div class="metric-value">{{ "%.1f"|format(results.win_rate) }}%</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Total Trades</div>
+                <div class="metric-value">{{ total_trades }}</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">ESI Score</div>
+                <div class="metric-value">{{ "%.2f"|format(results.esi) }}</div>
+            </div>
+        </div>
+        
+        <p class="cover-footer">Generated: {{ generated_date }}</p>
+    </div>
+    
+    <!-- EXECUTIVE SUMMARY -->
+    <div class="content-page">
+        <h2 class="section-title">Executive Summary</h2>
+        
+        <p class="text-large">
+            Analysis of <strong>{{ total_trades }} trades</strong> 
+            reveals a win rate of <strong>{{ "%.1f"|format(results.win_rate) }}%</strong> 
+            with an Edge Stability Index of <strong>{{ "%.2f"|format(results.esi) }}</strong>.
+        </p>
+        
+        {% if timing.best_session %}
+        <div class="alert-box alert-blue">
+            <p>🎯 Peak Performance: {{ timing.best_session }} session</p>
+        </div>
+        {% endif %}
+        
+        {% if results.profit_factor > 1.5 %}
+        <div class="alert-box alert-green">
+            <p>✓ Profit Factor of {{ "%.2f"|format(results.profit_factor) }} indicates positive edge</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- PERFORMANCE METRICS -->
+    <div class="content-page page-break">
+        <h2 class="section-title">Performance Metrics</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th class="text-right">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Total Trades</td>
+                    <td class="text-right font-semibold">{{ total_trades }}</td>
+                </tr>
+                <tr>
+                    <td>Winning Trades</td>
+                    <td class="text-right">{{ results.winning_trades }}</td>
+                </tr>
+                <tr>
+                    <td>Losing Trades</td>
+                    <td class="text-right">{{ results.losing_trades }}</td>
+                </tr>
+                <tr>
+                    <td class="font-semibold">Win Rate</td>
+                    <td class="text-right font-semibold text-blue">
+                        {{ "%.1f"|format(results.win_rate) }}%
+                    </td>
+                </tr>
+                <tr>
+                    <td>Average Win</td>
+                    <td class="text-right text-green">
+                        ${{ "%.2f"|format(results.avg_win) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Average Loss</td>
+                    <td class="text-right text-red">
+                        ${{ "%.2f"|format(results.avg_loss|abs) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="font-semibold">Profit Factor</td>
+                    <td class="text-right font-semibold">
+                        {{ "%.2f"|format(results.profit_factor) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="font-semibold">ESI (Edge Stability Index)</td>
+                    <td class="text-right font-semibold">
+                        {{ "%.2f"|format(results.esi) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="font-semibold">PVS (Prop Verification Score)</td>
+                    <td class="text-right font-semibold">
+                        {{ "%.2f"|format(results.pvs) }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- KEY INSIGHTS -->
+    {% if insights.critical_findings or insights.notable_patterns %}
+    <div class="content-page page-break">
+        <h2 class="section-title">Key Insights</h2>
+        
+        {% if insights.critical_findings %}
+        <h3 class="insights-title orange">Critical Findings</h3>
+        {% for finding in insights.critical_findings %}
+        <div class="alert-box alert-orange">
+            <p>{{ finding }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+        
+        {% if insights.notable_patterns %}
+        <h3 class="insights-title blue">Notable Patterns</h3>
+        <ul class="pattern-list">
+            {% for pattern in insights.notable_patterns %}
+            <li>
+                <span class="bullet">▸</span>
+                <span class="text">{{ pattern }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- DISCLAIMER -->
+    <div class="disclaimer">
+        <h2>Disclaimer</h2>
+        <p>
+            This report is for informational and educational purposes only. 
+            Past performance is not indicative of future results. 
+            Trading involves risk and may not be suitable for all investors.
+        </p>
+    </div>
+
+</body>
+</html>

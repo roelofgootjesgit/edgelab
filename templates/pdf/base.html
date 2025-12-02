@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EdgeLab Trading Analysis Report</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Page Setup for PDF */
+        @page {
+            size: A4;
+            margin: 2cm 1.5cm;
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 9pt;
+                color: #64748b;
+            }
+        }
+
+        /* Dark Theme Colors */
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --border-color: #334155;
+            --win-bg: #1a3d2e;
+            --loss-bg: #3d1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 10pt;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 28pt;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12pt;
+        }
+
+        h2 {
+            font-size: 18pt;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-top: 24pt;
+            margin-bottom: 12pt;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 6pt;
+        }
+
+        h3 {
+            font-size: 14pt;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 16pt;
+            margin-bottom: 8pt;
+        }
+
+        h4 {
+            font-size: 11pt;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 12pt;
+            margin-bottom: 6pt;
+        }
+
+        p {
+            margin-bottom: 8pt;
+            color: var(--text-secondary);
+        }
+
+        /* Card Components */
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16pt;
+            margin-bottom: 16pt;
+            page-break-inside: avoid;
+        }
+
+        .card-header {
+            font-size: 14pt;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 12pt;
+            padding-bottom: 8pt;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-body {
+            color: var(--text-secondary);
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12pt;
+            margin-bottom: 16pt;
+        }
+
+        .metric-box {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12pt;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 9pt;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5pt;
+            margin-bottom: 4pt;
+        }
+
+        .metric-value {
+            font-size: 18pt;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .metric-value.positive {
+            color: var(--accent-green);
+        }
+
+        .metric-value.negative {
+            color: var(--accent-red);
+        }
+
+        .metric-value.neutral {
+            color: var(--accent-blue);
+        }
+
+        /* Progress Bars */
+        .progress-bar-container {
+            background-color: var(--bg-tertiary);
+            border-radius: 4px;
+            height: 12pt;
+            overflow: hidden;
+            margin: 8pt 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8pt;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12pt 0;
+            font-size: 9pt;
+        }
+
+        table thead {
+            background-color: var(--bg-tertiary);
+        }
+
+        table th {
+            padding: 8pt;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        table td {
+            padding: 8pt;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        table tbody tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        table tr.win-row {
+            background-color: var(--win-bg);
+        }
+
+        table tr.loss-row {
+            background-color: var(--loss-bg);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 2pt 8pt;
+            border-radius: 4px;
+            font-size: 8pt;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background-color: var(--accent-green);
+            color: white;
+        }
+
+        .badge-danger {
+            background-color: var(--accent-red);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--accent-yellow);
+            color: white;
+        }
+
+        .badge-info {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-left: 20pt;
+            margin-bottom: 12pt;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 4pt;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 12pt;
+            border-radius: 6px;
+            margin-bottom: 12pt;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-color: var(--accent-blue);
+            color: var(--text-secondary);
+        }
+
+        .alert-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            border-color: var(--accent-yellow);
+            color: var(--text-secondary);
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-color: var(--accent-green);
+            color: var(--text-secondary);
+        }
+
+        /* Cover Page Specific */
+        .cover-page {
+            text-align: center;
+            padding-top: 20%;
+            page-break-after: always;
+        }
+
+        .cover-title {
+            font-size: 36pt;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 16pt;
+        }
+
+        .cover-subtitle {
+            font-size: 18pt;
+            color: var(--text-secondary);
+            margin-bottom: 48pt;
+        }
+
+        .cover-metadata {
+            font-size: 11pt;
+            color: var(--text-muted);
+            margin-top: 48pt;
+        }
+
+        /* Page Breaks */
+        .page-break {
+            page-break-after: always;
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .mt-0 {
+            margin-top: 0;
+        }
+
+        /* Number Formatting */
+        .number-positive {
+            color: var(--accent-green);
+        }
+
+        .number-negative {
+            color: var(--accent-red);
+        }
+
+        /* ESI/PVS Specific */
+        .esi-box, .pvs-box {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 2px solid var(--accent-blue);
+            border-radius: 8px;
+            padding: 16pt;
+            text-align: center;
+            margin: 16pt 0;
+        }
+
+        .esi-score, .pvs-score {
+            font-size: 32pt;
+            font-weight: 700;
+            color: var(--accent-blue);
+            display: block;
+            margin: 8pt 0;
+        }
+
+        .esi-label, .pvs-label {
+            font-size: 10pt;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1pt;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}
+    <!-- Page content will be inserted here -->
+    {% endblock %}
+</body>
+</html>
