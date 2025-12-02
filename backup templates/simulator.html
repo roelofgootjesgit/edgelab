@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Simulator - EdgeLab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    
+    <!-- Header -->
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-bold text-blue-400">EdgeLab</a>
+                <div class="space-x-6">
+                    <a href="/" class="text-gray-300 hover:text-white">Home</a>
+                    <a href="/simulator" class="text-white font-medium">Simulator</a>
+                    <a href="/upload" class="text-gray-300 hover:text-white">Upload CSV</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">Strategy Simulator</h1>
+            <p class="text-xl text-gray-400">Test je trading idee in 30 seconden zonder geld te riskeren</p>
+        </div>
+
+        <!-- Strategy Form -->
+        <form id="strategyForm" action="/run-backtest" method="POST" class="space-y-8">
+            
+            <!-- Basic Settings -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 class="text-xl font-semibold mb-6 text-blue-400">Basic Settings</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Symbol</label>
+                        <select name="symbol" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="XAUUSD">XAUUSD (Gold)</option>
+                            <option value="EURUSD">EURUSD</option>
+                            <option value="GBPUSD">GBPUSD</option>
+                            <option value="BTCUSD">BTCUSD (Bitcoin)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Timeframe</label>
+                        <select name="timeframe" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="5m">5 Minutes</option>
+                            <option value="15m" selected>15 Minutes</option>
+                            <option value="1h">1 Hour</option>
+                            <option value="4h">4 Hours</option>
+                            <option value="1d">Daily</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Direction</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="direction" value="LONG" checked class="mr-2 text-blue-500">
+                                <span>LONG</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="direction" value="SHORT" class="mr-2 text-blue-500">
+                                <span>SHORT</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Test Period</label>
+                        <select name="period" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="1mo">1 Month</option>
+                            <option value="2mo" selected>2 Months</option>
+                            <option value="3mo">3 Months</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Note: Intraday data limited to ~60 days</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entry Conditions - DYNAMIC -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-blue-400">Entry Conditions</h2>
+                    <span class="text-sm text-gray-400">All conditions must be true (AND logic)</span>
+                </div>
+                
+                <!-- Conditions Container -->
+                <div id="conditionsContainer" class="space-y-4">
+                    <!-- Condition 1 (default) -->
+                    <div class="condition-row flex flex-wrap items-center gap-3 p-4 bg-gray-700 rounded-lg" data-index="0">
+                        <span class="text-gray-400 font-medium w-8">1.</span>
+                        
+                        <select name="indicator_0" class="flex-1 min-w-32 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="rsi">RSI (14)</option>
+                            <option value="adx">ADX (14)</option>
+                            <option value="macd">MACD</option>
+                            <option value="sma_20">SMA (20)</option>
+                            <option value="sma_50">SMA (50)</option>
+                            <option value="ema_20">EMA (20)</option>
+                            <option value="bb_upper">Bollinger Upper</option>
+                            <option value="bb_lower">Bollinger Lower</option>
+                        </select>
+                        
+                        <select name="operator_0" class="w-36 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="<">< Less than</option>
+                            <option value=">">Greater than</option>
+                            <option value="<="><= Less/equal</option>
+                            <option value=">=">= Greater/equal</option>
+                        </select>
+                        
+                        <input type="number" name="value_0" value="30" step="0.1" 
+                               class="w-24 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        
+                        <button type="button" onclick="removeCondition(this)" 
+                                class="text-red-400 hover:text-red-300 p-2 opacity-50 cursor-not-allowed" 
+                                disabled title="Cannot remove last condition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Add Condition Button -->
+                <button type="button" onclick="addCondition()" 
+                        class="mt-4 flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Add Condition
+                </button>
+                
+                <!-- Session Filter -->
+                <div class="mt-6 pt-6 border-t border-gray-600">
+                    <label class="block text-sm font-medium mb-2">Session Filter (Optional)</label>
+                    <select name="session" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Sessions</option>
+                        <option value="Tokyo">Tokyo (00:00-08:00 UTC)</option>
+                        <option value="London">London (08:00-14:00 UTC)</option>
+                        <option value="NY">New York (14:00-22:00 UTC)</option>
+                    </select>
+                </div>
+                
+                <!-- Strategy Preview -->
+                <div class="mt-6 pt-6 border-t border-gray-600">
+                    <label class="block text-sm font-medium mb-2 text-gray-400">Strategy Preview</label>
+                    <div id="strategyPreview" class="bg-gray-900 rounded-lg p-4 font-mono text-sm text-green-400">
+                        LONG when RSI < 30
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exit Rules -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 class="text-xl font-semibold mb-6 text-blue-400">Exit Rules</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Take Profit (R-multiple)</label>
+                        <input type="number" name="tp_r" value="1.5" step="0.1" min="0.5" max="5" 
+                               class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <p class="text-sm text-gray-500 mt-1">1.5R = 1.5x your risk</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Stop Loss (R-multiple)</label>
+                        <input type="number" name="sl_r" value="1.0" step="0.1" min="0.5" max="3" 
+                               class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <p class="text-sm text-gray-500 mt-1">1.0R = your defined risk</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden field for condition count -->
+            <input type="hidden" name="condition_count" id="conditionCount" value="1">
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" id="submitBtn"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-lg text-xl transition duration-200 transform hover:scale-105">
+                    Run Backtest
+                </button>
+                <p class="text-gray-500 mt-4">Takes approximately 30 seconds</p>
+            </div>
+
+        </form>
+
+        <!-- Disclaimer -->
+        <div class="mt-12 p-4 bg-gray-800 rounded-lg border border-yellow-600">
+            <p class="text-yellow-500 text-sm">
+                <strong>Disclaimer:</strong> Backtest results are simulated and do not guarantee future performance. 
+                Past performance is not indicative of future results. Always paper trade before risking real money.
+            </p>
+        </div>
+
+    </main>
+
+    <script>
+        let conditionCount = 1;
+        const maxConditions = 5;
+
+        function addCondition() {
+            if (conditionCount >= maxConditions) {
+                alert('Maximum ' + maxConditions + ' conditions allowed');
+                return;
+            }
+
+            const container = document.getElementById('conditionsContainer');
+            const index = conditionCount;
+            
+            const conditionHTML = `
+                <div class="condition-row flex flex-wrap items-center gap-3 p-4 bg-gray-700 rounded-lg" data-index="${index}">
+                    <span class="text-blue-400 font-medium w-8">AND</span>
+                    
+                    <select name="indicator_${index}" class="flex-1 min-w-32 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="rsi">RSI (14)</option>
+                        <option value="adx" selected>ADX (14)</option>
+                        <option value="macd">MACD</option>
+                        <option value="sma_20">SMA (20)</option>
+                        <option value="sma_50">SMA (50)</option>
+                        <option value="ema_20">EMA (20)</option>
+                        <option value="bb_upper">Bollinger Upper</option>
+                        <option value="bb_lower">Bollinger Lower</option>
+                    </select>
+                    
+                    <select name="operator_${index}" class="w-36 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="<">< Less than</option>
+                        <option value=">" selected>Greater than</option>
+                        <option value="<="><= Less/equal</option>
+                        <option value=">=">= Greater/equal</option>
+                    </select>
+                    
+                    <input type="number" name="value_${index}" value="25" step="0.1" 
+                           class="w-24 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    
+                    <button type="button" onclick="removeCondition(this)" 
+                            class="text-red-400 hover:text-red-300 p-2 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', conditionHTML);
+            conditionCount++;
+            document.getElementById('conditionCount').value = conditionCount;
+            
+            updateRemoveButtons();
+            updatePreview();
+        }
+
+        function removeCondition(button) {
+            const row = button.closest('.condition-row');
+            row.remove();
+            conditionCount--;
+            document.getElementById('conditionCount').value = conditionCount;
+            
+            reindexConditions();
+            updateRemoveButtons();
+            updatePreview();
+        }
+
+        function reindexConditions() {
+            const rows = document.querySelectorAll('.condition-row');
+            rows.forEach((row, i) => {
+                row.dataset.index = i;
+                
+                const label = row.querySelector('span');
+                if (i === 0) {
+                    label.textContent = '1.';
+                    label.className = 'text-gray-400 font-medium w-8';
+                } else {
+                    label.textContent = 'AND';
+                    label.className = 'text-blue-400 font-medium w-8';
+                }
+                
+                row.querySelector('select[name^="indicator"]').name = `indicator_${i}`;
+                row.querySelector('select[name^="operator"]').name = `operator_${i}`;
+                row.querySelector('input[name^="value"]').name = `value_${i}`;
+            });
+        }
+
+        function updateRemoveButtons() {
+            const rows = document.querySelectorAll('.condition-row');
+            rows.forEach((row) => {
+                const btn = row.querySelector('button[onclick*="removeCondition"]');
+                if (rows.length === 1) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            });
+        }
+
+        function updatePreview() {
+            const direction = document.querySelector('input[name="direction"]:checked').value;
+            const session = document.querySelector('select[name="session"]').value;
+            const rows = document.querySelectorAll('.condition-row');
+            
+            const names = {
+                'rsi': 'RSI', 'adx': 'ADX', 'macd': 'MACD',
+                'sma_20': 'SMA(20)', 'sma_50': 'SMA(50)', 'ema_20': 'EMA(20)',
+                'bb_upper': 'BB Upper', 'bb_lower': 'BB Lower'
+            };
+            
+            let conditions = [];
+            rows.forEach((row) => {
+                const ind = row.querySelector('select[name^="indicator"]').value;
+                const op = row.querySelector('select[name^="operator"]').value;
+                const val = row.querySelector('input[name^="value"]').value;
+                conditions.push(`${names[ind] || ind} ${op} ${val}`);
+            });
+            
+            let preview = `${direction} when ${conditions.join(' AND ')}`;
+            if (session) preview += ` [${session}]`;
+            
+            document.getElementById('strategyPreview').textContent = preview;
+        }
+
+        document.addEventListener('change', (e) => {
+            if (e.target.matches('select, input')) updatePreview();
+        });
+        document.addEventListener('input', (e) => {
+            if (e.target.matches('input[type="number"]')) updatePreview();
+        });
+
+        document.getElementById('strategyForm').addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Running Backtest...';
+        });
+
+        updatePreview();
+    </script>
+</body>
+</html>
