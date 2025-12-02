@@ -8,7 +8,7 @@ Calculates trading metrics from EdgeLabTrade objects.
 Includes comprehensive pattern analysis and insights.
 
 Author: EdgeLab Development Team
-Version: 2.0 (Enhanced with Pattern Analysis)
+Version: 2.3 (All template aliases - maximum compatibility)
 """
 
 from typing import List, Dict, Any
@@ -69,7 +69,7 @@ class BasicAnalyzer:
         # Advanced metrics
         advanced_results = self.advanced.calculate_all(
             trades=trades,
-            winrate=basic_results['winrate'],
+            winrate=basic_results['win_rate'],
             profit_factor=basic_results['profit_factor'],
             max_drawdown=basic_results['max_drawdown_pct']
         )
@@ -87,7 +87,7 @@ class BasicAnalyzer:
             execution_results=execution_results,
             loss_results=forensics_results,
             basic_metrics={
-                'winrate': basic_results['winrate'],
+                'win_rate': basic_results['win_rate'],
                 'profit_factor': basic_results['profit_factor'],
                 'expectancy': basic_results['expectancy']
             },
@@ -138,18 +138,41 @@ class BasicAnalyzer:
         # Max Drawdown
         max_dd = self._calculate_max_drawdown(trades)
         
+        # Return with COMPREHENSIVE ALIASES for maximum template compatibility
         return {
+            # Trade counts
             'total_trades': total_trades,
             'wins': num_wins,
+            'winning_trades': num_wins,  # Template alias
             'losses': num_losses,
+            'losing_trades': num_losses,  # Template alias
             'timeouts': num_timeouts,
-            'winrate': round(winrate, 2),
+            
+            # Win rate (multiple aliases)
+            'win_rate': round(winrate, 2),
+            'winrate': round(winrate, 2),  # Legacy alias
+            
+            # Profit metrics
             'profit_factor': round(profit_factor, 2),
             'expectancy': round(expectancy, 2),
+            
+            # Total profit
             'total_profit_r': round(total_profit, 2),
+            'total_profit': round(total_profit, 2),  # Template alias
+            
+            # Gross profit/loss
+            'gross_profit': round(gross_profit, 2),
+            'gross_loss': round(gross_loss, 2),
+            
+            # Average win/loss (multiple aliases)
             'avg_win_r': round(avg_win, 2),
+            'avg_win': round(avg_win, 2),  # Template alias
             'avg_loss_r': round(avg_loss, 2),
-            'max_drawdown_pct': round(max_dd, 2)
+            'avg_loss': round(avg_loss, 2),  # Template alias
+            
+            # Drawdown (multiple aliases)
+            'max_drawdown_pct': round(max_dd, 2),
+            'max_drawdown': round(max_dd, 2)  # Template alias
         }
     
     def _calculate_max_drawdown(self, trades: List[EdgeLabTrade]) -> float:
