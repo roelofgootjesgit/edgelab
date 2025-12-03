@@ -12,9 +12,10 @@ Routes:
 - /simulator : Strategy simulator interface
 - /run-backtest : Execute backtest (multi-condition support)
 - /download/<filename> : Download PDF
+- /api/modules : Get available strategy modules (NEW)
 
 Author: EdgeLab Development Team
-Version: 2.3 (Session fix + Debug logging)
+Version: 3.0 (Modular Strategy System)
 """
 
 from flask import Flask, render_template, request, send_file, redirect, url_for, flash
@@ -27,6 +28,7 @@ from core.analyzer import BasicAnalyzer
 from core.playwright_reporter import PlaywrightReportGenerator
 from core.strategy import StrategyDefinition, EntryCondition
 from core.backtest_engine import BacktestEngine
+from web.api_modules import modules_api  # NEW: Import modules API
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -42,9 +44,12 @@ ALLOWED_EXTENSIONS = {'csv'}
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 
+# Register API blueprints
+app.register_blueprint(modules_api)  # NEW: Register modules API
+
 # Startup message to confirm correct version
 print("=" * 60)
-print("EdgeLab v2.3 - Session Fix + Debug Edition")
+print("EdgeLab v3.0 - Modular Strategy System")
 print("=" * 60)
 
 
