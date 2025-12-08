@@ -55,7 +55,7 @@ class RSIModule(BaseModule):
                     "default": 70,
                     "min": 50,
                     "max": 90,
-                    "help": "RSI above this = overbought"
+                    "help": "RSI above this = overbought (SHORT signal)"
                 },
                 {
                     "name": "oversold",
@@ -64,15 +64,7 @@ class RSIModule(BaseModule):
                     "default": 30,
                     "min": 10,
                     "max": 50,
-                    "help": "RSI below this = oversold"
-                },
-                {
-                    "name": "direction",
-                    "label": "Entry Direction",
-                    "type": "select",
-                    "options": ["long", "short", "both"],
-                    "default": "both",
-                    "help": "Trade longs, shorts, or both"
+                    "help": "RSI below this = oversold (LONG signal)"
                 }
             ]
         }
@@ -110,17 +102,20 @@ class RSIModule(BaseModule):
         
         return data
     
-    def check_entry_condition(self, data: pd.DataFrame, index: int, config: Dict[str, Any]) -> bool:
+    def check_entry_condition(self, data: pd.DataFrame, index: int, config: Dict[str, Any], strategy_direction: str) -> bool:
         """
-        Check if RSI entry condition met.
+        Check if RSI entry condition met based on strategy direction.
         
-        Long signal: RSI crosses above oversold (previous < oversold, current > oversold)
-        Short signal: RSI crosses below overbought (previous > overbought, current < overbought)
+        LONG strategy: Only check oversold bounces (RSI crosses back above oversold)
+        SHORT strategy: Only check overbought drops (RSI crosses back below overbought)
+        
+        This aligns with mean reversion trading:
+        - Oversold (< 30) suggests bounce up → LONG opportunity
+        - Overbought (> 70) suggests drop down → SHORT opportunity
         """
         if index < 1:  # Need previous candle
             return False
         
-        direction = config.get('direction', 'both')
         oversold = config.get('oversold', 30)
         overbought = config.get('overbought', 70)
         
@@ -131,16 +126,14 @@ class RSIModule(BaseModule):
         if pd.isna(current_rsi) or pd.isna(prev_rsi):
             return False
         
-        # Long entry: RSI crosses above oversold
-        long_signal = (prev_rsi < oversold and current_rsi > oversold)
+        # LONG strategy: Check for oversold bounce
+        if strategy_direction == 'LONG':
+            # RSI crosses back above oversold level
+            return (prev_rsi < oversold and current_rsi > oversold)
         
-        # Short entry: RSI crosses below overbought
-        short_signal = (prev_rsi > overbought and current_rsi < overbought)
+        # SHORT strategy: Check for overbought drop
+        elif strategy_direction == 'SHORT':
+            # RSI crosses back below overbought level
+            return (prev_rsi > overbought and current_rsi < overbought)
         
-        # Return based on configured direction
-        if direction == 'long':
-            return long_signal
-        elif direction == 'short':
-            return short_signal
-        else:  # both
-            return long_signal or short_signal
+        return False

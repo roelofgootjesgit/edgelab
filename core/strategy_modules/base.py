@@ -81,7 +81,7 @@ class BaseModule(ABC):
         pass
     
     @abstractmethod
-    def check_entry_condition(self, data: pd.DataFrame, index: int, config: Dict[str, Any]) -> bool:
+    def check_entry_condition(self, data: pd.DataFrame, index: int, config: Dict[str, Any], strategy_direction: str) -> bool:
         """
         Check if entry condition met at specific candle.
         
@@ -89,6 +89,7 @@ class BaseModule(ABC):
             data: OHLCV dataframe with calculated indicators
             index: Current candle index to check
             config: User configuration
+            strategy_direction: 'LONG' or 'SHORT' from overall strategy
         
         Returns:
             True if condition met, False otherwise

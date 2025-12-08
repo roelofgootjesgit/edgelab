@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Simulator - EdgeLab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'edgelab-blue': '#2563eb',
+                        'edgelab-navy': '#1e3a8a',
+                        'edgelab-purple': '#8b5cf6',
+                        'edgelab-cyan': '#06b6d4',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    
+    <!-- Navigation - Clean White with Logo -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <img src="/static/images/logo.png" alt="EdgeLab Logo" class="h-8 w-auto">
+                    <span class="text-2xl font-bold text-edgelab-navy">EDGELABFX</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-edgelab-blue transition">Home</a>
+                    <a href="/simulator" class="text-edgelab-purple font-semibold">Simulator</a>
+                    <a href="/upload" class="text-gray-700 hover:text-edgelab-blue transition">Upload CSV</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section - Purple Gradient (Strategy Focus) -->
+    <div class="relative bg-gradient-to-br from-edgelab-purple via-purple-600 to-purple-800 overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <img src="/static/images/cover-building.png" alt="" class="w-full h-full object-cover">
+        </div>
+        
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+            <div class="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-4">
+                <span class="text-white font-semibold">⚡ Strategy Backtester</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Test Your Trading Strategy</h1>
+            <p class="text-xl text-purple-100 max-w-3xl mx-auto">
+                No code required. No risk. Get professional analysis in 30 seconds.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <!-- Strategy Form -->
+        <form id="strategyForm" class="space-y-8">
+            
+            <!-- Basic Settings Card -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                <div class="flex items-center mb-6">
+                    <div class="bg-edgelab-blue text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">1</div>
+                    <h2 class="text-2xl font-bold text-gray-900">Basic Settings</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Symbol</label>
+                        <select id="symbol" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-blue focus:border-transparent transition">
+                            <option value="XAUUSD">XAUUSD (Gold)</option>
+                            <option value="EURUSD">EURUSD</option>
+                            <option value="GBPUSD">GBPUSD</option>
+                            <option value="USDJPY">USDJPY</option>
+                            <option value="BTCUSD">BTCUSD (Bitcoin)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Timeframe</label>
+                        <select id="timeframe" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-blue focus:border-transparent transition">
+                            <option value="5m">5 Minutes</option>
+                            <option value="15m" selected>15 Minutes</option>
+                            <option value="1h">1 Hour</option>
+                            <option value="4h">4 Hours</option>
+                            <option value="1d">Daily</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Direction</label>
+                        <div class="flex space-x-4 bg-gray-50 rounded-lg p-3">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" id="direction-long" name="direction" value="LONG" checked class="mr-2 text-edgelab-blue focus:ring-edgelab-blue">
+                                <span class="font-medium text-gray-700">📈 LONG</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" id="direction-short" name="direction" value="SHORT" class="mr-2 text-edgelab-blue focus:ring-edgelab-blue">
+                                <span class="font-medium text-gray-700">📉 SHORT</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Test Period</label>
+                        <select id="period" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-blue focus:border-transparent transition">
+                            <option value="1mo">1 Month</option>
+                            <option value="2mo" selected>2 Months</option>
+                            <option value="3mo">3 Months</option>
+                            <option value="6mo">6 Months</option>
+                            <option value="1y">1 Year</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">💡 Intraday data limited to ~60 days</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Session Filter</label>
+                        <select id="session" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-blue focus:border-transparent transition">
+                            <option value="">All Sessions</option>
+                            <option value="Tokyo">🇯🇵 Tokyo (00:00-09:00 UTC)</option>
+                            <option value="London">🇬🇧 London (08:00-17:00 UTC)</option>
+                            <option value="New York">🇺🇸 New York (13:00-22:00 UTC)</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Optional: Filter trades by session</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entry Conditions Card -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="bg-edgelab-purple text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">2</div>
+                        <h2 class="text-2xl font-bold text-gray-900">Entry Conditions</h2>
+                    </div>
+                    <button type="button" id="add-condition" class="bg-white text-edgelab-purple border-2 border-edgelab-purple rounded-lg px-4 py-2 font-semibold hover:bg-edgelab-purple hover:text-white transition">
+                        ➕ Add Condition
+                    </button>
+                </div>
+                
+                <!-- Conditions Container -->
+                <div id="conditionsContainer" class="space-y-4">
+                    <!-- Dynamic conditions will be added here -->
+                    <div id="empty-state" class="text-center py-12 text-gray-500">
+                        <div class="text-5xl mb-4 opacity-30">📊</div>
+                        <p class="font-semibold text-gray-700 mb-2">No conditions yet</p>
+                        <p class="text-sm">Click "Add Condition" to start building your strategy</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exit Settings Card -->
+            <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                <div class="flex items-center mb-6">
+                    <div class="bg-edgelab-cyan text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">3</div>
+                    <h2 class="text-2xl font-bold text-gray-900">Exit Settings</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Take Profit (R)</label>
+                        <input type="number" id="tp_r" step="0.1" min="0.1" value="2.0" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-cyan focus:border-transparent transition">
+                        <p class="text-xs text-gray-500 mt-1">Target profit as multiple of risk (R)</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Stop Loss (R)</label>
+                        <input type="number" id="sl_r" step="0.1" min="0.1" value="1.0" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-cyan focus:border-transparent transition">
+                        <p class="text-xs text-gray-500 mt-1">Maximum loss as multiple of risk (R)</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-cyan-50 rounded-lg border border-cyan-200">
+                    <p class="text-sm text-gray-700">
+                        <span class="font-semibold">Risk:Reward Ratio:</span> 
+                        <span id="rrPreview" class="text-edgelab-cyan font-bold">1:2.00</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Strategy Preview Card -->
+            <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6 border-2 border-purple-200">
+                <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center">
+                    <span class="text-2xl mr-2">🎯</span>
+                    Strategy Preview
+                </h3>
+                <p id="strategyPreview" class="text-gray-700 font-mono text-sm bg-white p-4 rounded-lg border border-gray-200">
+                    Configure your strategy above
+                </p>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" id="submitBtn" class="bg-gradient-to-r from-edgelab-purple to-purple-600 text-white px-12 py-4 rounded-xl text-lg font-bold hover:shadow-2xl hover:scale-105 transform transition">
+                    🚀 Run Backtest
+                </button>
+                <p class="text-sm text-gray-500 mt-3">Results typically ready in 30 seconds</p>
+            </div>
+        </form>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-gray-600">&copy; 2025 EdgeLabFX. Built for traders who test before they trade.</p>
+        </div>
+    </footer>
+
+    <!-- Load JavaScript -->
+    <script src="/static/js/strategy_builder.js"></script>
+</body>
+</html>

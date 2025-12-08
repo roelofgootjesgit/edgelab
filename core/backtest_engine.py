@@ -111,6 +111,191 @@ class BacktestEngine:
         
         return trades
     
+    def run_modular(
+        self,
+        symbol: str,
+        timeframe: str,
+        direction: str,
+        period: str,
+        session: Optional[str],
+        tp_r: float,
+        sl_r: float,
+        modules: list
+    ) -> List[EdgeLabTrade]:
+        """
+        Run backtest with modular strategy system.
+        
+        Args:
+            symbol: Trading symbol (e.g., 'XAUUSD')
+            timeframe: Timeframe (e.g., '15m')
+            direction: 'LONG' or 'SHORT'
+            period: Backtest period (e.g., '2mo')
+            session: Optional session filter ('Tokyo', 'London', 'NY', or None)
+            tp_r: Take profit in R-multiples
+            sl_r: Stop loss in R-multiples
+            modules: List of instantiated module objects
+            
+        Returns:
+            List of EdgeLabTrade objects
+        """
+        # Convert period to start/end dates
+        from datetime import datetime, timedelta
+        
+        period_days = {
+            '5d': 5, '7d': 7, '1mo': 30, '2mo': 60,
+            '3mo': 90, '6mo': 180, '1y': 365, '2y': 730
+        }
+        days = period_days.get(period, 60)
+        end = datetime.now()
+        start = end - timedelta(days=days)
+        
+        # Get data via DataManager (with caching)
+        data = self.data_manager.get_data(
+            symbol=symbol,
+            timeframe=timeframe,
+            start=start,
+            end=end
+        )
+        
+        if data.empty:
+            raise ValueError(f"No data available for {symbol}")
+        
+        # Calculate indicators for all modules
+        for module_item in modules:
+            module = module_item['module']
+            config = module_item['config']
+            data = module.calculate(data, config)
+        
+        # Drop rows with NaN
+        data = data.dropna()
+        
+        if len(data) < 100:
+            raise ValueError(f"Insufficient data: only {len(data)} rows after indicator calculation")
+        
+        # Save timestamp index as column before reset
+        data['timestamp'] = data.index
+        
+        # Reset index to integer (0, 1, 2, ...) for module compatibility
+        data = data.reset_index(drop=True)
+        
+        # Run simulation with modules
+        trades = self._simulate_modular(data, direction, tp_r, sl_r, session, modules, symbol)
+        
+        return trades
+    
+    def _simulate_modular(
+        self,
+        data: pd.DataFrame,
+        direction: str,
+        tp_r: float,
+        sl_r: float,
+        session: Optional[str],
+        modules: list,
+        symbol: str
+    ) -> List[EdgeLabTrade]:
+        """
+        Core simulation loop for modular strategy.
+        
+        Args:
+            data: DataFrame with OHLCV + module indicators
+            direction: 'LONG' or 'SHORT'
+            tp_r: Take profit R-multiple
+            sl_r: Stop loss R-multiple
+            session: Optional session filter
+            modules: List of instantiated modules
+            symbol: Trading symbol
+            
+        Returns:
+            List of completed trades
+        """
+        trades = []
+        position = None
+        
+        # Data now has integer index with timestamp column
+        for i in range(len(data)):
+            # Skip if not enough future data for exit
+            if i >= len(data) - 1:
+                break
+            
+            candle = data.iloc[i]
+            timestamp = candle['timestamp']
+            
+            # Session filter
+            current_session = detect_session(timestamp)
+            if session and current_session != session:
+                continue
+            
+            # If not in position, check for entry
+            if position is None:
+                # Check all modules - ALL must signal entry
+                should_enter = True
+                for module_item in modules:
+                    module = module_item['module']
+                    config = module_item['config']
+                    # Pass strategy direction to module
+                    if not module.check_entry_condition(data, i, config, direction):
+                        should_enter = False
+                        break
+                
+                if should_enter:
+                    position = self._open_position_simple(timestamp, candle, direction, tp_r, sl_r, symbol)
+            
+            # If in position, check for exit
+            else:
+                exit_result = self._check_exit(candle, position)
+                if exit_result:
+                    trade = self._close_position(timestamp, candle, position, exit_result)
+                    trades.append(trade)
+                    position = None
+        
+        # Close any open position at end
+        if position is not None:
+            final_candle = data.iloc[-1]
+            final_timestamp = final_candle['timestamp']
+            trade = self._close_position(final_timestamp, final_candle, position, 'timeout')
+            trades.append(trade)
+        
+        return trades
+    
+    def _open_position_simple(
+        self,
+        timestamp: datetime,
+        candle: pd.Series,
+        direction: str,
+        tp_r: float,
+        sl_r: float,
+        symbol: str
+    ) -> dict:
+        """Open a new position (simplified for modular system)."""
+        entry_price = candle['close']
+        
+        # Calculate SL/TP based on fixed risk percentage (1%)
+        risk_distance = entry_price * 0.01
+        
+        if direction == 'LONG':
+            sl = entry_price - risk_distance
+            tp = entry_price + (risk_distance * tp_r)
+        else:  # SHORT
+            sl = entry_price + risk_distance
+            tp = entry_price - (risk_distance * tp_r)
+        
+        # Add slippage
+        slippage = entry_price * 0.0001
+        if direction == 'LONG':
+            entry_price += slippage
+        else:
+            entry_price -= slippage
+        
+        return {
+            'timestamp_open': timestamp,
+            'entry_price': entry_price,
+            'sl': sl,
+            'tp': tp,
+            'direction': direction,
+            'symbol': symbol,
+            'risk_distance': risk_distance
+        }
+    
     def _simulate(
         self, 
         data: pd.DataFrame, 

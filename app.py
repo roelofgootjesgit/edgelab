@@ -9,10 +9,11 @@ Routes:
 - / : Landing page
 - /upload : Upload CSV
 - /analyze : Process and generate report
-- /simulator : Strategy simulator interface
+- /simulator : Strategy simulator interface (classic)
+- /simulator-v2 : Strategy simulator v2 (modular) - NEW
 - /run-backtest : Execute backtest (multi-condition support)
 - /download/<filename> : Download PDF
-- /api/modules : Get available strategy modules (NEW)
+- /api/modules : Get available strategy modules
 
 Author: EdgeLab Development Team
 Version: 3.0 (Modular Strategy System)
@@ -28,7 +29,7 @@ from core.analyzer import BasicAnalyzer
 from core.playwright_reporter import PlaywrightReportGenerator
 from core.strategy import StrategyDefinition, EntryCondition
 from core.backtest_engine import BacktestEngine
-from web.api_modules import modules_api  # NEW: Import modules API
+from web.api_modules import modules_api
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -45,7 +46,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 
 # Register API blueprints
-app.register_blueprint(modules_api)  # NEW: Register modules API
+app.register_blueprint(modules_api)
 
 # Startup message to confirm correct version
 print("=" * 60)
@@ -69,7 +70,14 @@ def upload_page():
 
 @app.route('/simulator')
 def simulator():
+    """Classic strategy simulator (hardcoded modules)"""
     return render_template('simulator.html')
+
+
+@app.route('/simulator-v2')
+def simulator_v2():
+    """NEW: Modular strategy builder with dynamic UI"""
+    return render_template('simulator_v2.html')
 
 
 @app.route('/analyze', methods=['POST'])
@@ -119,6 +127,115 @@ def analyze():
     except Exception as e:
         flash(f'Error processing file: {str(e)}', 'error')
         return redirect(url_for('upload_page'))
+
+
+
+
+@app.route('/run-backtest-v2', methods=['POST'])
+def run_backtest_v2():
+    """NEW: Modular strategy backtest with dynamic modules"""
+    try:
+        from core.strategy_modules.registry import get_registry
+        
+        data = request.get_json()
+        
+        # Extract basic strategy parameters
+        symbol = data.get('symbol', 'XAUUSD')
+        timeframe = data.get('timeframe', '15m')
+        direction = data.get('direction', 'LONG')
+        period = data.get('period', '2mo')
+        session_raw = data.get('session', '').strip()
+        session = session_raw if session_raw else None
+        tp_r = float(data.get('tp_r', 2.0))
+        sl_r = float(data.get('sl_r', 1.0))
+        
+        # Extract module-based conditions
+        conditions = data.get('conditions', [])
+        
+        if not conditions:
+            return {'success': False, 'error': 'No entry conditions specified'}, 400
+        
+        # Load and instantiate modules
+        registry = get_registry()
+        strategy_modules = []
+        
+        for condition in conditions:
+            category = condition.get('category')
+            module_id = condition.get('module')
+            config = condition.get('config', {})
+            
+            if not category or not module_id:
+                return {'success': False, 'error': 'Invalid condition format'}, 400
+            
+            # Get module from registry (registry stores by module_id only)
+            try:
+                module_class = registry.get_module(module_id)
+            except ValueError as e:
+                return {'success': False, 'error': f'Module not found: {module_id}'}, 404
+            
+            # Instantiate module (no config in __init__)
+            try:
+                module_instance = module_class()
+                # Store module with its config
+                strategy_modules.append({
+                    'module': module_instance,
+                    'config': config
+                })
+            except Exception as e:
+                return {'success': False, 'error': f'Module error: {str(e)}'}, 400
+        
+        # Build strategy name
+        strategy_name = f"{direction} {symbol} ({timeframe})"
+        
+        # Run backtest with modules
+        print(f"[BACKTEST-V2] Running {strategy_name} with {len(strategy_modules)} modules")
+        engine = BacktestEngine()
+        trades = engine.run_modular(
+            symbol=symbol,
+            timeframe=timeframe,
+            direction=direction,
+            period=period,
+            session=session,
+            tp_r=tp_r,
+            sl_r=sl_r,
+            modules=strategy_modules
+        )
+        
+        print(f"[BACKTEST-V2] Generated {len(trades)} trades")
+        
+        if not trades:
+            return {'success': False, 'error': 'No trades generated. Try different conditions or period.'}, 200
+        
+        # Analyze results
+        analyzer = BasicAnalyzer()
+        results = analyzer.calculate(trades)
+        
+        # Generate PDF report
+        generator = PlaywrightReportGenerator()
+        pdf_bytes = generator.generate_report(results, trades, strategy={'name': strategy_name})
+        
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        pdf_filename = f"backtest_v2_{symbol}_{timestamp}.pdf"
+        pdf_path = os.path.join(app.config['OUTPUT_FOLDER'], pdf_filename)
+        
+        with open(pdf_path, 'wb') as f:
+            f.write(pdf_bytes)
+        
+        print(f"[BACKTEST-V2] PDF saved: {pdf_filename}")
+        
+        # Return results page directly (no redirect needed)
+        return render_template('results.html',
+                             results=results,
+                             pdf_filename=pdf_filename,
+                             trades_count=len(trades),
+                             source='backtest_v2',
+                             strategy=strategy_name)
+        
+    except Exception as e:
+        print(f"[ERROR] Backtest-v2 failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {'success': False, 'error': str(e)}, 500
 
 
 @app.route('/run-backtest', methods=['POST'])
