@@ -1,10 +1,10 @@
-"""
+﻿"""
 strategy.py
 ===========
 
 Strategy definition models for EdgeLab backtesting.
 
-Author: EdgeLab Development Team
+Author: QuantMetrics Development Team
 Version: 1.0
 """
 

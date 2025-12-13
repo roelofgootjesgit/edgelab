@@ -1,19 +1,19 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strategy Simulator - EdgeLab</title>
+    <title>Strategy Simulator - QuantMetrics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'edgelab-blue': '#2563eb',
-                        'edgelab-navy': '#1e3a8a',
-                        'edgelab-purple': '#8b5cf6',
-                        'edgelab-cyan': '#06b6d4',
+                        'QuantMetrics-blue': '#2563eb',
+                        'QuantMetrics-navy': '#1e3a8a',
+                        'QuantMetrics-purple': '#8b5cf6',
+                        'QuantMetrics-cyan': '#06b6d4',
                     }
                 }
             }
@@ -27,20 +27,20 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center space-x-3">
-                    <img src="/static/images/logo.png" alt="EdgeLab Logo" class="h-8 w-auto">
-                    <span class="text-2xl font-bold text-edgelab-navy">EDGELABFX</span>
+                    <img src="/static/images/logo.png" alt="QuantMetrics Logo" class="h-8 w-auto">
+                    <span class="text-2xl font-bold text-QuantMetrics-navy">QuantMetrics.io</span>
                 </div>
                 <div class="hidden md:flex space-x-8">
-                    <a href="/" class="text-gray-700 hover:text-edgelab-blue transition">Home</a>
-                    <a href="/simulator" class="text-edgelab-purple font-semibold">Simulator</a>
-                    <a href="/upload" class="text-gray-700 hover:text-edgelab-blue transition">Upload CSV</a>
+                    <a href="/" class="text-gray-700 hover:text-QuantMetrics-blue transition">Home</a>
+                    <a href="/simulator" class="text-QuantMetrics-purple font-semibold">Simulator</a>
+                    <a href="/upload" class="text-gray-700 hover:text-QuantMetrics-blue transition">Upload CSV</a>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section - Purple Gradient (Strategy Focus) -->
-    <div class="relative bg-gradient-to-br from-edgelab-purple via-purple-600 to-purple-800 overflow-hidden">
+    <div class="relative bg-gradient-to-br from-QuantMetrics-purple via-purple-600 to-purple-800 overflow-hidden">
         <div class="absolute inset-0 opacity-10">
             <img src="/static/images/cover-building.png" alt="" class="w-full h-full object-cover">
         </div>
@@ -65,14 +65,14 @@
             <!-- Basic Settings Card -->
             <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
                 <div class="flex items-center mb-6">
-                    <div class="bg-edgelab-blue text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">1</div>
+                    <div class="bg-QuantMetrics-blue text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">1</div>
                     <h2 class="text-2xl font-bold text-gray-900">Basic Settings</h2>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Symbol</label>
-                        <select name="symbol" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-blue focus:border-transparent transition">
+                        <select name="symbol" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-QuantMetrics-blue focus:border-transparent transition">
                             <option value="XAUUSD">XAUUSD (Gold)</option>
                             <option value="EURUSD">EURUSD</option>
                             <option value="GBPUSD">GBPUSD</option>
@@ -82,7 +82,7 @@
                     
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Timeframe</label>
-                        <select name="timeframe" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-blue focus:border-transparent transition">
+                        <select name="timeframe" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-QuantMetrics-blue focus:border-transparent transition">
                             <option value="5m">5 Minutes</option>
                             <option value="15m" selected>15 Minutes</option>
                             <option value="1h">1 Hour</option>
@@ -95,11 +95,11 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Direction</label>
                         <div class="flex space-x-4 bg-gray-50 rounded-lg p-3">
                             <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="direction" value="LONG" checked class="mr-2 text-edgelab-blue focus:ring-edgelab-blue">
+                                <input type="radio" name="direction" value="LONG" checked class="mr-2 text-QuantMetrics-blue focus:ring-QuantMetrics-blue">
                                 <span class="font-medium text-gray-700">📈 LONG</span>
                             </label>
                             <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="direction" value="SHORT" class="mr-2 text-edgelab-blue focus:ring-edgelab-blue">
+                                <input type="radio" name="direction" value="SHORT" class="mr-2 text-QuantMetrics-blue focus:ring-QuantMetrics-blue">
                                 <span class="font-medium text-gray-700">📉 SHORT</span>
                             </label>
                         </div>
@@ -107,7 +107,7 @@
                     
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Test Period</label>
-                        <select name="period" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-blue focus:border-transparent transition">
+                        <select name="period" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-QuantMetrics-blue focus:border-transparent transition">
                             <option value="1mo">1 Month</option>
                             <option value="2mo" selected>2 Months</option>
                             <option value="3mo">3 Months</option>
@@ -121,7 +121,7 @@
             <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center">
-                        <div class="bg-edgelab-purple text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">2</div>
+                        <div class="bg-QuantMetrics-purple text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">2</div>
                         <h2 class="text-2xl font-bold text-gray-900">Entry Conditions</h2>
                     </div>
                     <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">All must be TRUE</span>
@@ -134,9 +134,9 @@
                 <div id="conditionsContainer" class="space-y-4 mb-6">
                     <!-- Condition 1 (default) -->
                     <div class="condition-row flex flex-wrap items-center gap-3 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200" data-index="0">
-                        <span class="text-edgelab-blue font-bold w-8">IF</span>
+                        <span class="text-QuantMetrics-blue font-bold w-8">IF</span>
                         
-                        <select name="indicator_0" class="flex-1 min-w-32 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-blue transition">
+                        <select name="indicator_0" class="flex-1 min-w-32 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-QuantMetrics-blue transition">
                             <option value="rsi">RSI (14)</option>
                             <option value="adx">ADX (14)</option>
                             <option value="macd">MACD</option>
@@ -147,7 +147,7 @@
                             <option value="bb_lower">Bollinger Lower</option>
                         </select>
                         
-                        <select name="operator_0" class="w-36 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-blue transition">
+                        <select name="operator_0" class="w-36 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-QuantMetrics-blue transition">
                             <option value="<">< Less than</option>
                             <option value=">">Greater than</option>
                             <option value="<="><= Less/equal</option>
@@ -155,7 +155,7 @@
                         </select>
                         
                         <input type="number" name="value_0" value="30" step="0.1" 
-                               class="w-24 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-blue transition">
+                               class="w-24 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-QuantMetrics-blue transition">
                         
                         <button type="button" onclick="removeCondition(this)" 
                                 class="text-red-500 hover:text-red-700 p-2 opacity-50 cursor-not-allowed transition" 
@@ -169,7 +169,7 @@
                 
                 <!-- Add Condition Button -->
                 <button type="button" onclick="addCondition()" 
-                        class="flex items-center gap-2 text-edgelab-purple hover:text-purple-700 font-semibold transition bg-purple-50 px-4 py-2 rounded-lg hover:bg-purple-100">
+                        class="flex items-center gap-2 text-QuantMetrics-purple hover:text-purple-700 font-semibold transition bg-purple-50 px-4 py-2 rounded-lg hover:bg-purple-100">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
@@ -179,7 +179,7 @@
                 <!-- Session Filter -->
                 <div class="mt-6 pt-6 border-t border-gray-200">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">📅 Session Filter (Optional)</label>
-                    <select name="session" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-edgelab-purple focus:border-transparent transition">
+                    <select name="session" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-QuantMetrics-purple focus:border-transparent transition">
                         <option value="">All Sessions</option>
                         <option value="Tokyo">Tokyo (00:00-08:00 UTC)</option>
                         <option value="London">London (08:00-16:00 UTC)</option>
@@ -228,7 +228,7 @@
             </div>
 
             <!-- Strategy Preview -->
-            <div class="bg-gradient-to-r from-edgelab-blue to-edgelab-purple rounded-xl shadow-lg p-6 text-white">
+            <div class="bg-gradient-to-r from-QuantMetrics-blue to-QuantMetrics-purple rounded-xl shadow-lg p-6 text-white">
                 <h3 class="text-sm font-semibold uppercase tracking-wide mb-2 opacity-90">Strategy Preview</h3>
                 <p class="text-lg font-mono" id="strategyPreview">LONG when RSI < 30</p>
             </div>
@@ -237,7 +237,7 @@
             <div class="text-center">
                 <button type="submit" 
                         id="submitBtn"
-                        class="bg-gradient-to-r from-edgelab-purple to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-5 px-16 rounded-xl text-xl shadow-2xl transform hover:scale-105 transition duration-200">
+                        class="bg-gradient-to-r from-QuantMetrics-purple to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-5 px-16 rounded-xl text-xl shadow-2xl transform hover:scale-105 transition duration-200">
                     🚀 Run Backtest
                 </button>
                 <p class="text-sm text-gray-500 mt-4">⏱️ Results in ~30 seconds</p>
@@ -269,7 +269,7 @@
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-400 py-8 mt-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="mb-2">© 2025 EdgeLab. All rights reserved.</p>
+            <p class="mb-2">© 2025 QuantMetrics. All rights reserved.</p>
             <p class="text-sm">Your vision tested. Your trading explained.</p>
         </div>
     </footer>
@@ -290,9 +290,9 @@
             
             const conditionHTML = `
                 <div class="condition-row flex flex-wrap items-center gap-3 p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200" data-index="${index}">
-                    <span class="text-edgelab-purple font-bold w-8">AND</span>
+                    <span class="text-QuantMetrics-purple font-bold w-8">AND</span>
                     
-                    <select name="indicator_${index}" class="flex-1 min-w-32 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-purple transition">
+                    <select name="indicator_${index}" class="flex-1 min-w-32 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-QuantMetrics-purple transition">
                         <option value="rsi">RSI (14)</option>
                         <option value="adx" selected>ADX (14)</option>
                         <option value="macd">MACD</option>
@@ -303,7 +303,7 @@
                         <option value="bb_lower">Bollinger Lower</option>
                     </select>
                     
-                    <select name="operator_${index}" class="w-36 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-purple transition">
+                    <select name="operator_${index}" class="w-36 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-QuantMetrics-purple transition">
                         <option value="<">< Less than</option>
                         <option value=">" selected>Greater than</option>
                         <option value="<="><= Less/equal</option>
@@ -311,7 +311,7 @@
                     </select>
                     
                     <input type="number" name="value_${index}" value="25" step="0.1" 
-                           class="w-24 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-purple transition">
+                           class="w-24 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-QuantMetrics-purple transition">
                     
                     <button type="button" onclick="removeCondition(this)" 
                             class="text-red-500 hover:text-red-700 p-2 transition">
@@ -349,10 +349,10 @@
                 const label = row.querySelector('span');
                 if (i === 0) {
                     label.textContent = 'IF';
-                    label.className = 'text-edgelab-blue font-bold w-8';
+                    label.className = 'text-QuantMetrics-blue font-bold w-8';
                 } else {
                     label.textContent = 'AND';
-                    label.className = 'text-edgelab-purple font-bold w-8';
+                    label.className = 'text-QuantMetrics-purple font-bold w-8';
                 }
                 
                 row.querySelector('select[name^="indicator"]').name = `indicator_${i}`;

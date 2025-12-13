@@ -1,4 +1,4 @@
-"""
+﻿"""
 Test TimingAnalyzer with sample data
 Validates session breakdown and timing intelligence
 """
@@ -10,13 +10,13 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.pattern_analyzer import TimingAnalyzer, SessionPerformance, TimingIntelligence
-from core.edgelab_schema import EdgeLabTrade
+from core.quantmetrics_schema import QuantMetricsTrade
 from datetime import datetime
 
 # Create test trades with known session distribution
 test_trades = [
     # Tokyo trades (low performance)
-    EdgeLabTrade(
+    QuantMetricsTrade(
         timestamp_open=datetime(2024, 1, 15, 2, 30),  # Tokyo hour
         timestamp_close=datetime(2024, 1, 15, 3, 45),
         symbol='XAUUSD',
@@ -34,7 +34,7 @@ test_trades = [
         confidence=100
     ),
     # London trades (neutral)
-    EdgeLabTrade(
+    QuantMetricsTrade(
         timestamp_open=datetime(2024, 1, 15, 10, 30),  # London hour
         timestamp_close=datetime(2024, 1, 15, 11, 45),
         symbol='XAUUSD',
@@ -52,7 +52,7 @@ test_trades = [
         confidence=100
     ),
     # NY trades (high performance)
-    EdgeLabTrade(
+    QuantMetricsTrade(
         timestamp_open=datetime(2024, 1, 15, 14, 30),  # NY hour
         timestamp_close=datetime(2024, 1, 15, 15, 45),
         symbol='XAUUSD',
@@ -69,7 +69,7 @@ test_trades = [
         source='test',
         confidence=100
     ),
-    EdgeLabTrade(
+    QuantMetricsTrade(
         timestamp_open=datetime(2024, 1, 16, 15, 0),  # NY hour (overlap)
         timestamp_close=datetime(2024, 1, 16, 16, 30),
         symbol='XAUUSD',

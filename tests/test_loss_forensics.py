@@ -1,4 +1,4 @@
-"""
+﻿"""
 Test LossForensics
 """
 
@@ -10,7 +10,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from core.pattern_analyzer import LossForensics
-from core.edgelab_schema import EdgeLabTrade
+from core.quantmetrics_schema import QuantMetricsTrade
 from datetime import datetime, timedelta
 
 def test_loss_forensics():
@@ -18,7 +18,7 @@ def test_loss_forensics():
     
     trades = [
         # Proper loss (good execution)
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 15, 14, 30),
             timestamp_close=datetime(2024, 1, 15, 15, 0),
             symbol="XAUUSD", direction="LONG",
@@ -28,7 +28,7 @@ def test_loss_forensics():
             rr=-1.0, session="NY", source="test", confidence=100
         ),
         # Held past SL (bad execution)
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 16, 8, 0),
             timestamp_close=datetime(2024, 1, 16, 9, 0),
             symbol="XAUUSD", direction="SHORT",
@@ -38,7 +38,7 @@ def test_loss_forensics():
             rr=-2.3, session="London", source="test", confidence=100
         ),
         # Win (for context)
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 16, 15, 0),
             timestamp_close=datetime(2024, 1, 16, 16, 30),
             symbol="XAUUSD", direction="LONG",
@@ -48,7 +48,7 @@ def test_loss_forensics():
             rr=3.0, session="NY", source="test", confidence=100
         ),
         # Revenge trade (loss immediately after loss)
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 16, 9, 15),  # 15min after loss
             timestamp_close=datetime(2024, 1, 16, 9, 45),
             symbol="XAUUSD", direction="SHORT",

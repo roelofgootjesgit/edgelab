@@ -1,4 +1,4 @@
-"""
+﻿"""
 csv_parser.py
 =============
 
@@ -11,14 +11,14 @@ Usage:
     parser = CSVParser()
     trades = parser.parse("trades.csv")
     
-Author: EdgeLab Development Team
+Author: QuantMetrics Development Team
 Version: 1.0
 """
 
 import pandas as pd
 from typing import List
 from pathlib import Path
-from core.edgelab_schema import EdgeLabTrade, detect_session, calculate_rr
+from core.quantmetrics_schema import QuantMetricsTrade, detect_session, calculate_rr
 
 
 class CSVParser:
@@ -31,7 +31,7 @@ class CSVParser:
     - TradingView exports
     - Generic trading journals
     
-    Converts all formats to EdgeLab standard (EdgeLabTrade objects).
+    Converts all formats to EdgeLab standard (QuantMetricsTrade objects).
     """
     
     def __init__(self):
@@ -80,7 +80,7 @@ class CSVParser:
         # Default to generic
         return 'generic'
     
-    def parse(self, file_path: str) -> List[EdgeLabTrade]:
+    def parse(self, file_path: str) -> List[QuantMetricsTrade]:
         """
         Main parsing function - detects format and converts to EdgeLab standard.
         
@@ -88,7 +88,7 @@ class CSVParser:
             file_path: Path to CSV file
             
         Returns:
-            List of EdgeLabTrade objects
+            List of QuantMetricsTrade objects
             
         Raises:
             ValueError: If format not supported or data invalid
@@ -107,7 +107,7 @@ class CSVParser:
         else:
             return self._parse_generic(file_path)
     
-    def _parse_edgelab(self, file_path: str) -> List[EdgeLabTrade]:
+    def _parse_edgelab(self, file_path: str) -> List[QuantMetricsTrade]:
         """
         Parse EdgeLab native format (11 columns).
         
@@ -120,12 +120,12 @@ class CSVParser:
             file_path: Path to CSV file
             
         Returns:
-            List of EdgeLabTrade objects
+            List of QuantMetricsTrade objects
         """
         # Read CSV
         df = pd.read_csv(file_path)
         
-        # Convert to EdgeLabTrade objects
+        # Convert to QuantMetricsTrade objects
         trades = []
         for _, row in df.iterrows():
             # Parse timestamps
@@ -142,7 +142,7 @@ class CSVParser:
             # Detect session
             session = detect_session(timestamp_open)
             
-            trade = EdgeLabTrade(
+            trade = QuantMetricsTrade(
                 timestamp_open=timestamp_open,
                 timestamp_close=timestamp_close,
                 symbol=row['symbol'],
@@ -163,14 +163,14 @@ class CSVParser:
         
         return trades
     
-    def _parse_mt4(self, file_path: str) -> List[EdgeLabTrade]:
+    def _parse_mt4(self, file_path: str) -> List[QuantMetricsTrade]:
         """Parse MT4 export format (to be implemented)."""
         raise NotImplementedError("MT4 format parser coming in next step")
     
-    def _parse_tradingview(self, file_path: str) -> List[EdgeLabTrade]:
+    def _parse_tradingview(self, file_path: str) -> List[QuantMetricsTrade]:
         """Parse TradingView format (to be implemented)."""
         raise NotImplementedError("TradingView format parser coming in next step")
     
-    def _parse_generic(self, file_path: str) -> List[EdgeLabTrade]:
+    def _parse_generic(self, file_path: str) -> List[QuantMetricsTrade]:
         """Parse generic format with flexible column mapping (to be implemented)."""
         raise NotImplementedError("Generic format parser coming in next step")

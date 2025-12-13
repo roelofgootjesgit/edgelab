@@ -1,11 +1,11 @@
-"""
+﻿"""
 backtest_engine.py
 ==================
 
 Simulate strategy execution on historical price data.
-Generates EdgeLabTrade objects compatible with existing analyzer.
+Generates QuantMetricsTrade objects compatible with existing analyzer.
 
-Author: EdgeLab Development Team
+Author: QuantMetrics Development Team
 Version: 1.1 (Added Bollinger Bands support)
 """
 
@@ -13,7 +13,7 @@ from typing import List, Optional
 from datetime import datetime
 import pandas as pd
 
-from core.edgelab_schema import EdgeLabTrade
+from core.quantmetrics_schema import QuantMetricsTrade
 from core.strategy import StrategyDefinition, EntryCondition
 from core.data_downloader import DataDownloader
 from core.indicators import IndicatorEngine
@@ -40,7 +40,7 @@ class BacktestEngine:
     3. Loop through candles
     4. Check entry conditions
     5. Simulate trade execution
-    6. Generate EdgeLabTrade objects
+    6. Generate QuantMetricsTrade objects
     
     Output is compatible with existing EdgeLab analyzer.
     """
@@ -60,7 +60,7 @@ class BacktestEngine:
         self.data_manager = data_manager
         self.indicators = IndicatorEngine()
     
-    def run(self, strategy: StrategyDefinition) -> List[EdgeLabTrade]:
+    def run(self, strategy: StrategyDefinition) -> List[QuantMetricsTrade]:
         """
         Run backtest for given strategy.
         
@@ -68,7 +68,7 @@ class BacktestEngine:
             strategy: StrategyDefinition with entry/exit rules
             
         Returns:
-            List of EdgeLabTrade objects (same format as CSV parser)
+            List of QuantMetricsTrade objects (same format as CSV parser)
         """
         # Validate strategy
         errors = strategy.validate()
@@ -121,7 +121,7 @@ class BacktestEngine:
         tp_r: float,
         sl_r: float,
         modules: list
-    ) -> List[EdgeLabTrade]:
+    ) -> List[QuantMetricsTrade]:
         """
         Run backtest with modular strategy system.
         
@@ -136,7 +136,7 @@ class BacktestEngine:
             modules: List of instantiated module objects
             
         Returns:
-            List of EdgeLabTrade objects
+            List of QuantMetricsTrade objects
         """
         # Convert period to start/end dates
         from datetime import datetime, timedelta
@@ -192,7 +192,7 @@ class BacktestEngine:
         session: Optional[str],
         modules: list,
         symbol: str
-    ) -> List[EdgeLabTrade]:
+    ) -> List[QuantMetricsTrade]:
         """
         Core simulation loop for modular strategy.
         
@@ -300,7 +300,7 @@ class BacktestEngine:
         self, 
         data: pd.DataFrame, 
         strategy: StrategyDefinition
-    ) -> List[EdgeLabTrade]:
+    ) -> List[QuantMetricsTrade]:
         """
         Core simulation loop.
         
@@ -478,8 +478,8 @@ class BacktestEngine:
         candle: pd.Series,
         position: dict, 
         exit_reason: str
-    ) -> EdgeLabTrade:
-        """Close position and create EdgeLabTrade."""
+    ) -> QuantMetricsTrade:
+        """Close position and create QuantMetricsTrade."""
         
         # Determine exit price
         if exit_reason == 'tp':
@@ -504,7 +504,7 @@ class BacktestEngine:
         # Estimate USD profit (assume $10 per pip for XAUUSD)
         profit_usd = profit_raw * 10
         
-        return EdgeLabTrade(
+        return QuantMetricsTrade(
             timestamp_open=position['timestamp_open'],
             timestamp_close=timestamp,
             symbol=position['symbol'],

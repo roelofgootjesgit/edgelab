@@ -1,4 +1,4 @@
-"""
+﻿"""
 reporter.py
 ===========
 
@@ -6,7 +6,7 @@ Professional PDF Report Generator for EdgeLab.
 Premium dark theme design with modern card-based layout.
 Version 4.0 - Professional Polish
 
-Author: EdgeLab Development Team
+Author: QuantMetrics Development Team
 Version: 4.0 (Professional Polish Design)
 """
 

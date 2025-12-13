@@ -1,4 +1,4 @@
-"""
+﻿"""
 data_downloader.py
 ==================
 
@@ -7,7 +7,7 @@ Download historical market data from Yahoo Finance.
 Note: Caching is handled by DataManager + LocalStorage.
 This module only downloads fresh data from Yahoo Finance.
 
-Author: EdgeLab Development Team
+Author: QuantMetrics Development Team
 Version: 2.0
 """
 

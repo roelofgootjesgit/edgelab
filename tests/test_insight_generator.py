@@ -1,4 +1,4 @@
-"""
+﻿"""
 Test InsightGenerator
 """
 
@@ -13,7 +13,7 @@ from core.pattern_analyzer import (
     TimingAnalyzer, DirectionalAnalyzer, 
     ExecutionAnalyzer, LossForensics, InsightGenerator
 )
-from core.edgelab_schema import EdgeLabTrade
+from core.quantmetrics_schema import QuantMetricsTrade
 from datetime import datetime
 
 def test_insight_generation():
@@ -22,7 +22,7 @@ def test_insight_generation():
     # Create test trades with clear patterns
     trades = [
         # Tokyo losses
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 15, 2, 30),
             timestamp_close=datetime(2024, 1, 15, 3, 0),
             symbol="XAUUSD", direction="SHORT",
@@ -32,7 +32,7 @@ def test_insight_generation():
             rr=-1.0, session="Tokyo", source="test", confidence=100
         ),
         # NY LONG wins
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 15, 15, 0),
             timestamp_close=datetime(2024, 1, 15, 16, 30),
             symbol="XAUUSD", direction="LONG",
@@ -41,7 +41,7 @@ def test_insight_generation():
             profit_usd=150.0, profit_r=3.0, result="WIN",
             rr=3.0, session="NY", source="test", confidence=100
         ),
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 16, 14, 30),
             timestamp_close=datetime(2024, 1, 16, 15, 45),
             symbol="XAUUSD", direction="LONG",
@@ -51,7 +51,7 @@ def test_insight_generation():
             rr=3.0, session="NY", source="test", confidence=100
         ),
         # SHORT loss (directional pattern)
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 17, 16, 0),
             timestamp_close=datetime(2024, 1, 17, 16, 45),
             symbol="XAUUSD", direction="SHORT",

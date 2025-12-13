@@ -1,9 +1,9 @@
-"""Quick test script for CSV parser"""
+﻿"""Quick test script for CSV parser"""
 
 from core.csv_parser import CSVParser
 
 print("=" * 50)
-print("EdgeLab CSV Parser Test")
+print("QuantMetrics CSV Parser Test")
 print("=" * 50)
 
 parser = CSVParser()

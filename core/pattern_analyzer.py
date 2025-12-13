@@ -1,16 +1,16 @@
-"""
+﻿"""
 pattern_analyzer.py
 ==================
 
 Pattern detection and analysis for trading strategies.
 Identifies timing patterns, directional bias, execution quality, and loss causes.
 
-Author: EdgeLab Development Team
+Author: QuantMetrics Development Team
 Version: 1.4
 """
 
 from typing import List, Dict
-from core.edgelab_schema import EdgeLabTrade
+from core.quantmetrics_schema import QuantMetricsTrade
 from datetime import datetime
 
 
@@ -20,12 +20,12 @@ class TimingAnalyzer:
     Detect when strategy works best
     """
     
-    def analyze(self, trades: List[EdgeLabTrade]) -> Dict:
+    def analyze(self, trades: List[QuantMetricsTrade]) -> Dict:
         """
         Analyze timing patterns in trades
         
         Args:
-            trades: List of EdgeLabTrade objects
+            trades: List of QuantMetricsTrade objects
             
         Returns:
             Dict with session_breakdown, hourly_breakdown, best_hour
@@ -41,7 +41,7 @@ class TimingAnalyzer:
             'best_hour': best_hour
         }
     
-    def _analyze_sessions(self, trades: List[EdgeLabTrade]) -> Dict:
+    def _analyze_sessions(self, trades: List[QuantMetricsTrade]) -> Dict:
         """Analyze performance by trading session"""
         
         sessions = {
@@ -105,7 +105,7 @@ class TimingAnalyzer:
         
         return results
     
-    def _analyze_hours(self, trades: List[EdgeLabTrade]) -> Dict:
+    def _analyze_hours(self, trades: List[QuantMetricsTrade]) -> Dict:
         """Analyze performance by hour of day"""
         
         hourly_stats = {}
@@ -167,7 +167,7 @@ class DirectionalAnalyzer:
     Detect directional bias and edge
     """
     
-    def analyze(self, trades: List[EdgeLabTrade]) -> Dict:
+    def analyze(self, trades: List[QuantMetricsTrade]) -> Dict:
         """
         Compare LONG vs SHORT performance
         
@@ -208,7 +208,7 @@ class DirectionalAnalyzer:
             'expected_improvement': expected_improvement
         }
     
-    def _calculate_direction_metrics(self, trades: List[EdgeLabTrade], direction: str) -> Dict:
+    def _calculate_direction_metrics(self, trades: List[QuantMetricsTrade], direction: str) -> Dict:
         """Calculate metrics for one direction"""
         if not trades:
             return {
@@ -295,9 +295,9 @@ class DirectionalAnalyzer:
                    f"Both LONG ({long_stats['expectancy']}R) and "
                    f"SHORT ({short_stats['expectancy']}R) show similar edge.")
     
-    def _calculate_improvement(self, all_trades: List[EdgeLabTrade], 
-                               longs: List[EdgeLabTrade], 
-                               shorts: List[EdgeLabTrade],
+    def _calculate_improvement(self, all_trades: List[QuantMetricsTrade], 
+                               longs: List[QuantMetricsTrade], 
+                               shorts: List[QuantMetricsTrade],
                                bias: str) -> float:
         """Calculate expected WR improvement if following bias"""
         
@@ -326,7 +326,7 @@ class ExecutionAnalyzer:
     Detect discipline issues and exit timing problems
     """
     
-    def analyze(self, trades: List[EdgeLabTrade]) -> Dict:
+    def analyze(self, trades: List[QuantMetricsTrade]) -> Dict:
         """
         Analyze execution quality
         
@@ -367,7 +367,7 @@ class ExecutionAnalyzer:
             'recommendations': recommendations
         }
     
-    def _analyze_tp_behavior(self, trades: List[EdgeLabTrade]) -> Dict:
+    def _analyze_tp_behavior(self, trades: List[QuantMetricsTrade]) -> Dict:
         """Analyze take profit behavior"""
         
         winning_trades = [t for t in trades if t.result == 'WIN']
@@ -425,7 +425,7 @@ class ExecutionAnalyzer:
             'estimated_missed_profit': round(missed_profit, 2)
         }
     
-    def _analyze_sl_behavior(self, trades: List[EdgeLabTrade]) -> Dict:
+    def _analyze_sl_behavior(self, trades: List[QuantMetricsTrade]) -> Dict:
         """Analyze stop loss behavior"""
         
         losing_trades = [t for t in trades if t.result == 'LOSS']
@@ -466,7 +466,7 @@ class ExecutionAnalyzer:
             'extra_loss_cost': round(extra_cost, 2)
         }
     
-    def _analyze_duration(self, trades: List[EdgeLabTrade]) -> Dict:
+    def _analyze_duration(self, trades: List[QuantMetricsTrade]) -> Dict:
         """Analyze trade duration patterns"""
         
         duration_groups = {
@@ -610,7 +610,7 @@ class LossForensics:
     Categorize loss types and identify root causes
     """
     
-    def analyze(self, trades: List[EdgeLabTrade]) -> Dict:
+    def analyze(self, trades: List[QuantMetricsTrade]) -> Dict:
         """
         Analyze losing trades in detail
         
@@ -660,7 +660,7 @@ class LossForensics:
             'critical_finding': critical_finding
         }
     
-    def _categorize_losses(self, losses: List[EdgeLabTrade]) -> Dict:
+    def _categorize_losses(self, losses: List[QuantMetricsTrade]) -> Dict:
         """Categorize losses by type"""
         
         proper_losses = []      # Expected losses (SL hit correctly)
@@ -715,7 +715,7 @@ class LossForensics:
             }
         }
     
-    def _identify_causes(self, losses: List[EdgeLabTrade], all_trades: List[EdgeLabTrade]) -> Dict:
+    def _identify_causes(self, losses: List[QuantMetricsTrade], all_trades: List[QuantMetricsTrade]) -> Dict:
         """Identify why losses occurred"""
         
         causes = {
@@ -776,7 +776,7 @@ class LossForensics:
             }
         }
     
-    def _detect_emotional_trades(self, trades: List[EdgeLabTrade]) -> Dict:
+    def _detect_emotional_trades(self, trades: List[QuantMetricsTrade]) -> Dict:
         """Detect revenge trading and emotional decisions"""
         
         emotional_trades = []
@@ -900,7 +900,7 @@ class InsightGenerator:
                  execution_results: Dict,
                  loss_results: Dict,
                  basic_metrics: Dict,
-                 trades: List[EdgeLabTrade]) -> Dict:
+                 trades: List[QuantMetricsTrade]) -> Dict:
         """
         Generate prioritized findings from all analyzers
         
@@ -950,7 +950,7 @@ class InsightGenerator:
             'statistical_summary': summary
         }
     
-    def _analyze_timing_patterns(self, timing_results: Dict, trades: List[EdgeLabTrade]) -> List[Dict]:
+    def _analyze_timing_patterns(self, timing_results: Dict, trades: List[QuantMetricsTrade]) -> List[Dict]:
         """Extract findings from timing analysis"""
         
         findings = []
@@ -1015,7 +1015,7 @@ class InsightGenerator:
         
         return findings
     
-    def _analyze_directional_patterns(self, directional_results: Dict, trades: List[EdgeLabTrade]) -> List[Dict]:
+    def _analyze_directional_patterns(self, directional_results: Dict, trades: List[QuantMetricsTrade]) -> List[Dict]:
         """Extract findings from directional analysis"""
         
         findings = []
@@ -1067,7 +1067,7 @@ class InsightGenerator:
         
         return findings
     
-    def _analyze_execution_patterns(self, execution_results: Dict, trades: List[EdgeLabTrade]) -> List[Dict]:
+    def _analyze_execution_patterns(self, execution_results: Dict, trades: List[QuantMetricsTrade]) -> List[Dict]:
         """Extract findings from execution analysis"""
         
         findings = []
@@ -1142,7 +1142,7 @@ class InsightGenerator:
         
         return findings
     
-    def _analyze_loss_patterns(self, loss_results: Dict, trades: List[EdgeLabTrade]) -> List[Dict]:
+    def _analyze_loss_patterns(self, loss_results: Dict, trades: List[QuantMetricsTrade]) -> List[Dict]:
         """Extract findings from loss analysis"""
         
         findings = []

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Integration Test - Flexible Version
 ====================================
 Works with any analyzer structure
@@ -86,10 +86,10 @@ try:
         
         # Create mock trades for testing
         from datetime import datetime
-        from core.edgelab_schema import EdgeLabTrade
+        from core.quantmetrics_schema import QuantMetricsTrade
         
         trades = [
-            EdgeLabTrade(
+            QuantMetricsTrade(
                 timestamp_open=datetime(2024, 1, 15, 14, 30),
                 timestamp_close=datetime(2024, 1, 15, 15, 45),
                 symbol='XAUUSD',
@@ -102,7 +102,7 @@ try:
                 profit_r=3.0,
                 result='WIN'
             ),
-            EdgeLabTrade(
+            QuantMetricsTrade(
                 timestamp_open=datetime(2024, 1, 15, 16, 0),
                 timestamp_close=datetime(2024, 1, 15, 16, 45),
                 symbol='XAUUSD',

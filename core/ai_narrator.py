@@ -1,11 +1,11 @@
-"""
+﻿"""
 ai_narrator.py
 ==============
 
 AI-powered narrative generation for EdgeLab reports.
 Uses Claude API to create personalized analysis stories.
 
-Author: EdgeLab Development Team
+Author: QuantMetrics Development Team
 Version: 1.0
 """
 

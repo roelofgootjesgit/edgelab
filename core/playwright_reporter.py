@@ -1,4 +1,4 @@
-"""
+﻿"""
 EdgeLab PDF Report Generator - Playwright Version
 Generates professional PDF reports using Playwright (Chrome headless)
 """
@@ -36,7 +36,7 @@ class PlaywrightReportGenerator:
         
         Args:
             results: AnalysisResults object with metrics
-            trades: List of EdgeLabTrade objects
+            trades: List of QuantMetricsTrade objects
             strategy: Optional strategy info
             insights: Optional dict with pattern analysis insights
             

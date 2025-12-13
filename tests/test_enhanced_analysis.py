@@ -1,11 +1,11 @@
-"""
+﻿"""
 test_enhanced_analysis.py
 =========================
 
 End-to-end test for enhanced analysis pipeline.
 Tests: CSV → Parser → Enhanced Analyzer → Comprehensive Results
 
-Author: EdgeLab Development Team
+Author: QuantMetrics Development Team
 Version: 2.0 (Enhanced with Pattern Analysis)
 """
 

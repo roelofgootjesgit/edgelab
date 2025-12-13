@@ -1,11 +1,11 @@
-"""
+﻿"""
 indicators.py
 =============
 
 Technical indicator calculations for EdgeLab.
 Uses 'ta' library for reliable indicator implementations.
 
-Author: EdgeLab Development Team
+Author: QuantMetrics Development Team
 Version: 1.0
 """
 

@@ -1,4 +1,4 @@
-"""
+﻿"""
 EdgeLab Data Models
 ===================
 Modern data structures for trading analysis platform.
@@ -10,7 +10,7 @@ from typing import Literal, Optional
 
 
 @dataclass
-class EdgeLabTrade:
+class QuantMetricsTrade:
     """Single trade record - universal format."""
     
     timestamp_open: datetime

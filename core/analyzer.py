@@ -1,19 +1,19 @@
-"""
+﻿"""
 analyzer.py
 ===========
 
 Performance analysis engine for EdgeLab.
-Calculates trading metrics from EdgeLabTrade objects.
+Calculates trading metrics from QuantMetricsTrade objects.
 
 Includes comprehensive pattern analysis and insights.
 
-Author: EdgeLab Development Team
+Author: QuantMetrics Development Team
 Version: 2.3 (All template aliases - maximum compatibility)
 """
 
 from typing import List, Dict, Any
 import statistics
-from core.edgelab_schema import EdgeLabTrade, AnalysisResult
+from core.quantmetrics_schema import QuantMetricsTrade, AnalysisResult
 from core.pattern_analyzer import (
     TimingAnalyzer,
     DirectionalAnalyzer, 
@@ -46,12 +46,12 @@ class BasicAnalyzer:
         self.forensics = LossForensics()
         self.insights = InsightGenerator()
     
-    def calculate(self, trades: List[EdgeLabTrade]) -> Dict[str, Any]:
+    def calculate(self, trades: List[QuantMetricsTrade]) -> Dict[str, Any]:
         """
         Calculate all metrics from trade list.
         
         Args:
-            trades: List of EdgeLabTrade objects
+            trades: List of QuantMetricsTrade objects
             
         Returns:
             Dictionary with comprehensive analysis results
@@ -105,7 +105,7 @@ class BasicAnalyzer:
             'insights': insights_results
         }
     
-    def _calculate_basic_metrics(self, trades: List[EdgeLabTrade]) -> Dict[str, Any]:
+    def _calculate_basic_metrics(self, trades: List[QuantMetricsTrade]) -> Dict[str, Any]:
         """Calculate fundamental metrics."""
         
         total_trades = len(trades)
@@ -175,7 +175,7 @@ class BasicAnalyzer:
             'max_drawdown': round(max_dd, 2)  # Template alias
         }
     
-    def _calculate_max_drawdown(self, trades: List[EdgeLabTrade]) -> float:
+    def _calculate_max_drawdown(self, trades: List[QuantMetricsTrade]) -> float:
         """Calculate maximum drawdown percentage."""
         
         equity = [100.0]
@@ -209,7 +209,7 @@ class AdvancedAnalyzer:
     """
     
     def calculate_all(self, 
-                     trades: List[EdgeLabTrade],
+                     trades: List[QuantMetricsTrade],
                      winrate: float,
                      profit_factor: float,
                      max_drawdown: float) -> Dict[str, Any]:
@@ -225,7 +225,7 @@ class AdvancedAnalyzer:
             'sharpe_ratio': round(sharpe, 2)
         }
     
-    def calculate_esi(self, trades: List[EdgeLabTrade]) -> float:
+    def calculate_esi(self, trades: List[QuantMetricsTrade]) -> float:
         """Edge Stability Index: consistency measurement."""
         
         if len(trades) < 16:  # Need 4 per quarter
@@ -275,7 +275,7 @@ class AdvancedAnalyzer:
         
         return pvs
     
-    def calculate_sharpe_ratio(self, trades: List[EdgeLabTrade]) -> float:
+    def calculate_sharpe_ratio(self, trades: List[QuantMetricsTrade]) -> float:
         """Sharpe Ratio: risk-adjusted returns."""
         
         if len(trades) < 2:

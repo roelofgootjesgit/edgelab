@@ -1,4 +1,4 @@
-"""
+﻿"""
 Test ExecutionAnalyzer
 """
 
@@ -10,7 +10,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from core.pattern_analyzer import ExecutionAnalyzer
-from core.edgelab_schema import EdgeLabTrade
+from core.quantmetrics_schema import QuantMetricsTrade
 from datetime import datetime, timedelta
 
 def test_execution_quality():
@@ -18,7 +18,7 @@ def test_execution_quality():
     
     trades = [
         # Full TP win (good execution)
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 15, 14, 30),
             timestamp_close=datetime(2024, 1, 15, 16, 0),  # 1.5h duration
             symbol="XAUUSD", direction="LONG",
@@ -28,7 +28,7 @@ def test_execution_quality():
             rr=3.0, session="NY", source="test", confidence=100
         ),
         # Early exit (bad execution)
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 16, 15, 0),
             timestamp_close=datetime(2024, 1, 16, 15, 30),  # 0.5h duration
             symbol="XAUUSD", direction="LONG",
@@ -38,7 +38,7 @@ def test_execution_quality():
             rr=1.4, session="NY", source="test", confidence=100
         ),
         # Proper SL hit (good execution)
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 17, 16, 0),
             timestamp_close=datetime(2024, 1, 17, 17, 0),  # 1h duration
             symbol="XAUUSD", direction="SHORT",
@@ -48,7 +48,7 @@ def test_execution_quality():
             rr=-1.0, session="NY", source="test", confidence=100
         ),
         # Held past SL (bad execution)
-        EdgeLabTrade(
+        QuantMetricsTrade(
             timestamp_open=datetime(2024, 1, 18, 8, 15),
             timestamp_close=datetime(2024, 1, 18, 10, 0),  # 1.75h duration
             symbol="XAUUSD", direction="SHORT",
