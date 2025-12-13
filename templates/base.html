@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}QuantMetrics - Transform Trading Into Data Science{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logo-symbol.svg') }}">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <!-- Logo -->
+            <a href="{{ url_for('index') }}" class="navbar-logo">
+                <img src="{{ url_for('static', filename='images/logo-symbol.svg') }}" alt="QuantMetrics">
+                <span class="navbar-brand">QuantMetrics</span>
+            </a>
+            
+            <!-- Navigation Links -->
+            <ul class="navbar-links">
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('upload_page') }}">Analyze</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+            </ul>
+            
+            <!-- CTA Button -->
+            <a href="{{ url_for('upload_page') }}" class="btn btn-primary">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

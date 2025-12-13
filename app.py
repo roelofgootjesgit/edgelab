@@ -2,7 +2,7 @@
 app.py
 ======
 
-EdgeLab Flask Web Application
+QuantMetrics Flask Web Application
 Professional SaaS interface for trading analysis
 
 Routes:
@@ -15,8 +15,8 @@ Routes:
 - /download/<filename> : Download PDF
 - /api/modules : Get available strategy modules
 
-Author: EdgeLab Development Team
-Version: 3.0 (Modular Strategy System)
+Author: QuantMetrics Development Team
+Version: 4.0 (Modular Strategy System)
 """
 
 from flask import Flask, render_template, request, send_file, redirect, url_for, flash
@@ -35,7 +35,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'edgelab-secret-key-change-in-production')
+app.secret_key = os.getenv('SECRET_KEY', 'quantmetrics-secret-key-change-in-production')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['OUTPUT_FOLDER'] = 'output'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -50,7 +50,7 @@ app.register_blueprint(modules_api)
 
 # Startup message to confirm correct version
 print("=" * 60)
-print("EdgeLab v3.0 - Modular Strategy System")
+print("QuantMetrics v4.0 - Transform Trading Into Data Science")
 print("=" * 60)
 
 
@@ -112,7 +112,7 @@ def analyze():
         generator = PlaywrightReportGenerator()
         pdf_bytes = generator.generate_report(results, trades)
         
-        pdf_filename = f"edgelab_report_{timestamp}.pdf"
+        pdf_filename = f"quantmetrics_report_{timestamp}.pdf"
         pdf_path = os.path.join(app.config['OUTPUT_FOLDER'], pdf_filename)
         
         with open(pdf_path, 'wb') as f:
@@ -371,7 +371,7 @@ def download(filename):
     
     return send_file(filepath, 
                     as_attachment=True,
-                    download_name='EdgeLab_Analysis_Report.pdf',
+                    download_name='QuantMetrics_Analysis_Report.pdf',
                     mimetype='application/pdf')
 
 
