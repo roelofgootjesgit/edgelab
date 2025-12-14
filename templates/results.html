@@ -19,12 +19,12 @@
         
         <div class="metric-card">
             <div class="metric-label">ESI Score</div>
-            <div class="metric-value metric-highlight">{{ results.esi_score|round(2) }}</div>
+            <div class="metric-value metric-highlight">{{ results.esi|round(2) }}</div>
         </div>
         
         <div class="metric-card">
             <div class="metric-label">PVS Score</div>
-            <div class="metric-value metric-highlight">{{ results.pvs_score|round(2) }}</div>
+            <div class="metric-value metric-highlight">{{ results.pvs|round(2) }}</div>
         </div>
         
         <div class="metric-card">
@@ -34,7 +34,7 @@
         
         <div class="metric-card">
             <div class="metric-label">Total P&L</div>
-            <div class="metric-value">${{ results.total_pnl|round(2) }}</div>
+            <div class="metric-value">{{ results.total_profit|round(2) }}R</div>
         </div>
         
         <div class="metric-card">

@@ -4,7 +4,7 @@ Generates professional PDF reports using Playwright (Chrome headless)
 """
 
 from playwright.sync_api import sync_playwright
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from datetime import datetime
 import os
 
@@ -24,10 +24,11 @@ class PlaywrightReportGenerator:
         """Initialize the reporter with template directory."""
         self.template_dir = template_dir
         
-        # Setup Jinja2 environment
+        # Setup Jinja2 environment with strict undefined checking
         self.env = Environment(
             loader=FileSystemLoader(template_dir),
-            autoescape=True
+            autoescape=True,
+            undefined=StrictUndefined  # This will help us find missing variables
         )
         
     def generate_report(self, results, trades, strategy=None, insights=None):
@@ -44,7 +45,7 @@ class PlaywrightReportGenerator:
             bytes: PDF file content
         """
         # Load template
-        template = self.env.get_template('report_edgelab.html')
+        template = self.env.get_template('report_quantmetrics.html')
         
         # Prepare context
         context = self._prepare_context(results, trades, strategy, insights)
@@ -60,25 +61,60 @@ class PlaywrightReportGenerator:
     def _prepare_context(self, results, trades, strategy, insights):
         """Prepare template context from analysis results."""
         
-        # Default insights if not provided
+        # Convert results dict to object recursively
+        def dict_to_obj(d):
+            """Convert dict to object, handling nested dicts."""
+            if isinstance(d, dict):
+                return type('Obj', (), {k: dict_to_obj(v) for k, v in d.items()})
+            elif isinstance(d, list):
+                return [dict_to_obj(item) for item in d]
+            else:
+                return d
+        
+        # Convert results if it's a dict
+        if isinstance(results, dict):
+            results_obj = dict_to_obj(results)
+            
+            # Extract insights from results if present
+            if hasattr(results_obj, 'insights') and results_obj.insights:
+                insights = results_obj.insights
+        else:
+            results_obj = results
+        
+        # Default insights if still None
         if insights is None:
             insights = {
                 'critical_findings': [],
                 'notable_patterns': []
             }
         
-        # Timing analysis (from session data if available)
+        # Convert insights dict to object if needed
+        if isinstance(insights, dict):
+            insights_obj = dict_to_obj(insights)
+        else:
+            insights_obj = insights
+        
+        # Timing analysis (from results if available)
+        timing_data = {}
+        if hasattr(results_obj, 'timing_analysis'):
+            ta = results_obj.timing_analysis
+            if isinstance(ta, dict):
+                timing_data = ta
+            elif hasattr(ta, '__dict__'):
+                timing_data = ta.__dict__
+        
         timing = {
-            'best_session': getattr(results, 'best_session', 'NY Session'),
-            'worst_session': getattr(results, 'worst_session', 'London')
+            'best_session': timing_data.get('best_session', None),
+            'worst_session': timing_data.get('worst_session', None)
         }
         
         context = {
-            'results': results,
+            'results': results_obj,
             'total_trades': len(trades),
             'generated_date': datetime.now().strftime('%B %d, %Y'),
-            'insights': type('Insights', (), insights),  # Convert dict to object
-            'timing': type('Timing', (), timing)
+            'strategy': strategy,
+            'insights': insights_obj,
+            'timing': dict_to_obj(timing)
         }
         
         return context

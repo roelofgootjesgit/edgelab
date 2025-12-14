@@ -736,14 +736,15 @@ class LossForensics:
                 causes['wrong_direction'] += 1
                 continue
             
-            # Check if session was the problem
-            session_losses = [t for t in losses if t.session == loss.session]
-            session_wins = [t for t in all_trades 
-                          if t.session == loss.session and t.result == 'WIN']
-            
-            if len(session_losses) > len(session_wins) * 1.5:
-                causes['wrong_session'] += 1
-                continue
+            # Check if session was the problem (if trades have session data)
+            if hasattr(loss, 'session') and loss.session:
+                session_losses = [t for t in losses if hasattr(t, 'session') and t.session == loss.session]
+                session_wins = [t for t in all_trades 
+                              if hasattr(t, 'session') and t.session == loss.session and t.result == 'WIN']
+                
+                if len(session_losses) > len(session_wins) * 1.5:
+                    causes['wrong_session'] += 1
+                    continue
             
             # Check if timing within session
             hour = loss.timestamp_open.hour

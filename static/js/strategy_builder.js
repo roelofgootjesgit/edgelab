@@ -1,5 +1,6 @@
 /**
- * EdgeLab Strategy Builder - Dynamic Module UI
+ * QuantMetrics Strategy Builder - Dynamic Module UI
+ * Version 2.0 - FIXED
  * 
  * Fetches modules from API and builds UI dynamically
  * No hardcoded modules - everything driven by backend
@@ -35,7 +36,11 @@ class StrategyBuilder {
                 throw new Error(`API error: ${response.status}`);
             }
             
-            this.modules = await response.json();
+            const data = await response.json();
+            
+            // FIX: Extract only the modules object, not the wrapper
+            this.modules = data.modules;
+            
             console.log('[StrategyBuilder] Modules loaded:', this.modules);
             
         } catch (error) {
@@ -79,11 +84,11 @@ class StrategyBuilder {
             : 'condition-row flex flex-wrap items-center gap-3 p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200';
         conditionCard.id = `condition-${conditionId}`;
         conditionCard.innerHTML = `
-            <span class="font-bold w-8 ${isFirst ? 'text-edgelab-blue' : 'text-edgelab-purple'}">
+            <span class="font-bold w-8 ${isFirst ? 'text-QuantMetrics-blue' : 'text-QuantMetrics-purple'}">
                 ${isFirst ? 'IF' : 'AND'}
             </span>
             
-            <select id="module-select-${conditionId}" class="module-select flex-1 min-w-32 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-edgelab-purple transition">
+            <select id="module-select-${conditionId}" class="module-select flex-1 min-w-32 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-QuantMetrics-purple transition">
                 <option value="">Select indicator...</option>
                 ${this.buildModuleOptions()}
             </select>
@@ -115,7 +120,10 @@ class StrategyBuilder {
     }
     
     buildModuleOptions() {
-        if (!this.modules) return '';
+        if (!this.modules) {
+            console.warn('[StrategyBuilder] Modules not loaded yet');
+            return '';
+        }
         
         const categoryLabels = {
             'indicator': '📊 Indicators',
@@ -126,8 +134,13 @@ class StrategyBuilder {
         
         let html = '';
         
+        // FIX: Ensure this.modules is an object with arrays
         for (const [category, moduleList] of Object.entries(this.modules)) {
-            if (moduleList.length === 0) continue;
+            // FIX: Check if moduleList is actually an array
+            if (!Array.isArray(moduleList) || moduleList.length === 0) {
+                console.log(`[StrategyBuilder] Skipping empty category: ${category}`);
+                continue;
+            }
             
             html += `<optgroup label="${categoryLabels[category] || category}">`;
             
@@ -164,7 +177,8 @@ class StrategyBuilder {
         // Update condition
         const condition = this.conditions.find(c => c.id === conditionId);
         condition.module = moduleKey;
-        condition.schema = module.schema;
+        // FIX: Use config_schema instead of schema
+        condition.schema = module.config_schema;
         
         // Build config fields
         this.buildConfigFields(conditionId, module);
@@ -173,14 +187,16 @@ class StrategyBuilder {
     buildConfigFields(conditionId, module) {
         const container = document.getElementById(`config-fields-${conditionId}`);
         
-        if (!module.schema || !module.schema.fields) {
+        // FIX: Use config_schema instead of schema
+        if (!module.config_schema || !module.config_schema.fields) {
             container.innerHTML = '<span class="text-gray-500 text-sm">No configuration needed</span>';
             return;
         }
         
         let html = '<div class="flex flex-wrap gap-3">';
         
-        for (const field of module.schema.fields) {
+        // FIX: Use config_schema.fields instead of schema.fields
+        for (const field of module.config_schema.fields) {
             html += this.buildField(conditionId, field);
         }
         
@@ -274,11 +290,11 @@ class StrategyBuilder {
             const label = row.querySelector('span');
             if (index === 0) {
                 label.textContent = 'IF';
-                label.className = 'font-bold w-8 text-edgelab-blue';
+                label.className = 'font-bold w-8 text-QuantMetrics-blue';
                 row.className = 'condition-row flex flex-wrap items-center gap-3 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200';
             } else {
                 label.textContent = 'AND';
-                label.className = 'font-bold w-8 text-edgelab-purple';
+                label.className = 'font-bold w-8 text-QuantMetrics-purple';
                 row.className = 'condition-row flex flex-wrap items-center gap-3 p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200';
             }
         });
@@ -395,6 +411,6 @@ class StrategyBuilder {
 let strategyBuilder;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('[EdgeLab] Initializing Strategy Builder...');
+    console.log('[QuantMetrics] Initializing Strategy Builder...');
     strategyBuilder = new StrategyBuilder();
 });
