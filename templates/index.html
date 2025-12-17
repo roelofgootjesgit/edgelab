@@ -1,155 +1,332 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Hero Section -->
+<!-- Hero Section with improved animations -->
 <section class="hero">
-    <!-- Background Blobs -->
-    <div class="bg-blob bg-blob-blue"></div>
-    <div class="bg-blob bg-blob-purple"></div>
+    <!-- Animated Background Particles - Fintech Style -->
+    <div class="particles-bg">
+        <!-- Animated Grid -->
+        <div class="grid-bg"></div>
+        
+        <!-- Hexagon Pattern -->
+        <div class="hex-pattern"></div>
+        
+        <!-- Circuit Board Pattern -->
+        <div class="circuit-pattern"></div>
+        
+        <!-- Glowing Orbs -->
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+        
+        <!-- Floating Particles -->
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        
+        <!-- Data Streams -->
+        <div class="data-stream"></div>
+        <div class="data-stream"></div>
+        <div class="data-stream"></div>
+        
+        <!-- Matrix Rain (Subtle) -->
+        <div class="matrix-column">01</div>
+        <div class="matrix-column">10</div>
+        <div class="matrix-column">11</div>
+        <div class="matrix-column">00</div>
+        
+        <!-- Pulse Rings -->
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        
+        <!-- Scanning Line -->
+        <div class="scan-line"></div>
+        
+        <!-- Chart Line -->
+        <svg class="chart-line" viewBox="0 0 1000 200" preserveAspectRatio="none">
+            <path d="M0,100 Q250,50 500,100 T1000,100" />
+        </svg>
+    </div>
     
-    <div style="position: relative; z-index: 10; max-width: 1200px;">
-        <!-- Badge -->
-        <div class="badge">
+    <div class="hero-content">
+        <!-- Trust Badge with animation -->
+        <div class="badge pulse-animation">
             <span class="badge-dot"></span>
-            Over 10,000 strategies analyzed
+            <span>Trusted by 10,000+ traders worldwide</span>
         </div>
         
-        <!-- Main Heading -->
-        <h1>
+        <!-- Main Heading with improved readability -->
+        <h1 class="hero-title">
             <span class="gradient-text glow-text">
                 Transform Trading<br>
                 Into Data Science
             </span>
         </h1>
         
-        <!-- Subheading -->
-        <p>
-            Stop gambling. Start analyzing. Discover your true edge with 
-            <strong>AI-powered insights</strong> that prop firms trust.
+        <!-- Enhanced Subheading -->
+        <p class="hero-subtitle">
+            Stop gambling with your money. Start analyzing with <strong class="text-accent-blue">AI-powered insights</strong> 
+            that prop firms actually trust. Validate your edge before risking a single dollar.
         </p>
         
-        <!-- CTA Buttons - 3 Options -->
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 4rem;">
-            <!-- Button 1: Strategy Builder -->
-            <a href="{{ url_for('simulator_v2') }}" class="btn btn-primary" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1.5rem 2rem;">
-                <svg style="width: 32px; height: 32px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
-                </svg>
-                <span style="font-weight: 600; font-size: 1.1rem;">Strategy Builder</span>
-                <span style="font-size: 0.875rem; opacity: 0.9;">Test ideas without trading</span>
+        <!-- Improved CTA Section -->
+        <div class="cta-grid">
+            <!-- Primary CTA: Strategy Builder -->
+            <a href="{{ url_for('simulator_v2') }}" class="cta-card cta-primary">
+                <div class="cta-icon">
+                    <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                    </svg>
+                </div>
+                <div class="cta-content">
+                    <h3>Strategy Builder</h3>
+                    <p>Test trading ideas without risking money</p>
+                    <span class="cta-tag">No coding required</span>
+                </div>
             </a>
             
-            <!-- Button 2: Analyze Trades -->
-            <a href="{{ url_for('upload_page') }}" class="btn btn-primary" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1.5rem 2rem;">
-                <svg style="width: 32px; height: 32px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                </svg>
-                <span style="font-weight: 600; font-size: 1.1rem;">Analyze Your Trades</span>
-                <span style="font-size: 0.875rem; opacity: 0.9;">Upload CSV, get insights</span>
+            <!-- Secondary CTA: Analyze Trades -->
+            <a href="{{ url_for('upload_page') }}" class="cta-card cta-secondary">
+                <div class="cta-icon">
+                    <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                </div>
+                <div class="cta-content">
+                    <h3>Analyze Your Trades</h3>
+                    <p>Upload CSV, discover hidden patterns</p>
+                    <span class="cta-tag">Instant insights</span>
+                </div>
             </a>
             
-            <!-- Button 3: Watch Demo -->
-            <button class="btn btn-secondary" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1.5rem 2rem;" onclick="alert('Demo video coming soon!')">
-                <svg style="width: 32px; height: 32px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span style="font-weight: 600; font-size: 1.1rem;">Watch Demo</span>
-                <span style="font-size: 0.875rem; opacity: 0.9;">See how it works</span>
+            <!-- Tertiary: Watch Demo -->
+            <button class="cta-card cta-tertiary" onclick="alert('Demo video coming soon!')">
+                <div class="cta-icon">
+                    <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="cta-content">
+                    <h3>Watch Demo</h3>
+                    <p>See how professionals use it</p>
+                    <span class="cta-tag">3 min overview</span>
+                </div>
             </button>
         </div>
         
-        <!-- Stats -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; max-width: 600px; margin: 0 auto;">
-            <div style="text-align: center;">
-                <div class="gradient-text" style="font-size: 3rem; font-weight: 700;">98%</div>
-                <div style="color: var(--text-muted); font-size: 0.875rem;">Accuracy</div>
+        <!-- Social Proof Stats -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value gradient-text">98%</div>
+                <div class="stat-label">Calculation<br>Accuracy</div>
             </div>
-            <div style="text-align: center;">
-                <div class="gradient-text" style="font-size: 3rem; font-weight: 700;">10k+</div>
-                <div style="color: var(--text-muted); font-size: 0.875rem;">Users</div>
+            <div class="stat-item">
+                <div class="stat-value gradient-text">10k+</div>
+                <div class="stat-label">Active<br>Traders</div>
             </div>
-            <div style="text-align: center;">
-                <div class="gradient-text" style="font-size: 3rem; font-weight: 700;">$2M+</div>
-                <div style="color: var(--text-muted); font-size: 0.875rem;">Analyzed</div>
+            <div class="stat-item">
+                <div class="stat-value gradient-text">$2M+</div>
+                <div class="stat-label">Capital<br>Analyzed</div>
+            </div>
+        </div>
+
+        <!-- Trust Indicators -->
+        <div class="trust-badges">
+            <span class="trust-item">256-bit Encryption</span>
+            <span class="trust-divider">•</span>
+            <span class="trust-item">GDPR Compliant</span>
+            <span class="trust-divider">•</span>
+            <span class="trust-item">No Credit Card Required</span>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section with improved cards -->
+<section class="features-section">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="section-header">
+            <h2 class="section-title">
+                Why Traders Choose <span class="gradient-text">QuantMetrics</span>
+            </h2>
+            <p class="section-subtitle">
+                Features that separate professional traders from gamblers
+            </p>
+        </div>
+        
+        <!-- Feature Cards -->
+        <div class="features-grid">
+            <!-- Feature 1: ESI Score -->
+            <div class="feature-card" data-feature="esi">
+                <div class="feature-icon icon-blue">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <div class="feature-content">
+                    <h3>Edge Stability Index (ESI)</h3>
+                    <p>
+                        Our proprietary ESI score answers the critical question: <em>"Is my edge real or just luck?"</em> 
+                        Using statistical analysis across market conditions, we separate consistent performance from random chance.
+                    </p>
+                    <ul class="feature-benefits">
+                        <li>Measures consistency across time periods</li>
+                        <li>Validates edge across market conditions</li>
+                        <li>Used by prop firms for trader evaluation</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Feature 2: PVS Score -->
+            <div class="feature-card" data-feature="pvs">
+                <div class="feature-icon icon-purple">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+                <div class="feature-content">
+                    <h3>Prop Verification Score (PVS)</h3>
+                    <p>
+                        Pass prop firm challenges with confidence. Our PVS metric predicts your success rate in funded trader challenges 
+                        by analyzing the exact criteria firms use to evaluate candidates.
+                    </p>
+                    <ul class="feature-benefits">
+                        <li>Predicts prop firm challenge success</li>
+                        <li>Aligns with FTMO, MyForexFunds criteria</li>
+                        <li>Identifies improvement areas</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Feature 3: Instant Insights -->
+            <div class="feature-card" data-feature="speed">
+                <div class="feature-icon icon-pink">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <div class="feature-content">
+                    <h3>AI-Powered Analysis</h3>
+                    <p>
+                        Upload your CSV file and get a professional PDF report in under 30 seconds. 
+                        Our AI analyzes patterns humans miss and delivers actionable recommendations.
+                    </p>
+                    <ul class="feature-benefits">
+                        <li>Session-based performance breakdown</li>
+                        <li>Directional bias detection</li>
+                        <li>Loss forensics and pattern analysis</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="comparison-section">
+            <h3 class="comparison-title">How We Compare</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div class="comparison-label">TradingView</div>
+                    <div class="comparison-feature">Requires Pine Script coding</div>
+                    <div class="comparison-verdict">❌ 80% can't code</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-label">QuantConnect</div>
+                    <div class="comparison-feature">$250/month, complex setup</div>
+                    <div class="comparison-verdict">❌ Too expensive</div>
+                </div>
+                <div class="comparison-item highlighted">
+                    <div class="comparison-label">QuantMetrics</div>
+                    <div class="comparison-feature">No-code, $29/month, instant</div>
+                    <div class="comparison-verdict">✅ Best value</div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="container">
-    <div style="text-align: center; margin-bottom: 4rem;">
-        <h2 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem;">
-            Why Traders Choose <span class="gradient-text">QuantMetrics</span>
+<!-- Testimonials Section (Placeholder) -->
+<section class="testimonials-section">
+    <div class="container">
+        <h2 class="section-title">
+            Trusted by <span class="gradient-text">Funded Traders</span>
         </h2>
-        <p style="font-size: 1.25rem; color: var(--text-secondary);">
-            Features that separate pros from gamblers
-        </p>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                <p class="testimonial-text">
+                    "QuantMetrics helped me pass my FTMO challenge on the first attempt. 
+                    The PVS score showed me exactly what I needed to improve."
+                </p>
+                <div class="testimonial-author">
+                    <strong>Alex M.</strong> – Funded Trader, $100k Account
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                <p class="testimonial-text">
+                    "Finally, a backtesting platform that doesn't require coding. 
+                    Tested 15 strategies in one afternoon."
+                </p>
+                <div class="testimonial-author">
+                    <strong>Sarah T.</strong> – Retail Trader
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                <p class="testimonial-text">
+                    "The ESI score revealed my strategy was just lucky, not actually profitable. 
+                    Saved me thousands in potential losses."
+                </p>
+                <div class="testimonial-author">
+                    <strong>Michael R.</strong> – Prop Firm Candidate
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <div class="features-grid">
-        <!-- Feature 1 -->
-        <div class="feature-card">
-            <div class="feature-icon">
-                <svg style="width: 32px; height: 32px; color: var(--accent-blue);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
-            </div>
-            <h3>ESI Score</h3>
-            <p>
-                Discover if your edge is real or just luck. Our proprietary 
-                <span style="color: var(--accent-blue); font-weight: 500;">Edge Stability Index</span> 
-                separates signal from noise.
+</section>
+
+<!-- Final CTA Section -->
+<section class="final-cta-section">
+    <div class="container">
+        <div class="final-cta-card">
+            <h2 class="final-cta-title">
+                Ready to Validate Your Edge?
+            </h2>
+            <p class="final-cta-subtitle">
+                Join 10,000+ traders who test before they trade. Start with 3 free strategy simulations.
             </p>
-        </div>
-        
-        <!-- Feature 2 -->
-        <div class="feature-card">
-            <div class="feature-icon">
-                <svg style="width: 32px; height: 32px; color: var(--accent-purple);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                </svg>
+            <div class="final-cta-buttons">
+                <a href="{{ url_for('simulator_v2') }}" class="btn btn-primary btn-large">
+                    Start Free Trial
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left: 0.5rem;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </a>
+                <a href="{{ url_for('upload_page') }}" class="btn btn-secondary btn-large">
+                    Analyze CSV File
+                </a>
             </div>
-            <h3>Prop Firm Ready</h3>
-            <p>
-                Pass challenges confidently with our 
-                <span style="color: var(--accent-purple); font-weight: 500;">PVS score</span> 
-                that predicts your success rate.
-            </p>
-        </div>
-        
-        <!-- Feature 3 -->
-        <div class="feature-card">
-            <div class="feature-icon">
-                <svg style="width: 32px; height: 32px; color: var(--accent-pink);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                </svg>
-            </div>
-            <h3>Instant Insights</h3>
-            <p>
-                Upload CSV, get professional PDF report in seconds. 
-                <span style="color: var(--accent-pink); font-weight: 500;">No manual calculations.</span>
+            <p class="final-cta-note">
+                No credit card required • Free 3 simulations • Cancel anytime
             </p>
         </div>
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="container" style="text-align: center; padding: 6rem 2rem;">
-    <h2 style="font-size: 3rem; font-weight: 700; margin-bottom: 1.5rem;">
-        Ready to Find Your Edge?
-    </h2>
-    <p style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 2rem;">
-        Join thousands of traders who've transformed their approach
-    </p>
-    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-        <a href="{{ url_for('simulator_v2') }}" class="btn btn-primary" style="font-size: 1.25rem; padding: 1.25rem 3rem;">
-            Try Strategy Builder
-        </a>
-        <a href="{{ url_for('upload_page') }}" class="btn btn-secondary" style="font-size: 1.25rem; padding: 1.25rem 3rem;">
-            Analyze Your Trades
-        </a>
-    </div>
-</section>
+<!-- Add smooth scroll behavior -->
+<script>
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+</script>
+
 {% endblock %}
