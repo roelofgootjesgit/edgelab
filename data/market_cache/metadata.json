@@ -21,10 +21,10 @@
     "symbol": "XAUUSD",
     "timeframe": "15m",
     "start": "2025-09-28T22:00:00",
-    "end": "2025-12-04T21:00:00",
-    "rows": 4326,
-    "last_updated": "2025-12-04T22:13:15.894303",
-    "file_size_mb": 0.137
+    "end": "2025-12-17T10:15:00",
+    "rows": 5111,
+    "last_updated": "2025-12-17T11:26:47.081653",
+    "file_size_mb": 0.158
   },
   "XAUUSD_5m": {
     "symbol": "XAUUSD",
