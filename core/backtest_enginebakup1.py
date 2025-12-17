@@ -191,7 +191,7 @@ class BacktestEngine:
         # This is standard practice in backtesting - indicators need warmup period
         for col in indicator_cols:
             if col in data.columns:
-                data[col] = data[col].fillna(method='ffill')
+                data[col] = data[col].ffill()  # New pandas syntax (replaces fillna(method='ffill'))
         
         # Drop rows where price data (OHLC) is NaN - these are unusable
         data = data.dropna(subset=['close'])

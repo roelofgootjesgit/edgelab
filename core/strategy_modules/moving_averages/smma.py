@@ -136,3 +136,4 @@ class SMMAModule(BaseModule):
             # Price below SMMA with steady downtrend
             trend_consistent = not rising and not rising_prev and not rising_prev2
             return price < smma and trend_consistent
+

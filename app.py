@@ -80,6 +80,13 @@ def simulator_v2():
     return render_template('simulator_v2.html')
 
 
+
+@app.route('/test-runner')
+def test_runner():
+    """Automated indicator test suite"""
+    return render_template('test_runner.html')
+
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
     if 'file' not in request.files:

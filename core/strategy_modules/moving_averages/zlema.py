@@ -24,7 +24,7 @@ Entry Logic:
 from typing import Dict, Any
 import pandas as pd
 import numpy as np
-from core.strategy_modules.base_module import BaseModule
+from core.strategy_modules.base import BaseModule
 
 
 class ZLEMAModule(BaseModule):

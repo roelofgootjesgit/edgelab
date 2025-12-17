@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantMetrics Indicator Test Runner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        
+        .btn-warning { background: #ffc107; color: #000; }
+        .btn-warning:hover { background: #e0a800; }
+        
+        .stats {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .progress-bar {
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            margin: 20px 30px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .log {
+            padding: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 4px 0;
+        }
+        
+        .log-success { color: #4ec9b0; }
+        .log-error { color: #f48771; }
+        .log-info { color: #569cd6; }
+        .log-warning { color: #dcdcaa; }
+        
+        .results {
+            padding: 30px;
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .results h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .error-list {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .error-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 4px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .error-item:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 QuantMetrics Indicator Test Runner</h1>
+            <p>Automated testing for all 66 trading indicators</p>
+        </div>
+        
+        <div class="controls">
+            <button id="testAllBtn" onclick="runAllTests()">🚀 Test All Indicators</button>
+            <button id="testTrendBtn" onclick="testCategory('trend')" class="btn-success">📊 Test Trend</button>
+            <button id="testMomentumBtn" onclick="testCategory('momentum')" class="btn-success">📈 Test Momentum</button>
+            <button id="testQuickBtn" onclick="quickTest()" class="btn-warning">⚡ Quick Test (RSI)</button>
+            <button id="stopBtn" onclick="stopTest()" disabled style="background: #dc3545;">⏹️ Stop</button>
+            <button onclick="clearLog()">🗑️ Clear Log</button>
+            <button onclick="exportResults()">💾 Export Results</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTests">0</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="passedTests" style="color: #28a745;">0</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="failedTests" style="color: #dc3545;">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="elapsedTime">0s</div>
+                <div class="stat-label">Elapsed Time</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 0%">0%</div>
+        </div>
+        
+        <div class="log" id="logOutput">
+            <div class="log-entry log-info">Ready to start testing...</div>
+        </div>
+        
+        <div class="results" id="resultsPanel">
+            <h2>📊 Test Results</h2>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script src="/static/js/indicator_test_suite.js"></script>
+    <script>
+        let currentSuite = null;
+        let stopRequested = false;
+        let startTime = 0;
+        
+        function log(message, type = 'info') {
+            const logOutput = document.getElementById('logOutput');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logOutput.appendChild(entry);
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('logOutput').innerHTML = '<div class="log-entry log-info">Log cleared...</div>';
+        }
+        
+        function updateStats(passed, failed, total) {
+            document.getElementById('totalTests').textContent = total;
+            document.getElementById('passedTests').textContent = passed;
+            document.getElementById('failedTests').textContent = failed;
+            
+            const progress = total > 0 ? ((passed + failed) / total * 100) : 0;
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = progress.toFixed(1) + '%';
+            
+            if (startTime > 0) {
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                document.getElementById('elapsedTime').textContent = elapsed + 's';
+            }
+        }
+        
+        function disableButtons(disabled) {
+            const buttons = document.querySelectorAll('button:not(#stopBtn)');
+            buttons.forEach(btn => btn.disabled = disabled);
+            document.getElementById('stopBtn').disabled = !disabled;
+        }
+        
+        async function runAllTests() {
+            log('🚀 Starting full test suite...', 'info');
+            startTime = Date.now();
+            stopRequested = false;
+            disableButtons(true);
+            
+            try {
+                currentSuite = new IndicatorTestSuite();
+                
+                // Override logging
+                const originalLog = console.log;
+                console.log = function(...args) {
+                    log(args.join(' '), 'info');
+                    originalLog.apply(console, args);
+                };
+                
+                await currentSuite.initialize();
+                
+                updateStats(0, 0, currentSuite.results.total);
+                
+                // Test all indicators with progress updates
+                for (const category of currentSuite.categories) {
+                    if (stopRequested) {
+                        log('⏹️ Test stopped by user', 'warning');
+                        break;
+                    }
+                    
+                    log(`📦 Testing category: ${category}`, 'info');
+                    const modules = currentSuite.indicators[category];
+                    
+                    for (const indicator of modules) {
+                        if (stopRequested) break;
+                        
+                        const config = currentSuite.getDefaultConfig(indicator);
+                        const result = await currentSuite.testIndicator(category, indicator, config);
+                        
+                        if (result.success) {
+                            log(`✅ ${category}/${indicator.id} passed in ${result.time.toFixed(0)}ms`, 'success');
+                        } else {
+                            log(`❌ ${category}/${indicator.id} failed: ${result.error}`, 'error');
+                        }
+                        
+                        updateStats(currentSuite.results.passed, currentSuite.results.failed, currentSuite.results.total);
+                        
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // 1s delay
+                    }
+                }
+                
+                showResults();
+                
+            } catch (error) {
+                log(`❌ Test suite error: ${error.message}`, 'error');
+            } finally {
+                disableButtons(false);
+            }
+        }
+        
+        async function testCategory(category) {
+            log(`🎯 Testing category: ${category}`, 'info');
+            startTime = Date.now();
+            stopRequested = false;
+            disableButtons(true);
+            
+            try {
+                await testCategories([category], 1000);
+                showResults();
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                disableButtons(false);
+            }
+        }
+        
+        async function quickTest() {
+            log('⚡ Running quick test (RSI)...', 'info');
+            startTime = Date.now();
+            disableButtons(true);
+            
+            try {
+                const success = await testOne('momentum', 'rsi');
+                if (success) {
+                    log('✅ Quick test passed!', 'success');
+                } else {
+                    log('❌ Quick test failed', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                disableButtons(false);
+            }
+        }
+        
+        function stopTest() {
+            stopRequested = true;
+            log('⏹️ Stop requested...', 'warning');
+        }
+        
+        function showResults() {
+            if (!currentSuite) return;
+            
+            const resultsPanel = document.getElementById('resultsPanel');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            const successRate = (currentSuite.results.passed / currentSuite.results.total * 100).toFixed(1);
+            
+            let html = `
+                <div style="background: #d4edda; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+                    <h3 style="color: #155724; margin-bottom: 10px;">✅ Test Complete!</h3>
+                    <p style="color: #155724; margin: 5px 0;">Success Rate: ${successRate}%</p>
+                    <p style="color: #155724; margin: 5px 0;">Passed: ${currentSuite.results.passed} / ${currentSuite.results.total}</p>
+                </div>
+            `;
+            
+            if (currentSuite.results.failed > 0) {
+                html += '<div class="error-list"><h3 style="color: #856404; margin-bottom: 15px;">❌ Failed Tests:</h3>';
+                currentSuite.results.errors.forEach(err => {
+                    html += `
+                        <div class="error-item">
+                            <strong>${err.indicator}</strong><br>
+                            <small style="color: #dc3545;">${err.error}</small>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            resultsContent.innerHTML = html;
+            resultsPanel.classList.add('show');
+        }
+        
+        function exportResults() {
+            if (window.testResults) {
+                const json = JSON.stringify(window.testResults, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `quantmetrics_test_results_${Date.now()}.json`;
+                a.click();
+                log('💾 Results exported', 'success');
+            } else {
+                log('⚠️ No test results to export', 'warning');
+            }
+        }
+        
+        // Initialize
+        log('✅ Test runner initialized', 'success');
+        log('👉 Click a button above to start testing', 'info');
+    </script>
+</body>
+</html>

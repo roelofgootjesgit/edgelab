@@ -141,3 +141,4 @@ class VWMAModule(BaseModule):
         else:  # SHORT
             # Price below VWMA with increasing volume
             return price < vwma
+

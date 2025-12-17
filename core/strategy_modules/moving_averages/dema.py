@@ -126,3 +126,4 @@ class DEMAModule(BaseModule):
         else:  # SHORT
             # Price below DEMA and DEMA falling
             return price < dema and not rising
+

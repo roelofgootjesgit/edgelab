@@ -178,3 +178,4 @@ class KAMAModule(BaseModule):
         else:  # SHORT
             # Price below KAMA in trending market
             return price < kama
+
