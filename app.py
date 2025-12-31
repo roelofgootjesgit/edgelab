@@ -80,6 +80,11 @@ def simulator_v2():
     return render_template('simulator_v2.html')
 
 
+@app.route('/strategy-templates')
+def strategy_templates():
+    """NEW: Strategy template selector landing page"""
+    return render_template('strategy_templates.html')
+
 
 @app.route('/test-runner')
 def test_runner():

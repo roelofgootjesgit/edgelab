@@ -1,258 +1,657 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - QuantMetrics</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'QuantMetrics-blue': '#2563eb',
-                        'QuantMetrics-navy': '#1e3a8a',
-                        'QuantMetrics-purple': '#8b5cf6',
-                        'QuantMetrics-cyan': '#06b6d4',
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-gray-50">
+﻿{% extends "base.html" %}
+
+{% block title %}About - QuantMetrics{% endblock %}
+
+{% block extra_head %}
+<style>
+/* About Page Specific Styles */
+.about-hero {
+    background: linear-gradient(135deg, 
+        var(--bg-primary) 0%, 
+        rgba(59, 130, 246, 0.1) 50%,
+        var(--bg-secondary) 100%
+    );
+    padding: 8rem 2rem 6rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.about-hero::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    left: -30%;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, 
+        rgba(6, 182, 212, 0.1) 0%, 
+        transparent 60%
+    );
+    animation: blob-float 10s ease-in-out infinite;
+}
+
+.about-title {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(90deg, 
+        var(--accent-blue-light), 
+        var(--accent-cyan)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    z-index: 1;
+}
+
+.about-subtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.8;
+    position: relative;
+    z-index: 1;
+}
+
+/* Content Container */
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+}
+
+/* Section */
+.about-section {
+    margin-bottom: 6rem;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-title {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.section-subtitle {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Mission Card */
+.mission-card {
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 3rem;
+    border: 2px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.mission-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--accent-blue), 
+        var(--accent-cyan)
+    );
+}
+
+.mission-text {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.mission-highlight {
+    color: var(--accent-blue-light);
+    font-weight: 600;
+}
+
+/* Values Grid */
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.value-card {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 2.5rem;
+    border: 2px solid var(--border-color);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.value-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, 
+        transparent 0%, 
+        rgba(59, 130, 246, 0.05) 100%
+    );
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.value-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent-cyan);
+    box-shadow: var(--shadow-glow-blue);
+}
+
+.value-card:hover::before {
+    opacity: 1;
+}
+
+.value-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.value-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.value-description {
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* Story Section */
+.story-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+.story-text {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-size: 1.0625rem;
+}
+
+.story-text p {
+    margin-bottom: 1.5rem;
+}
+
+.story-visual {
+    background: linear-gradient(135deg, 
+        rgba(59, 130, 246, 0.1) 0%, 
+        rgba(6, 182, 212, 0.1) 100%
+    );
+    border-radius: 20px;
+    padding: 3rem;
+    border: 2px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.story-visual::before {
+    content: '📊';
+    font-size: 10rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.1;
+}
+
+.stat-list {
+    position: relative;
+    z-index: 1;
+}
+
+.stat-item {
+    margin-bottom: 2rem;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+/* Team Section */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.team-card {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 2px solid var(--border-color);
+    text-align: center;
+    transition: all var(--transition-normal);
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-blue);
+}
+
+.team-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, 
+        var(--accent-blue), 
+        var(--accent-cyan)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
+
+.team-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.team-role {
+    color: var(--accent-cyan);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.team-bio {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 0.9375rem;
+}
+
+/* Tech Stack */
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.5rem;
+}
+
+.tech-item {
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: all var(--transition-normal);
+}
+
+.tech-item:hover {
+    border-color: var(--accent-cyan);
+    transform: scale(1.05);
+}
+
+.tech-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.tech-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+}
+
+/* CTA Section */
+.about-cta {
+    background: linear-gradient(135deg, 
+        rgba(59, 130, 246, 0.1) 0%, 
+        rgba(6, 182, 212, 0.1) 100%
+    );
+    border-radius: 24px;
+    padding: 4rem 3rem;
+    text-align: center;
+    border: 2px solid var(--border-color);
+    margin-top: 4rem;
+}
+
+.cta-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.cta-subtitle {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .about-hero {
+        padding: 6rem 1rem 4rem;
+    }
     
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center space-x-3">
-                    <img src="/static/images/logo.png" alt="QuantMetrics Logo" class="h-8 w-auto">
-                    <span class="text-2xl font-bold text-QuantMetrics-navy">QuantMetrics.io</span>
-                </div>
-                <div class="hidden md:flex space-x-8">
-                    <a href="/" class="text-gray-700 hover:text-QuantMetrics-blue transition">Home</a>
-                    <a href="/upload" class="text-gray-700 hover:text-QuantMetrics-blue transition">Upload</a>
-                    <a href="/about" class="text-QuantMetrics-blue font-semibold">About</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    .about-container {
+        padding: 3rem 1rem;
+    }
+    
+    .story-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .mission-card {
+        padding: 2rem;
+    }
+    
+    .values-grid,
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tech-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .about-cta {
+        padding: 3rem 2rem;
+    }
+}
+</style>
+{% endblock %}
 
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-QuantMetrics-blue to-blue-600 py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">About QuantMetrics</h1>
-            <p class="text-xl text-blue-100 max-w-3xl mx-auto">
-                Professional trading analytics that distinguish genuine edge from random luck
+{% block content %}
+<!-- Hero Section -->
+<section class="about-hero">
+    <h1 class="about-title">About QuantMetrics</h1>
+    <p class="about-subtitle">
+        We're on a mission to transform trading from gambling into data-driven decision making.
+        Every trader deserves to know if their edge is real before risking capital.
+    </p>
+</section>
+
+<!-- Main Content -->
+<div class="about-container">
+    
+    <!-- Mission Section -->
+    <section class="about-section">
+        <div class="mission-card">
+            <p class="mission-text">
+                <span class="mission-highlight">95% of traders fail.</span> Not because they lack talent, 
+                but because they never validate their strategies scientifically. We built QuantMetrics to 
+                change that. Our platform gives every trader access to <span class="mission-highlight">
+                professional-grade analytics</span> that separate genuine edge from random luck.
             </p>
         </div>
-    </div>
+    </section>
 
-    <!-- Main Content -->
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Values Section -->
+    <section class="about-section">
+        <div class="section-header">
+            <h2 class="section-title">Our Core Values</h2>
+            <p class="section-subtitle">
+                These principles guide everything we build
+            </p>
+        </div>
         
-        <!-- Mission Section -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 border border-gray-200">
-            <div class="flex items-center mb-6">
-                <div class="bg-QuantMetrics-blue text-white rounded-full w-16 h-16 flex items-center justify-center text-3xl mr-4">
-                    🎯
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900">Our Mission</h2>
-            </div>
-            <p class="text-lg text-gray-700 leading-relaxed mb-6">
-                QuantMetrics helps traders distinguish between genuine trading edge and random luck. 
-                We provide professional-grade analysis with proprietary metrics that go beyond 
-                standard backtesting tools.
-            </p>
-            <p class="text-lg text-gray-700 leading-relaxed">
-                Too many traders lose money learning through trial and error. We believe there's a better way: 
-                test your strategies with real data before risking real capital. Our platform gives you 
-                the insights that typically take years to develop, available in seconds.
-            </p>
-        </div>
-
-        <!-- What We Offer -->
-        <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-xl p-8 md:p-12 mb-8 border border-purple-200">
-            <div class="flex items-center mb-6">
-                <div class="bg-QuantMetrics-purple text-white rounded-full w-16 h-16 flex items-center justify-center text-3xl mr-4">
-                    ⚡
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900">What We Offer</h2>
+        <div class="values-grid">
+            <div class="value-card">
+                <span class="value-icon">🎯</span>
+                <h3 class="value-title">Truth Over Hope</h3>
+                <p class="value-description">
+                    We show you reality, not what you want to hear. Our ESI score reveals if your 
+                    edge is consistent or just lucky. No sugar-coating.
+                </p>
             </div>
             
-            <div class="space-y-6">
-                <div class="bg-white rounded-lg p-6 shadow-md">
-                    <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
-                        <span class="text-2xl mr-3">📊</span>
-                        CSV Trade Analysis
-                    </h3>
-                    <p class="text-gray-700">
-                        Upload your trading history from MT4, MT5, or any platform. Get comprehensive 
-                        analysis including win rate, profit factor, risk:reward ratios, and our proprietary 
-                        ESI (Edge Stability Index) and PVS (Prop Verification Score).
-                    </p>
-                </div>
-
-                <div class="bg-white rounded-lg p-6 shadow-md">
-                    <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
-                        <span class="text-2xl mr-3">🚀</span>
-                        Strategy Simulator
-                    </h3>
-                    <p class="text-gray-700">
-                        Test any trading idea without coding or risking real money. Define your entry and 
-                        exit rules, select indicators, and get professional backtesting results in 30 seconds.
-                    </p>
-                </div>
-
-                <div class="bg-white rounded-lg p-6 shadow-md">
-                    <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
-                        <span class="text-2xl mr-3">📄</span>
-                        Professional Reports
-                    </h3>
-                    <p class="text-gray-700">
-                        Receive detailed PDF reports suitable for prop firm applications, complete with 
-                        charts, pattern analysis, and actionable recommendations for improvement.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Proprietary Metrics -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 border border-gray-200">
-            <div class="flex items-center mb-6">
-                <div class="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-3xl mr-4">
-                    📈
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900">Proprietary Metrics</h2>
+            <div class="value-card">
+                <span class="value-icon">🔬</span>
+                <h3 class="value-title">Science First</h3>
+                <p class="value-description">
+                    Every metric is backed by statistical research. We don't guess - we measure, 
+                    analyze, and validate using real market data.
+                </p>
             </div>
             
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3">ESI - Edge Stability Index</h3>
-                    <p class="text-gray-700 mb-4">
-                        Measures the consistency of your trading performance across different market 
-                        conditions. A high ESI means your edge is stable and reliable, not just lucky streaks.
-                    </p>
-                    <div class="bg-white rounded-lg p-4">
-                        <div class="text-sm text-gray-600 mb-2">ESI Scale:</div>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex items-center">
-                                <span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>
-                                <span><strong>0.7+</strong> Stable edge</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
-                                <span><strong>0.5-0.7</strong> Moderate</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>
-                                <span><strong>&lt;0.5</strong> Unstable</span>
-                            </div>
-                        </div>
+            <div class="value-card">
+                <span class="value-icon">⚡</span>
+                <h3 class="value-title">Speed Matters</h3>
+                <p class="value-description">
+                    Test a strategy in 30 seconds. Validate your edge in minutes. We respect your 
+                    time - results should be fast, not days of manual work.
+                </p>
+            </div>
+            
+            <div class="value-card">
+                <span class="value-icon">🚀</span>
+                <h3 class="value-title">Accessible Innovation</h3>
+                <p class="value-description">
+                    Professional tools shouldn't require a PhD. No coding, no complexity - just 
+                    powerful analytics anyone can use.
+                </p>
+            </div>
+            
+            <div class="value-card">
+                <span class="value-icon">🤝</span>
+                <h3 class="value-title">Trader Success</h3>
+                <p class="value-description">
+                    Your success is our success. We win when you pass prop challenges, avoid bad 
+                    strategies, and trade with confidence.
+                </p>
+            </div>
+            
+            <div class="value-card">
+                <span class="value-icon">🔒</span>
+                <h3 class="value-title">Privacy & Trust</h3>
+                <p class="value-description">
+                    Your data is yours. We never share strategies, results, or personal information. 
+                    Period.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Story Section -->
+    <section class="about-section">
+        <div class="section-header">
+            <h2 class="section-title">Our Story</h2>
+            <p class="section-subtitle">
+                Built by traders, for traders
+            </p>
+        </div>
+        
+        <div class="story-content">
+            <div class="story-text">
+                <p>
+                    QuantMetrics was born from frustration. After watching countless traders fail prop firm 
+                    challenges with unvalidated strategies, we realized the industry had a massive gap.
+                </p>
+                <p>
+                    Existing tools were either too complex (requiring Python knowledge) or too expensive 
+                    ($250+/month). Meanwhile, 95% of traders were testing strategies in Excel or just 
+                    winging it with real money.
+                </p>
+                <p>
+                    We spent 6 months building the platform we wish existed: no-code strategy testing 
+                    with proprietary metrics (ESI, PVS) that reveal genuine edge. Our goal? Help 10,000+ 
+                    traders pass prop firm challenges with validated strategies.
+                </p>
+                <p>
+                    Today, QuantMetrics analyzes millions in trading volume, helping traders worldwide 
+                    make data-driven decisions before risking capital.
+                </p>
+            </div>
+            
+            <div class="story-visual">
+                <div class="stat-list">
+                    <div class="stat-item">
+                        <div class="stat-value">10,000+</div>
+                        <div class="stat-label">Traders Worldwide</div>
                     </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3">PVS - Prop Verification Score</h3>
-                    <p class="text-gray-700 mb-4">
-                        Assesses whether your strategy meets prop firm challenge requirements. Includes 
-                        consistency checks, drawdown limits, and risk management criteria.
-                    </p>
-                    <div class="bg-white rounded-lg p-4">
-                        <div class="text-sm text-gray-600 mb-2">PVS Scale:</div>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex items-center">
-                                <span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>
-                                <span><strong>0.8+</strong> Prop ready</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
-                                <span><strong>0.6-0.8</strong> Close</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>
-                                <span><strong>&lt;0.6</strong> Needs work</span>
-                            </div>
-                        </div>
+                    <div class="stat-item">
+                        <div class="stat-value">$2M+</div>
+                        <div class="stat-label">Capital Analyzed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">50+</div>
+                        <div class="stat-label">Indicators Available</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Analysis Accuracy</div>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- Why Choose QuantMetrics -->
-        <div class="bg-gradient-to-r from-QuantMetrics-blue to-blue-600 rounded-2xl shadow-xl p-8 md:p-12 mb-8 text-white">
-            <h2 class="text-3xl font-bold mb-6 text-center">Why Choose QuantMetrics?</h2>
-            
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                    <div class="text-3xl mb-3">⚡</div>
-                    <h3 class="text-xl font-bold mb-2">Fast Results</h3>
-                    <p class="text-blue-100">Get professional analysis in 30 seconds, not hours or days</p>
-                </div>
-                
-                <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                    <div class="text-3xl mb-3">🎯</div>
-                    <h3 class="text-xl font-bold mb-2">Actionable Insights</h3>
-                    <p class="text-blue-100">Not just numbers - clear recommendations for improvement</p>
-                </div>
-                
-                <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                    <div class="text-3xl mb-3">🔒</div>
-                    <h3 class="text-xl font-bold mb-2">Private & Secure</h3>
-                    <p class="text-blue-100">Your trading data stays confidential and secure</p>
-                </div>
-                
-                <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                    <div class="text-3xl mb-3">💰</div>
-                    <h3 class="text-xl font-bold mb-2">Save Money</h3>
-                    <p class="text-blue-100">Test before risking real capital or paying challenge fees</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contact Section -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 border border-gray-200">
-            <div class="flex items-center mb-6">
-                <div class="bg-QuantMetrics-cyan text-white rounded-full w-16 h-16 flex items-center justify-center text-3xl mr-4">
-                    💬
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900">Get In Touch</h2>
-            </div>
-            <p class="text-lg text-gray-700 mb-6">
-                Have questions about our platform? Want to report a bug or suggest a feature? 
-                We'd love to hear from you.
+    <!-- Team Section -->
+    <section class="about-section">
+        <div class="section-header">
+            <h2 class="section-title">Meet The Team</h2>
+            <p class="section-subtitle">
+                Small team, big impact
             </p>
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-                <p class="text-gray-700 mb-2">Email us at:</p>
-                <a href="mailto:support@QuantMetrics.io" class="text-2xl font-bold text-QuantMetrics-blue hover:text-blue-700 hover:underline transition">
-                    support@QuantMetrics.io
-                </a>
+        </div>
+        
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="team-avatar">👨‍💻</div>
+                <h3 class="team-name">Roelof</h3>
+                <p class="team-role">Founder & Lead Developer</p>
+                <p class="team-bio">
+                    Former algo trader turned developer. Built trading bots for 3 years before 
+                    creating QuantMetrics to help others validate their edge.
+                </p>
+            </div>
+            
+            <div class="team-card">
+                <div class="team-avatar">🤖</div>
+                <h3 class="team-name">Claude</h3>
+                <p class="team-role">AI Assistant & Co-Developer</p>
+                <p class="team-bio">
+                    Anthropic's AI that helps power our analysis engine and provides intelligent 
+                    insights on trading performance.
+                </p>
+            </div>
+            
+            <div class="team-card">
+                <div class="team-avatar">🌍</div>
+                <h3 class="team-name">You?</h3>
+                <p class="team-role">Join Our Mission</p>
+                <p class="team-bio">
+                    We're growing. If you're passionate about trading analytics and want to help 
+                    traders worldwide, let's talk.
+                </p>
             </div>
         </div>
+    </section>
 
-        <!-- CTA -->
-        <div class="text-center mt-12">
-            <p class="text-gray-600 mb-6 text-lg">Ready to discover your trading edge?</p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/upload" class="inline-block bg-QuantMetrics-blue text-white px-10 py-4 rounded-xl text-lg font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:scale-105">
-                    Analyze Trades
-                </a>
-                <a href="/simulator" class="inline-block bg-QuantMetrics-purple text-white px-10 py-4 rounded-xl text-lg font-bold hover:bg-purple-700 transition shadow-lg hover:shadow-xl transform hover:scale-105">
-                    Test Strategy
-                </a>
+    <!-- Technology Stack -->
+    <section class="about-section">
+        <div class="section-header">
+            <h2 class="section-title">Built With Modern Tech</h2>
+            <p class="section-subtitle">
+                Professional tools deserve professional architecture
+            </p>
+        </div>
+        
+        <div class="tech-grid">
+            <div class="tech-item">
+                <div class="tech-icon">🐍</div>
+                <div class="tech-name">Python</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">⚡</div>
+                <div class="tech-name">Flask</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🐼</div>
+                <div class="tech-name">Pandas</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">📊</div>
+                <div class="tech-name">NumPy</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🤖</div>
+                <div class="tech-name">Claude API</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🎨</div>
+                <div class="tech-name">Tailwind CSS</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">📈</div>
+                <div class="tech-name">Yahoo Finance</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🚀</div>
+                <div class="tech-name">Railway</div>
             </div>
         </div>
+    </section>
 
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-400 py-8 mt-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="mb-2">© 2025 QuantMetrics. All rights reserved.</p>
-            <p class="text-sm">Your vision tested. Your trading explained.</p>
+    <!-- CTA Section -->
+    <section class="about-cta">
+        <h2 class="cta-title">Ready To Test Your Edge?</h2>
+        <p class="cta-subtitle">
+            Join thousands of traders who validate strategies before risking capital
+        </p>
+        <div class="cta-buttons">
+            <a href="{{ url_for('simulator_v2') }}" class="btn btn-primary btn-large">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Try Strategy Builder
+            </a>
+            <a href="{{ url_for('upload_page') }}" class="btn btn-secondary btn-large">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                Upload CSV
+            </a>
         </div>
-    </footer>
+    </section>
 
-</body>
-</html>
+</div>
+{% endblock %}

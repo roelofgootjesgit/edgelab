@@ -1,0 +1,508 @@
+{% extends "base.html" %}
+
+{% block title %}Choose Your Strategy - QuantMetrics{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ============================================================================
+   STRATEGY TEMPLATES PAGE - QuantMetrics Design System
+   ============================================================================ */
+
+/* Hero Section */
+.templates-hero {
+    background: linear-gradient(135deg, 
+        #0f172a 0%, 
+        #1e293b 50%,
+        #334155 100%
+    );
+    padding: 8rem 2rem 6rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.templates-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, 
+        rgba(59, 130, 246, 0.15) 0%, 
+        transparent 70%
+    );
+    animation: blob-float 8s ease-in-out infinite;
+}
+
+@keyframes blob-float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(-50px, 50px) rotate(180deg); }
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    color: #94a3b8;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Templates Container */
+.templates-container {
+    max-width: 1200px;
+    margin: -4rem auto 6rem;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+/* Templates Grid - 2 columns, 3 rows */
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+/* Template Card */
+.template-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 2px solid transparent;
+    text-decoration: none;
+    display: block;
+    position: relative;
+}
+
+.template-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(59, 130, 246, 0.25);
+    border-color: #3b82f6;
+}
+
+/* Card Header with Gradient */
+.template-header {
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.template-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: header-pulse 4s ease-in-out infinite;
+}
+
+@keyframes header-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* SVG Icon Container */
+.template-icon-container {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.template-icon-container svg {
+    width: 40px;
+    height: 40px;
+    stroke: white;
+    stroke-width: 2;
+}
+
+.template-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* Card Body */
+.template-body {
+    padding: 2rem;
+}
+
+.template-description {
+    color: #64748b;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* Features List */
+.template-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+}
+
+.template-features li {
+    padding: 0.75rem 0;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.template-features li:last-child {
+    border-bottom: none;
+}
+
+.template-features li::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: #3b82f6;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 13l4 4L19 7' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* CTA Button */
+.template-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.template-card:hover .template-cta {
+    gap: 1rem;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.template-cta svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.template-card:hover .template-cta svg {
+    transform: translateX(4px);
+}
+
+/* Badge */
+.template-badge {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+/* Color Schemes - Blue Gradients */
+.template-card[data-template="scratch"] {
+    --gradient-from: #3b82f6;
+    --gradient-to: #2563eb;
+}
+
+.template-card[data-template="ict_smc"] {
+    --gradient-from: #2563eb;
+    --gradient-to: #1d4ed8;
+}
+
+.template-card[data-template="trend_following"] {
+    --gradient-from: #1d4ed8;
+    --gradient-to: #1e40af;
+}
+
+.template-card[data-template="mean_reversion"] {
+    --gradient-from: #60a5fa;
+    --gradient-to: #3b82f6;
+}
+
+.template-card[data-template="breakout_momentum"] {
+    --gradient-from: #1e40af;
+    --gradient-to: #1e3a8a;
+}
+
+.template-card[data-template="custom"] {
+    --gradient-from: #93c5fd;
+    --gradient-to: #60a5fa;
+}
+
+/* Responsive - Stack on Mobile */
+@media (max-width: 968px) {
+    .templates-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+    }
+    
+    .templates-container {
+        margin-top: -3rem;
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .template-header {
+        padding: 2rem 1.5rem;
+    }
+    
+    .template-body {
+        padding: 1.5rem;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="templates-hero">
+    <h1 class="hero-title">Choose Your Trading Strategy</h1>
+    <p class="hero-subtitle">
+        Start with a proven template or build your own from scratch
+    </p>
+</section>
+
+<!-- Templates Grid -->
+<div class="templates-container">
+    <div class="templates-grid">
+        
+        <!-- Start from Scratch -->
+        <a href="/simulator-v2?template=scratch" class="template-card" data-template="scratch">
+            <div class="template-header">
+                <div class="template-icon-container">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                </div>
+                <h2 class="template-name">Start from Scratch</h2>
+            </div>
+            <div class="template-body">
+                <p class="template-description">
+                    Build your own custom strategy from the ground up with full control over every condition and parameter.
+                </p>
+                <ul class="template-features">
+                    <li>Empty canvas approach</li>
+                    <li>Add unlimited conditions</li>
+                    <li>Mix any indicators</li>
+                    <li>Complete flexibility</li>
+                </ul>
+                <button class="template-cta">
+                    Build Custom Strategy
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </button>
+            </div>
+        </a>
+        
+        <!-- ICT/SMC Setup -->
+        <a href="/simulator-v2?template=ict_smc" class="template-card" data-template="ict_smc">
+            <div class="template-header">
+                <span class="template-badge">Popular</span>
+                <div class="template-icon-container">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <h2 class="template-name">ICT/SMC Setup</h2>
+            </div>
+            <div class="template-body">
+                <p class="template-description">
+                    Smart Money Concepts strategy using institutional order flow and market structure analysis.
+                </p>
+                <ul class="template-features">
+                    <li>Fair Value Gap detection</li>
+                    <li>Order Block identification</li>
+                    <li>Liquidity sweep signals</li>
+                    <li>London session filter</li>
+                </ul>
+                <button class="template-cta">
+                    Use ICT Template
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </button>
+            </div>
+        </a>
+        
+        <!-- Trend Following -->
+        <a href="/simulator-v2?template=trend_following" class="template-card" data-template="trend_following">
+            <div class="template-header">
+                <div class="template-icon-container">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+                <h2 class="template-name">Trend Following</h2>
+            </div>
+            <div class="template-body">
+                <p class="template-description">
+                    Ride strong market trends with momentum confirmation and volume validation.
+                </p>
+                <ul class="template-features">
+                    <li>ADX strength filter (>25)</li>
+                    <li>EMA crossover signals</li>
+                    <li>Volume confirmation</li>
+                    <li>Trend continuation focus</li>
+                </ul>
+                <button class="template-cta">
+                    Use Trend Template
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </button>
+            </div>
+        </a>
+        
+        <!-- Mean Reversion -->
+        <a href="/simulator-v2?template=mean_reversion" class="template-card" data-template="mean_reversion">
+            <div class="template-header">
+                <div class="template-icon-container">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                    </svg>
+                </div>
+                <h2 class="template-name">Mean Reversion</h2>
+            </div>
+            <div class="template-body">
+                <p class="template-description">
+                    Trade oversold and overbought conditions when price deviates from normal ranges.
+                </p>
+                <ul class="template-features">
+                    <li>RSI extremes (<30 or >70)</li>
+                    <li>Bollinger Band touches</li>
+                    <li>Price mean reversion</li>
+                    <li>Range-bound markets</li>
+                </ul>
+                <button class="template-cta">
+                    Use Reversion Template
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </button>
+            </div>
+        </a>
+        
+        <!-- Breakout Momentum -->
+        <a href="/simulator-v2?template=breakout_momentum" class="template-card" data-template="breakout_momentum">
+            <div class="template-header">
+                <div class="template-icon-container">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h2 class="template-name">Breakout Momentum</h2>
+            </div>
+            <div class="template-body">
+                <p class="template-description">
+                    Catch explosive price moves early with momentum and volume surge indicators.
+                </p>
+                <ul class="template-features">
+                    <li>MACD crossover signals</li>
+                    <li>Volume surge (>150%)</li>
+                    <li>ATR volatility expansion</li>
+                    <li>Early trend entry</li>
+                </ul>
+                <button class="template-cta">
+                    Use Breakout Template
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </button>
+            </div>
+        </a>
+        
+        <!-- Custom Templates (Coming Soon) -->
+        <a href="#" class="template-card" data-template="custom" onclick="alert('Coming soon! Save your strategies for quick access.'); return false;">
+            <div class="template-header">
+                <span class="template-badge">Soon</span>
+                <div class="template-icon-container">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                    </svg>
+                </div>
+                <h2 class="template-name">My Templates</h2>
+            </div>
+            <div class="template-body">
+                <p class="template-description">
+                    Save and reuse your own tested strategies. Build your personal template library.
+                </p>
+                <ul class="template-features">
+                    <li>Save tested strategies</li>
+                    <li>Quick template access</li>
+                    <li>Version management</li>
+                    <li>Personal library</li>
+                </ul>
+                <button class="template-cta">
+                    Coming Soon
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </button>
+            </div>
+        </a>
+        
+    </div>
+</div>
+{% endblock %}

@@ -4,6 +4,45 @@ from core.strategy_modules.registry import get_registry
 
 modules_api = Blueprint('modules_api', __name__)
 
+# Category Metadata - Icons and labels for frontend dropdown
+CATEGORY_METADATA = {
+    'momentum': {
+        'icon': '📈',
+        'label': 'Momentum',
+        'description': 'Indicators measuring rate of price change'
+    },
+    'trend': {
+        'icon': '📊',
+        'label': 'Trend',
+        'description': 'Indicators identifying market direction'
+    },
+    'volume': {
+        'icon': '📉',
+        'label': 'Volume',
+        'description': 'Indicators analyzing trading volume'
+    },
+    'volatility': {
+        'icon': '⚡',
+        'label': 'Volatility',
+        'description': 'Indicators measuring price fluctuation'
+    },
+    'moving_averages': {
+        'icon': '〰️',
+        'label': 'Moving Averages',
+        'description': 'Smoothed price trend indicators'
+    },
+    'support_resistance': {
+        'icon': '🎯',
+        'label': 'Support/Resistance',
+        'description': 'Key price levels and zones'
+    },
+    'custom': {
+        'icon': '🔧',
+        'label': 'Custom',
+        'description': 'Advanced and specialized indicators'
+    }
+}
+
 @modules_api.route('/api/modules', methods=['GET'])
 def get_available_modules():
     try:
@@ -28,7 +67,8 @@ def get_available_modules():
         
         return jsonify({
             'success': True,
-            'modules': result
+            'modules': result,
+            'categories': CATEGORY_METADATA  # NEW: Include category metadata
         })
     
     except Exception as e:
