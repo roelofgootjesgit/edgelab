@@ -53,7 +53,7 @@ class AnalysisResult:
 
 # Helper functions
 
-def detect_session(timestamp: datetime) -> str:
+def detect_session(timestamp) -> str:
     """
     Detect trading session based on UTC hour.
     
@@ -63,12 +63,38 @@ def detect_session(timestamp: datetime) -> str:
     - NY: 14:00-22:00 UTC (overlaps with London)
     
     Args:
-        timestamp: Trade timestamp (must be UTC)
+        timestamp: Trade timestamp (must be UTC). Can be datetime, pandas Timestamp, or integer (Unix timestamp)
         
     Returns:
         Session name: 'Tokyo', 'London', or 'NY'
     """
-    hour = timestamp.hour
+    import pandas as pd
+    
+    # Handle different timestamp types
+    if hasattr(timestamp, 'hour'):
+        # datetime or pandas Timestamp
+        hour = timestamp.hour
+    elif isinstance(timestamp, (int, float)):
+        # Unix timestamp - convert to datetime
+        try:
+            ts = pd.Timestamp(timestamp, unit='s')
+            hour = ts.hour
+        except (ValueError, TypeError):
+            # Try as nanoseconds (pandas default)
+            try:
+                ts = pd.Timestamp(timestamp)
+                hour = ts.hour
+            except Exception:
+                print(f"[WARNING] Could not parse timestamp: {timestamp}, type: {type(timestamp)}")
+                return 'NY'  # Default fallback
+    else:
+        # Try to convert to pandas Timestamp
+        try:
+            ts = pd.Timestamp(timestamp)
+            hour = ts.hour
+        except Exception as e:
+            print(f"[WARNING] Could not parse timestamp: {timestamp}, type: {type(timestamp)}, error: {e}")
+            return 'NY'  # Default fallback
     
     if 0 <= hour < 8:
         return 'Tokyo'

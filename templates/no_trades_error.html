@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}No Trades Generated - QuantMetrics{% endblock %}
+
+{% block extra_head %}
+<style>
+    .error-container {
+        max-width: 800px;
+        margin: 4rem auto;
+        padding: 2rem;
+    }
+    
+    .error-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    :root {
+        --text-primary: #1a1a1a;
+        --text-secondary: #666666;
+        --bg-secondary: #f5f5f5;
+        --border-color: #e0e0e0;
+        --accent-blue: #2196F3;
+        --accent-blue-dark: #1976D2;
+        --accent-orange: #ff9800;
+        --card-bg: #ffffff;
+    }
+    
+    .error-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: var(--accent-orange);
+    }
+    
+    .error-title {
+        font-size: 2rem;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+    
+    .error-subtitle {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+    }
+    
+    .error-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .error-card h3 {
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+    }
+    
+    .suggestions-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .suggestions-list li {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        border-left: 4px solid var(--accent-blue);
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .suggestions-list li:before {
+        content: "💡";
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+    }
+    
+    .suggestions-list li strong {
+        color: var(--text-primary);
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    .suggestions-list li span {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+    
+    .strategy-info {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .strategy-info h4 {
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .strategy-info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .strategy-info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .strategy-info-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    
+    .strategy-info-value {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-primary {
+        background: var(--accent-blue);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: background 0.2s;
+    }
+    
+    .btn-primary:hover {
+        background: var(--accent-blue-dark);
+    }
+    
+    .btn-secondary {
+        background: transparent;
+        color: var(--accent-blue);
+        padding: 0.75rem 2rem;
+        border: 2px solid var(--accent-blue);
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
+    }
+    
+    .btn-secondary:hover {
+        background: var(--accent-blue);
+        color: white;
+    }
+    
+    .debug-info {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+    
+    .debug-info h4 {
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    
+    .debug-info pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-header">
+        <div class="error-icon">⚠️</div>
+        <h1 class="error-title">No Trades Generated</h1>
+        <p class="error-subtitle">Your strategy conditions didn't match any trades during the test period.</p>
+    </div>
+    
+    {% if strategy_info %}
+    <div class="strategy-info">
+        <h4>Strategy Configuration</h4>
+        <div class="strategy-info-item">
+            <span class="strategy-info-label">Market:</span>
+            <span class="strategy-info-value">{{ strategy_info.market }}</span>
+        </div>
+        <div class="strategy-info-item">
+            <span class="strategy-info-label">Timeframe:</span>
+            <span class="strategy-info-value">{{ strategy_info.timeframe }}</span>
+        </div>
+        {% if strategy_info.session %}
+        <div class="strategy-info-item">
+            <span class="strategy-info-label">Session:</span>
+            <span class="strategy-info-value">{{ strategy_info.session }}</span>
+        </div>
+        {% endif %}
+        <div class="strategy-info-item">
+            <span class="strategy-info-label">Direction:</span>
+            <span class="strategy-info-value">{{ strategy_info.direction }}</span>
+        </div>
+        <div class="strategy-info-item">
+            <span class="strategy-info-label">Test Period:</span>
+            <span class="strategy-info-value">{{ strategy_info.period }}</span>
+        </div>
+        <div class="strategy-info-item">
+            <span class="strategy-info-label">Decision Blocks:</span>
+            <span class="strategy-info-value">{{ strategy_info.blocks_count }}</span>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="error-card">
+        <h3>Why This Happened</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+            This is normal and not an error. It simply means your strategy conditions were too strict 
+            for the selected market period, or the market conditions didn't align with your setup.
+        </p>
+        
+        <h3 style="margin-top: 2rem;">What You Can Do</h3>
+        <ul class="suggestions-list">
+            <li>
+                <strong>Relax Your Conditions</strong>
+                <span>Try using fewer Decision Blocks or less strict sub-confirmations. Start with 1-2 blocks and add more if needed.</span>
+            </li>
+            <li>
+                <strong>Extend the Test Period</strong>
+                <span>Use a longer period (3mo or 6mo instead of 1mo) to give your strategy more opportunities to match.</span>
+            </li>
+            <li>
+                <strong>Remove Session Filter</strong>
+                <span>If you're filtering by session, try removing it to allow trades during all market hours.</span>
+            </li>
+            <li>
+                <strong>Adjust Parameters</strong>
+                <span>Review your indicator parameters (periods, thresholds) - they might be too restrictive for current market conditions.</span>
+            </li>
+            <li>
+                <strong>Try Different Market/Timeframe</strong>
+                <span>Some strategies work better on different markets or timeframes. Experiment with alternatives.</span>
+            </li>
+        </ul>
+    </div>
+    
+    {% if debug_info %}
+    <div class="debug-info">
+        <h4>Debug Information</h4>
+        <pre>{{ debug_info }}</pre>
+    </div>
+    {% endif %}
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('simulator_v4') }}" class="btn-primary">← Back to Strategy Builder</a>
+        <a href="{{ url_for('simulator_v4') }}" class="btn-secondary">Try Different Settings</a>
+    </div>
+</div>
+{% endblock %}
+

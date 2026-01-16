@@ -6,6 +6,11 @@ modules_api = Blueprint('modules_api', __name__)
 
 # Category Metadata - Icons and labels for frontend dropdown
 CATEGORY_METADATA = {
+    'indicator': {
+        'icon': '📊',
+        'label': 'Indicators',
+        'description': 'Core technical indicators (RSI, MACD, SMA, etc.)'
+    },
     'momentum': {
         'icon': '📈',
         'label': 'Momentum',
@@ -35,6 +40,11 @@ CATEGORY_METADATA = {
         'icon': '🎯',
         'label': 'Support/Resistance',
         'description': 'Key price levels and zones'
+    },
+    'ict': {
+        'icon': '🎯',
+        'label': 'ICT/SMC',
+        'description': 'Inner Circle Trader and Smart Money Concepts'
     },
     'custom': {
         'icon': '🔧',
@@ -100,6 +110,36 @@ def get_module_details(module_id):
             'success': False,
             'error': str(e)
         }), 404
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@modules_api.route('/api/modules/ict', methods=['GET'])
+def get_ict_modules():
+    """Get only ICT modules for V5 simulator"""
+    try:
+        registry = get_registry()
+        available = registry.list_available_modules()
+        
+        ict_modules = []
+        for module_id in available.get('ict', []):
+            module_class = registry.get_module(module_id)
+            module = module_class()
+            
+            ict_modules.append({
+                'id': module_id,
+                'name': module.name,
+                'description': module.description,
+                'config_schema': module.get_config_schema()
+            })
+        
+        return jsonify({
+            'success': True,
+            'modules': ict_modules
+        })
+    
     except Exception as e:
         return jsonify({
             'success': False,

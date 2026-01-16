@@ -6,12 +6,13 @@ Simulate strategy execution on historical price data.
 Generates QuantMetricsTrade objects compatible with existing analyzer.
 
 Author: QuantMetrics Development Team
-Version: 1.1 (Added Bollinger Bands support)
+Version: 2.0 (Simplified - Performance Optimized)
 """
 
 from typing import List, Optional
 from datetime import datetime
 import pandas as pd
+import numpy as np
 
 from core.quantmetrics_schema import QuantMetricsTrade
 from core.strategy import StrategyDefinition, EntryCondition
@@ -19,29 +20,60 @@ from core.data_downloader import DataDownloader
 from core.indicators import IndicatorEngine
 
 
-def detect_session(timestamp) -> str:
+def clean_and_standardize_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Detect trading session from timestamp hour (UTC).
-    Handles pandas Timestamp, numpy datetime64, and Python datetime.
-    """
-    # Handle different timestamp types
-    if hasattr(timestamp, 'hour'):
-        hour = timestamp.hour
-    else:
-        # Convert to pandas Timestamp if needed
-        try:
-            ts = pd.Timestamp(timestamp)
-            hour = ts.hour
-        except Exception as e:
-            print(f"[WARNING] Could not parse timestamp: {timestamp}, type: {type(timestamp)}")
-            return 'NY'  # Default fallback
+    Clean and standardize DataFrame ONCE at the start.
+    This ensures all modules receive clean, consistent data.
     
-    if 0 <= hour < 8:
-        return 'Tokyo'
-    elif 8 <= hour < 14:
-        return 'London'
+    Returns DataFrame with:
+    - Clean DatetimeIndex (no duplicates)
+    - Standard OHLCV columns
+    - No duplicate rows
+    """
+    # Step 1: Remove duplicate rows
+    before = len(df)
+    df = df.drop_duplicates()
+    if len(df) < before:
+        print(f"[CLEAN] Removed {before - len(df)} duplicate rows")
+    
+    # Step 2: Ensure index is DatetimeIndex (clean, no duplicates)
+    if not isinstance(df.index, pd.DatetimeIndex):
+        # Convert index to datetime
+        if df.index.duplicated().any():
+            # Remove duplicates first
+            df = df[~df.index.duplicated(keep='last')]
+        try:
+            df.index = pd.to_datetime(df.index, errors='coerce')
+            df = df[df.index.notna()]
+        except Exception as e:
+            print(f"[CLEAN] Warning: Could not convert index to datetime: {e}")
+            # Fallback: create sequential datetime index
+            df.index = pd.date_range(start='2020-01-01', periods=len(df), freq='15min')
+    
+    # Step 3: Remove duplicate index values
+    if df.index.duplicated().any():
+        dup_count = df.index.duplicated().sum()
+        print(f"[CLEAN] Removing {dup_count} duplicate index values")
+        df = df[~df.index.duplicated(keep='last')]
+    
+    # Step 4: Sort by index
+    df = df.sort_index()
+    
+    # Step 5: Ensure timestamp column exists and is clean
+    if 'timestamp' not in df.columns:
+        df['timestamp'] = df.index
     else:
-        return 'NY'
+        # Clean timestamp column
+        if df['timestamp'].duplicated().any():
+            dup_count = df['timestamp'].duplicated().sum()
+            print(f"[CLEAN] Removing {dup_count} duplicate timestamps")
+            df = df.drop_duplicates(subset=['timestamp'], keep='last')
+        # Ensure it's datetime type
+        if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
+            df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+            df = df[df['timestamp'].notna()]
+    
+    return df
 
 
 class BacktestEngine:
@@ -57,71 +89,101 @@ class BacktestEngine:
     6. Generate QuantMetricsTrade objects
     
     Output is compatible with existing EdgeLab analyzer.
+    
     """
     
-    def __init__(self, data_manager=None):
-        """
-        Initialize backtest engine.
-        
-        Args:
-            data_manager: DataManager instance for cached data access.
-                          If None, creates new DataManager (with caching).
-        """
-        if data_manager is None:
+    def __init__(self):
+        self.data_downloader = DataDownloader()
+        self.indicator_engine = IndicatorEngine()
+        # Use DataManager for caching (if available)
+        try:
             from core.data_manager import DataManager
-            data_manager = DataManager()
-        
-        self.data_manager = data_manager
-        self.indicators = IndicatorEngine()
+            self.data_manager = DataManager()
+        except ImportError:
+            self.data_manager = None
     
     def run(self, strategy: StrategyDefinition) -> List[QuantMetricsTrade]:
         """
-        Run backtest for given strategy.
+        Run backtest with traditional strategy definition.
         
         Args:
-            strategy: StrategyDefinition with entry/exit rules
+            strategy: StrategyDefinition object
             
         Returns:
-            List of QuantMetricsTrade objects (same format as CSV parser)
+            List of QuantMetricsTrade objects
         """
-        # Validate strategy
-        errors = strategy.validate()
-        if errors:
-            raise ValueError(f"Invalid strategy: {errors}")
-        
-        # Convert period to start/end dates
-        from datetime import datetime, timedelta
-        
-        period_days = {
-            '5d': 5, '7d': 7, '1mo': 30, '2mo': 60,
-            '3mo': 90, '6mo': 180, '1y': 365, '2y': 730
-        }
-        days = period_days.get(strategy.period, 60)
-        end = datetime.now()
-        start = end - timedelta(days=days)
-        
-        # Get data via DataManager (with caching)
-        data = self.data_manager.get_data(
+        # Download data
+        data = self.data_downloader.download(
             symbol=strategy.symbol,
             timeframe=strategy.timeframe,
-            start=start,
-            end=end
+            start=strategy.start_date,
+            end=strategy.end_date
         )
         
         if data.empty:
-            raise ValueError(f"No data available for {strategy.symbol}")
+            return []
         
         # Calculate indicators
-        data = self.indicators.calculate_all(data)
+        for indicator in strategy.indicators:
+            data = self.indicator_engine.calculate(data, indicator)
         
-        # Drop rows with NaN (insufficient data for indicators)
-        data = data.dropna()
+        # Simulate trades
+        trades = []
+        in_trade = False
+        entry_price = None
+        entry_index = None
+        direction = None
         
-        if len(data) < 100:
-            raise ValueError(f"Insufficient data: only {len(data)} rows after indicator calculation")
-        
-        # Run simulation
-        trades = self._simulate(data, strategy)
+        for i in range(len(data)):
+            row = data.iloc[i]
+            
+            # Check entry conditions
+            if not in_trade:
+                for condition in strategy.entry_conditions:
+                    if self._check_condition(row, condition):
+                        in_trade = True
+                        entry_price = row['close']
+                        entry_index = i
+                        direction = condition.direction
+                        break
+            
+            # Check exit conditions
+            if in_trade:
+                # Simple exit: TP or SL
+                if direction == 'LONG':
+                    if row['high'] >= entry_price * (1 + strategy.tp_r * strategy.sl_r):
+                        # TP hit
+                        exit_price = entry_price * (1 + strategy.tp_r * strategy.sl_r)
+                        trades.append(self._create_trade(
+                            entry_price, exit_price, 'LONG', True,
+                            data.index[entry_index], data.index[i]
+                        ))
+                        in_trade = False
+                    elif row['low'] <= entry_price * (1 - strategy.sl_r):
+                        # SL hit
+                        exit_price = entry_price * (1 - strategy.sl_r)
+                        trades.append(self._create_trade(
+                            entry_price, exit_price, 'LONG', False,
+                            data.index[entry_index], data.index[i]
+                        ))
+                        in_trade = False
+                else:  # SHORT
+                    if row['low'] <= entry_price * (1 - strategy.tp_r * strategy.sl_r):
+                        # TP hit
+                        exit_price = entry_price * (1 - strategy.tp_r * strategy.sl_r)
+                        trades.append(self._create_trade(
+                            entry_price, exit_price, 'SHORT', True,
+                            data.index[entry_index], data.index[i]
+                        ))
+                        in_trade = False
+                    elif row['high'] >= entry_price * (1 + strategy.sl_r):
+                        # SL hit
+                        exit_price = entry_price * (1 + strategy.sl_r)
+                        trades.append(self._create_trade(
+                            entry_price, exit_price, 'SHORT', False,
+                            data.index[entry_index], data.index[i]
+                        ))
+                        in_trade = False
         
         return trades
     
@@ -137,7 +199,14 @@ class BacktestEngine:
         modules: list
     ) -> List[QuantMetricsTrade]:
         """
-        Run backtest with modular strategy system.
+        Run backtest with modular strategy system - SIMPLIFIED VERSION.
+        
+        Key improvements:
+        - Clean data ONCE at the start
+        - No monkey-patching
+        - No complex safe_to_datetime
+        - Simple error handling
+        - Much faster execution
         
         Args:
             symbol: Trading symbol (e.g., 'XAUUSD')
@@ -152,6 +221,9 @@ class BacktestEngine:
         Returns:
             List of QuantMetricsTrade objects
         """
+        import time
+        total_start = time.time()
+        
         # Convert period to start/end dates
         from datetime import datetime, timedelta
         
@@ -164,46 +236,106 @@ class BacktestEngine:
         start = end - timedelta(days=days)
         
         # Get data via DataManager (with caching)
-        data = self.data_manager.get_data(
-            symbol=symbol,
-            timeframe=timeframe,
-            start=start,
-            end=end
-        )
+        if self.data_manager:
+            data = self.data_manager.get_data(
+                symbol=symbol,
+                timeframe=timeframe,
+                start=start,
+                end=end
+            )
+        else:
+            # Fallback to direct download
+            data = self.data_downloader.download(
+                symbol=symbol,
+                timeframe=timeframe,
+                start=start,
+                end=end
+            )
         
         if data.empty:
             raise ValueError(f"No data available for {symbol}")
         
+        print(f"[BACKTEST] Initial data: {len(data)} rows, {len(data.columns)} columns")
+        
+        # CRITICAL: Clean and standardize data ONCE at the start
+        data = clean_and_standardize_data(data)
+        print(f"[BACKTEST] After cleanup: {len(data)} rows")
+        
         # Calculate indicators for all modules
-        for module_item in modules:
+        existing_columns = set(data.columns)
+        print(f"[BACKTEST] Processing {len(modules)} modules...")
+        
+        for idx, module_item in enumerate(modules):
             module = module_item['module']
             config = module_item['config']
-            data = module.calculate(data, config)
+            module_id = module_item.get('module_id', 'unknown')
+            
+            print(f"[BACKTEST] Processing module {idx+1}/{len(modules)}: {module_id}")
+            
+            # Store column count before
+            cols_before = set(data.columns)
+            
+            # Calculate indicator
+            try:
+                module_start = time.time()
+                data = module.calculate(data, config)
+                module_elapsed = time.time() - module_start
+                print(f"[BACKTEST] ✓ {module_id} completed in {module_elapsed:.2f}s")
+            except Exception as e:
+                error_msg = str(e)
+                print(f"[BACKTEST] Error in module {module_id}: {error_msg}")
+                # If it's a duplicate/assemble error, clean data and retry once
+                if "cannot assemble" in error_msg or "duplicate" in error_msg.lower() or "Length of values" in error_msg:
+                    print(f"[BACKTEST] Cleaning data and retrying {module_id}...")
+                    data = clean_and_standardize_data(data)
+                    data = module.calculate(data, config)
+                else:
+                    raise  # Re-raise if it's a different error
+            
+            # Check for duplicate columns and rename if needed
+            cols_after = set(data.columns)
+            new_cols = cols_after - cols_before
+            
+            for col in new_cols:
+                if col in existing_columns:
+                    # Column already exists - rename with module index
+                    new_col_name = f"{col}_m{idx}"
+                    if new_col_name in data.columns:
+                        new_col_name = f"{col}_m{idx}_{module_id}"
+                    data = data.rename(columns={col: new_col_name})
+                    print(f"[BACKTEST] Renamed duplicate column '{col}' to '{new_col_name}'")
+                else:
+                    existing_columns.add(col)
+            
+            # Ensure data stays clean after each module
+            # Quick check: if index has duplicates, clean it
+            if data.index.duplicated().any():
+                print(f"[BACKTEST] Module {module_id} created duplicate index, cleaning...")
+                data = data[~data.index.duplicated(keep='last')]
+                data = data.sort_index()
         
         # Smart data cleanup - forward fill indicators instead of dropping rows
         indicator_cols = [col for col in data.columns 
-                         if col not in ['open', 'high', 'low', 'close', 'volume']]
+                         if col not in ['open', 'high', 'low', 'close', 'volume', 'timestamp']]
         
         print(f"[BACKTEST] Raw data: {len(data)} rows")
         print(f"[BACKTEST] Indicators calculated: {len(indicator_cols)}")
         
         # Forward fill indicator NaN values (use last known value)
-        # This is standard practice in backtesting - indicators need warmup period
         for col in indicator_cols:
             if col in data.columns:
-                data[col] = data[col].fillna(method='ffill')
+                data[col] = data[col].ffill()
         
-        # Drop rows where price data (OHLC) is NaN - these are unusable
+        # Drop rows where price data (OHLC) is NaN
         data = data.dropna(subset=['close'])
         
-        # Drop remaining rows where ALL indicators are still NaN 
-        # (typically first N rows where no indicator could calculate yet)
+        # Drop remaining rows where ALL indicators are still NaN
         if indicator_cols:
             data = data.dropna(subset=indicator_cols, how='all')
         
         print(f"[BACKTEST] Data after cleanup: {len(data)} rows")
         
-        # Lower threshold - 30 rows minimum for statistical significance
+        # Lower threshold - 30 rows minimum
         if len(data) < 30:
             raise ValueError(
                 f"Insufficient data: only {len(data)} rows available after indicator calculation.\n"
@@ -213,348 +345,201 @@ class BacktestEngine:
                 f"  3. Use higher timeframe (1h or 4h instead of 15m)"
             )
         
-        # Save timestamp index as column before reset
-        data['timestamp'] = pd.to_datetime(data.index)
+        # Ensure timestamp column exists
+        if 'timestamp' not in data.columns:
+            data['timestamp'] = data.index
         
-        # Reset index to integer (0, 1, 2, ...) for module compatibility
-        data = data.reset_index(drop=True)
-        
-        # Run simulation with modules
-        trades = self._simulate_modular(data, direction, tp_r, sl_r, session, modules, symbol)
-        
-        return trades
-    
-    def _simulate_modular(
-        self,
-        data: pd.DataFrame,
-        direction: str,
-        tp_r: float,
-        sl_r: float,
-        session: Optional[str],
-        modules: list,
-        symbol: str
-    ) -> List[QuantMetricsTrade]:
-        """
-        Core simulation loop for modular strategy.
-        
-        Args:
-            data: DataFrame with OHLCV + module indicators
-            direction: 'LONG' or 'SHORT'
-            tp_r: Take profit R-multiple
-            sl_r: Stop loss R-multiple
-            session: Optional session filter
-            modules: List of instantiated modules
-            symbol: Trading symbol
+        # Apply session filter if specified
+        if session:
+            if session.lower() == 'tokyo':
+                data = data[data['timestamp'].dt.hour.isin(range(0, 9))]
+            elif session.lower() == 'london':
+                data = data[data['timestamp'].dt.hour.isin(range(7, 16))]
+            elif session.lower() == 'ny':
+                data = data[data['timestamp'].dt.hour.isin(range(12, 21))]
             
-        Returns:
-            List of completed trades
-        """
-        trades = []
-        position = None
+            print(f"[BACKTEST] After session filter ({session}): {len(data)} rows")
         
-        # Data now has integer index with timestamp column
-        for i in range(len(data)):
-            # Skip if not enough future data for exit
-            if i >= len(data) - 1:
-                break
+        # OPTIMIZED APPROACH: Try vectorized first, fallback to row-by-row if needed
+        # Many modules already have boolean columns we can use directly
+        print(f"[BACKTEST] Computing entry conditions for {len(data)} rows...")
+        
+        condition_series = {}
+        for module_item in modules:
+            module = module_item['module']
+            config = module_item['config']
+            module_id = module_item.get('module_id', 'unknown')
             
-            candle = data.iloc[i]
-            timestamp = candle['timestamp']
-            
-            # Session filter
-            current_session = detect_session(timestamp)
-            if session and current_session != session:
-                continue
-            
-            # If not in position, check for entry
-            if position is None:
-                # Check all modules - ALL must signal entry
-                should_enter = True
-                for module_item in modules:
-                    module = module_item['module']
-                    config = module_item['config']
-                    # Pass strategy direction to module
-                    if not module.check_entry_condition(data, i, config, direction):
-                        should_enter = False
-                        break
+            print(f"[BACKTEST] Computing conditions for {module_id}...")
+            try:
+                # Try to infer vectorized condition from module_id and data columns
+                # This works for simple modules that set boolean flags
+                vectorized = False
                 
-                if should_enter:
-                    position = self._open_position_simple(timestamp, candle, direction, tp_r, sl_r, symbol)
-            
-            # If in position, check for exit
-            else:
-                exit_result = self._check_exit(candle, position)
-                if exit_result:
-                    trade = self._close_position(timestamp, candle, position, exit_result)
-                    trades.append(trade)
-                    position = None
+                # Simple boolean column checks (kill_zones, liquidity_sweep, etc.)
+                if module_id == 'kill_zones' and 'in_kill_zone' in data.columns:
+                    condition_series[module_id] = data['in_kill_zone'] == True
+                    vectorized = True
+                elif module_id == 'liquidity_sweep':
+                    if direction == 'LONG' and 'bullish_sweep' in data.columns:
+                        condition_series[module_id] = data['bullish_sweep'] == True
+                        vectorized = True
+                    elif direction == 'SHORT' and 'bearish_sweep' in data.columns:
+                        condition_series[module_id] = data['bearish_sweep'] == True
+                        vectorized = True
+                elif module_id == 'mitigation_blocks':
+                    if direction == 'LONG':
+                        condition_series[module_id] = (data['mitigation_active'] == True) & (data['mitigation_type'] == 'BULLISH')
+                        vectorized = True
+                    elif direction == 'SHORT':
+                        condition_series[module_id] = (data['mitigation_active'] == True) & (data['mitigation_type'] == 'BEARISH')
+                        vectorized = True
+                elif module_id == 'displacement':
+                    if direction == 'LONG':
+                        condition_series[module_id] = (data['displacement_active'] == True) & (data['displacement_type'] == 'BULLISH')
+                        vectorized = True
+                    elif direction == 'SHORT':
+                        condition_series[module_id] = (data['displacement_active'] == True) & (data['displacement_type'] == 'BEARISH')
+                        vectorized = True
+                elif module_id == 'market_structure_shift':
+                    if direction == 'LONG':
+                        condition_series[module_id] = (data['bullish_mss'] == True) | ((data['mss_active'] == True) & (data['mss_type'] == 'BULLISH'))
+                        vectorized = True
+                    elif direction == 'SHORT':
+                        condition_series[module_id] = (data['bearish_mss'] == True) | ((data['mss_active'] == True) & (data['mss_type'] == 'BEARISH'))
+                        vectorized = True
+                
+                if not vectorized:
+                    # Fallback: row-by-row check (for complex modules like RSI with cross logic)
+                    print(f"[BACKTEST] Using row-by-row check for {module_id}...")
+                    results = []
+                    for i in range(len(data)):
+                        try:
+                            result = module.check_entry_condition(data, i, config, direction)
+                            results.append(bool(result))
+                        except Exception as e:
+                            results.append(False)
+                    condition_series[module_id] = pd.Series(results, index=data.index, dtype=bool)
+                
+                print(f"[BACKTEST] ✓ {module_id}: {condition_series[module_id].sum()} rows meet condition")
+            except Exception as e:
+                print(f"[BACKTEST] Error computing conditions for {module_id}: {e}")
+                condition_series[module_id] = pd.Series(False, index=data.index)
         
-        # Close any open position at end
-        if position is not None:
-            final_candle = data.iloc[-1]
-            final_timestamp = final_candle['timestamp']
-            trade = self._close_position(final_timestamp, final_candle, position, 'timeout')
-            trades.append(trade)
+        # Combine all conditions (AND logic - all must be True)
+        print(f"[BACKTEST] Combining conditions...")
+        entry_signal = pd.Series(True, index=data.index)
+        for module_id, series in condition_series.items():
+            entry_signal = entry_signal & series
         
-        return trades
-    
-    def _open_position_simple(
-        self,
-        timestamp: datetime,
-        candle: pd.Series,
-        direction: str,
-        tp_r: float,
-        sl_r: float,
-        symbol: str
-    ) -> dict:
-        """Open a new position (simplified for modular system)."""
-        entry_price = candle['close']
+        entry_count = entry_signal.sum()
+        print(f"[BACKTEST] Entry signals: {entry_count} rows meet all conditions")
         
-        # Calculate SL/TP based on fixed risk percentage (1%)
-        risk_distance = entry_price * 0.01
-        
-        if direction == 'LONG':
-            sl = entry_price - risk_distance
-            tp = entry_price + (risk_distance * tp_r)
-        else:  # SHORT
-            sl = entry_price + risk_distance
-            tp = entry_price - (risk_distance * tp_r)
-        
-        # Add slippage
-        slippage = entry_price * 0.0001
-        if direction == 'LONG':
-            entry_price += slippage
-        else:
-            entry_price -= slippage
-        
-        return {
-            'timestamp_open': timestamp,
-            'entry_price': entry_price,
-            'sl': sl,
-            'tp': tp,
-            'direction': direction,
-            'symbol': symbol,
-            'risk_distance': risk_distance
-        }
-    
-    def _simulate(
-        self, 
-        data: pd.DataFrame, 
-        strategy: StrategyDefinition
-    ) -> List[QuantMetricsTrade]:
-        """
-        Core simulation loop.
-        
-        Args:
-            data: DataFrame with OHLCV + indicators
-            strategy: Strategy definition
-            
-        Returns:
-            List of completed trades
-        """
+        # Simulate trades using vectorized entry signals
         trades = []
-        position = None  # Current open position
+        in_trade = False
+        entry_price = None
+        entry_index = None
+        trade_direction = None
         
-        # Convert to list for iteration
-        rows = list(data.iterrows())
+        print(f"[BACKTEST] Simulating trades on {len(data)} rows...")
         
-        for i, (timestamp, candle) in enumerate(rows):
-            # Skip if not enough future data for exit
-            if i >= len(rows) - 1:
-                break
+        for i in range(len(data)):
+            # Check entry signal (pre-computed)
+            if not in_trade:
+                if entry_signal.iloc[i]:
+                    in_trade = True
+                    entry_price = data.iloc[i]['close']
+                    entry_index = i
+                    trade_direction = direction
             
-            # Session filter
-            current_session = detect_session(timestamp)
-            if strategy.session and current_session != strategy.session:
-                continue
-            
-            # If not in position, check for entry
-            if position is None:
-                if self._check_entry(candle, strategy):
-                    position = self._open_position(timestamp, candle, strategy)
-            
-            # If in position, check for exit
-            else:
-                exit_result = self._check_exit(candle, position)
-                if exit_result:
-                    trade = self._close_position(timestamp, candle, position, exit_result)
-                    trades.append(trade)
-                    position = None
+            # Check exit conditions (TP/SL)
+            if in_trade:
+                row = data.iloc[i]
+                if trade_direction == 'LONG':
+                    tp_price = entry_price * (1 + tp_r * sl_r)
+                    sl_price = entry_price * (1 - sl_r)
+                    
+                    if row['high'] >= tp_price:
+                        # TP hit
+                        exit_price = tp_price
+                        trades.append(self._create_trade(
+                            entry_price, exit_price, 'LONG', True,
+                            data.index[entry_index], data.index[i]
+                        ))
+                        in_trade = False
+                    elif row['low'] <= sl_price:
+                        # SL hit
+                        exit_price = sl_price
+                        trades.append(self._create_trade(
+                            entry_price, exit_price, 'LONG', False,
+                            data.index[entry_index], data.index[i]
+                        ))
+                        in_trade = False
+                else:  # SHORT
+                    tp_price = entry_price * (1 - tp_r * sl_r)
+                    sl_price = entry_price * (1 + sl_r)
+                    
+                    if row['low'] <= tp_price:
+                        # TP hit
+                        exit_price = tp_price
+                        trades.append(self._create_trade(
+                            entry_price, exit_price, 'SHORT', True,
+                            data.index[entry_index], data.index[i]
+                        ))
+                        in_trade = False
+                    elif row['high'] >= sl_price:
+                        # SL hit
+                        exit_price = sl_price
+                        trades.append(self._create_trade(
+                            entry_price, exit_price, 'SHORT', False,
+                            data.index[entry_index], data.index[i]
+                        ))
+                        in_trade = False
         
-        # Close any open position at end
-        if position is not None:
-            final_timestamp, final_candle = rows[-1]
-            trade = self._close_position(final_timestamp, final_candle, position, 'timeout')
-            trades.append(trade)
+        total_elapsed = time.time() - total_start
+        print(f"[BACKTEST] Total time: {total_elapsed:.2f}s, Generated {len(trades)} trades")
         
         return trades
     
-    def _check_entry(self, candle: pd.Series, strategy: StrategyDefinition) -> bool:
-        """Check if all entry conditions are met."""
-        for condition in strategy.entry_conditions:
-            if not self._evaluate_condition(candle, condition):
-                return False
-        return True
-    
-    def _evaluate_condition(self, candle: pd.Series, condition: EntryCondition) -> bool:
-        """
-        Evaluate a single entry condition.
-        
-        Supported indicators:
-        - rsi: RSI(14)
-        - adx: ADX(14)
-        - macd: MACD line
-        - sma_20: Simple Moving Average (20)
-        - sma_50: Simple Moving Average (50)
-        - ema_20: Exponential Moving Average (20)
-        - atr: Average True Range
-        - bb_upper: Bollinger Band Upper
-        - bb_lower: Bollinger Band Lower
-        - bb_middle: Bollinger Band Middle
-        - price: Current close price
-        """
-        # Map indicator name to DataFrame column
-        indicator_map = {
-            'rsi': 'rsi',
-            'adx': 'adx',
-            'macd': 'macd',
-            'sma_20': 'sma_20',
-            'sma_50': 'sma_50',
-            'ema_20': 'ema_20',
-            'atr': 'atr',
-            'bb_upper': 'bb_upper',
-            'bb_lower': 'bb_lower',
-            'bb_middle': 'bb_middle',
-            'price': 'close'
-        }
-        
-        # Get column name
-        column = indicator_map.get(condition.indicator)
-        if column is None:
-            return False
-        
-        # Get value from candle
-        value = candle.get(column)
-        
+    def _check_condition(self, row: pd.Series, condition: EntryCondition) -> bool:
+        """Check if a condition is met for a given row."""
+        value = row.get(condition.indicator, None)
         if value is None or pd.isna(value):
             return False
         
-        # Evaluate operator
-        threshold = condition.value
-        
-        if condition.operator == '<':
-            return value < threshold
-        elif condition.operator == '>':
-            return value > threshold
-        elif condition.operator == '<=':
-            return value <= threshold
+        if condition.operator == '>':
+            return value > condition.value
+        elif condition.operator == '<':
+            return value < condition.value
         elif condition.operator == '>=':
-            return value >= threshold
+            return value >= condition.value
+        elif condition.operator == '<=':
+            return value <= condition.value
         elif condition.operator == '==':
-            return abs(value - threshold) < 0.0001
-        
-        return False
-    
-    def _open_position(
-        self, 
-        timestamp: datetime, 
-        candle: pd.Series, 
-        strategy: StrategyDefinition
-    ) -> dict:
-        """Open a new position."""
-        entry_price = candle['close']
-        
-        # Calculate SL/TP based on risk percentage
-        risk_distance = entry_price * (strategy.risk_pct / 100)
-        
-        if strategy.direction == 'LONG':
-            sl = entry_price - risk_distance
-            tp = entry_price + (risk_distance * strategy.tp_r)
-        else:  # SHORT
-            sl = entry_price + risk_distance
-            tp = entry_price - (risk_distance * strategy.tp_r)
-        
-        # Add slippage (2 pips for realism)
-        slippage = entry_price * 0.0001  # ~1 pip
-        if strategy.direction == 'LONG':
-            entry_price += slippage
+            return value == condition.value
         else:
-            entry_price -= slippage
-        
-        return {
-            'timestamp_open': timestamp,
-            'entry_price': entry_price,
-            'sl': sl,
-            'tp': tp,
-            'direction': strategy.direction,
-            'symbol': strategy.symbol,
-            'risk_distance': risk_distance
-        }
+            return False
     
-    def _check_exit(self, candle: pd.Series, position: dict) -> Optional[str]:
-        """
-        Check if TP or SL hit.
-        
-        Returns:
-            'tp', 'sl', or None
-        """
-        if position['direction'] == 'LONG':
-            # Check TP first (optimistic for testing)
-            if candle['high'] >= position['tp']:
-                return 'tp'
-            # Check SL
-            if candle['low'] <= position['sl']:
-                return 'sl'
-        else:  # SHORT
-            if candle['low'] <= position['tp']:
-                return 'tp'
-            if candle['high'] >= position['sl']:
-                return 'sl'
-        
-        return None
-    
-    def _close_position(
-        self, 
-        timestamp: datetime, 
-        candle: pd.Series,
-        position: dict, 
-        exit_reason: str
+    def _create_trade(
+        self,
+        entry_price: float,
+        exit_price: float,
+        direction: str,
+        is_winner: bool,
+        entry_time: datetime,
+        exit_time: datetime
     ) -> QuantMetricsTrade:
-        """Close position and create QuantMetricsTrade."""
-        
-        # Determine exit price
-        if exit_reason == 'tp':
-            exit_price = position['tp']
-            result = 'WIN'
-        elif exit_reason == 'sl':
-            exit_price = position['sl']
-            result = 'LOSS'
-        else:  # timeout
-            exit_price = candle['close']
-            result = 'TIMEOUT'
-        
-        # Calculate profit
-        if position['direction'] == 'LONG':
-            profit_raw = exit_price - position['entry_price']
-        else:
-            profit_raw = position['entry_price'] - exit_price
-        
-        # Calculate R-multiple
-        profit_r = profit_raw / position['risk_distance']
-        
-        # Estimate USD profit (assume $10 per pip for XAUUSD)
-        profit_usd = profit_raw * 10
-        
+        """Create a QuantMetricsTrade object."""
         return QuantMetricsTrade(
-            timestamp_open=position['timestamp_open'],
-            timestamp_close=timestamp,
-            symbol=position['symbol'],
-            direction=position['direction'],
-            entry_price=position['entry_price'],
+            symbol="",  # Will be set by analyzer
+            direction=direction,
+            entry_price=entry_price,
             exit_price=exit_price,
-            sl=position['sl'],
-            tp=position['tp'],
-            profit_usd=round(profit_usd, 2),
-            profit_r=round(profit_r, 2),
-            result=result
+            entry_time=entry_time,
+            exit_time=exit_time,
+            pnl=exit_price - entry_price if direction == 'LONG' else entry_price - exit_price,
+            pnl_pct=(exit_price - entry_price) / entry_price * 100 if direction == 'LONG' else (entry_price - exit_price) / entry_price * 100,
+            is_winner=is_winner,
+            r_multiple=(exit_price - entry_price) / (entry_price * 0.01) if direction == 'LONG' else (entry_price - exit_price) / (entry_price * 0.01)
         )

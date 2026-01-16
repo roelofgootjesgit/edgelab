@@ -25,15 +25,6 @@ let conditions = [];            // Array of all conditions
 // ============================================================================
 
 const STRATEGY_TEMPLATES = {
-  scratch: {
-    id: 'scratch',
-    name: 'Start from Scratch',
-    icon: '✨',
-    description: 'Build your own custom strategy',
-    color: '#3b82f6',  // Blue
-    conditions: []
-  },
-  
   ict_smc: {
     id: 'ict_smc',
     name: 'ICT/SMC Setup',
@@ -158,6 +149,209 @@ const STRATEGY_TEMPLATES = {
     ]
   },
   
+  golden_cross: {
+    id: 'golden_cross',
+    name: 'Golden Cross',
+    icon: '🌟',
+    description: 'Classic SMA crossover strategy',
+    color: '#fbbf24',  // Gold/Amber
+    conditions: [
+      {
+        category: 'indicator',
+        module: 'sma',
+        operator: 'crosses_above',
+        value: '0',
+        logic: 'AND',
+        note: 'SMA(50) crosses above SMA(200)'
+      },
+      {
+        category: 'volume',
+        module: 'cmf',
+        operator: '>',
+        value: '0',
+        logic: 'AND',
+        note: 'CMF positive (buying pressure)'
+      }
+    ]
+  },
+  
+  supertrend_trend: {
+    id: 'supertrend_trend',
+    name: 'Supertrend Trend',
+    icon: '📈',
+    description: 'Follow trends with Supertrend indicator',
+    color: '#10b981',  // Green
+    conditions: [
+      {
+        category: 'trend',
+        module: 'supertrend',
+        operator: '==',
+        value: '1',
+        logic: 'AND',
+        note: 'Supertrend bullish signal'
+      },
+      {
+        category: 'trend',
+        module: 'adx',
+        operator: '>',
+        value: '25',
+        logic: 'AND',
+        note: 'Strong trend (ADX > 25)'
+      },
+      {
+        category: 'volume',
+        module: 'cmf',
+        operator: '>',
+        value: '0',
+        logic: 'AND',
+        note: 'Positive money flow'
+      }
+    ]
+  },
+  
+  rsi_oversold_bounce: {
+    id: 'rsi_oversold_bounce',
+    name: 'RSI Oversold Bounce',
+    icon: '🔄',
+    description: 'Buy oversold bounces with RSI confirmation',
+    color: '#8b5cf6',  // Purple
+    conditions: [
+      {
+        category: 'momentum',
+        module: 'rsi',
+        operator: '<',
+        value: '30',
+        logic: 'AND',
+        note: 'RSI oversold (< 30)'
+      },
+      {
+        category: 'momentum',
+        module: 'stochastic',
+        operator: '<',
+        value: '20',
+        logic: 'AND',
+        note: 'Stochastic oversold'
+      },
+      {
+        category: 'volume',
+        module: 'obv',
+        operator: '>',
+        value: '0',
+        logic: 'AND',
+        note: 'OBV rising (accumulation)'
+      }
+    ]
+  },
+  
+  vwap_reversion: {
+    id: 'vwap_reversion',
+    name: 'VWAP Reversion',
+    icon: '💹',
+    description: 'Mean reversion around VWAP',
+    color: '#06b6d4',  // Cyan
+    conditions: [
+      {
+        category: 'volume',
+        module: 'vwap',
+        operator: '<',
+        value: '0',
+        logic: 'AND',
+        note: 'Price below VWAP (long setup)'
+      },
+      {
+        category: 'momentum',
+        module: 'rsi',
+        operator: '<',
+        value: '40',
+        logic: 'AND',
+        note: 'RSI not overbought'
+      },
+      {
+        category: 'volume',
+        module: 'cmf',
+        operator: '>',
+        value: '0',
+        logic: 'AND',
+        note: 'Positive money flow'
+      }
+    ]
+  },
+  
+  momentum_scalping: {
+    id: 'momentum_scalping',
+    name: 'Momentum Scalping',
+    icon: '⚡',
+    description: 'Quick scalps on momentum',
+    color: '#ef4444',  // Red
+    conditions: [
+      {
+        category: 'momentum',
+        module: 'macd',
+        operator: 'crosses_above',
+        value: '0',
+        logic: 'AND',
+        note: 'MACD bullish crossover'
+      },
+      {
+        category: 'momentum',
+        module: 'rsi',
+        operator: '>',
+        value: '50',
+        logic: 'AND',
+        note: 'RSI in momentum zone (50-70)'
+      },
+      {
+        category: 'momentum',
+        module: 'rsi',
+        operator: '<',
+        value: '70',
+        logic: 'AND'
+      },
+      {
+        category: 'volume',
+        module: 'cmf',
+        operator: '>',
+        value: '0.05',
+        logic: 'AND',
+        note: 'Strong buying pressure (CMF > 0.05)'
+      }
+    ]
+  },
+  
+  ichimoku_cloud: {
+    id: 'ichimoku_cloud',
+    name: 'Ichimoku Cloud',
+    icon: '☁️',
+    description: 'Trade with Ichimoku cloud breakouts',
+    color: '#3b82f6',  // Blue
+    conditions: [
+      {
+        category: 'trend',
+        module: 'ichimoku',
+        operator: '==',
+        value: '1',
+        logic: 'AND',
+        note: 'Price above cloud (bullish)'
+      },
+      {
+        category: 'trend',
+        module: 'adx',
+        operator: '>',
+        value: '20',
+        logic: 'AND',
+        note: 'Trend strength confirmation'
+      },
+      {
+        category: 'volume',
+        module: 'cmf',
+        operator: '>',
+        value: '0',
+        logic: 'AND',
+        note: 'Positive money flow'
+      }
+    ]
+  },
+  
   custom_templates: {
     id: 'custom_templates',
     name: 'My Templates',
@@ -210,8 +404,8 @@ async function loadAvailableModules() {
 function initializeBuilder() {
   console.log('[INIT] Initializing strategy builder...');
   
-  // Show template selector first
-  showTemplateSelector();
+  // NOTE: Template selector removed - users can directly add conditions
+  // Template selector functionality kept for future use but not auto-shown
   
   // Set up event listeners
   setupEventListeners();
@@ -223,65 +417,89 @@ function initializeBuilder() {
 }
 
 /**
- * Show strategy template selector
+ * Show template modal
  */
-function showTemplateSelector() {
-  const container = document.getElementById('conditionsContainer');
-  if (!container) return;
+function showTemplateModal() {
+  console.log('[TEMPLATE] showTemplateModal called');
+  const modal = document.getElementById('templateModal');
+  const templateGrid = document.getElementById('templateGrid');
+  
+  console.log('[TEMPLATE] Modal element:', modal);
+  console.log('[TEMPLATE] Template grid element:', templateGrid);
+  
+  if (!modal || !templateGrid) {
+    console.error('[TEMPLATE] Modal elements not found');
+    console.error('[TEMPLATE] Modal:', modal, 'Grid:', templateGrid);
+    return;
+  }
   
   const templates = Object.values(STRATEGY_TEMPLATES);
   
-  const selectorHTML = `
-    <div class="template-selector">
-      <div style="text-align: center; margin-bottom: 3rem;">
-        <h2 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">
-          🎯 Build Your Trading Strategy
-        </h2>
-        <p style="color: var(--text-muted); font-size: 1.1rem;">
-          Choose a starting point or build from scratch
-        </p>
+  templateGrid.innerHTML = templates.map(template => `
+    <div class="template-card-modal" 
+         data-template-id="${template.id}"
+         onclick="selectTemplateFromModal('${template.id}')"
+         style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-left: 3px solid ${template.color}; border-radius: 8px; padding: 1rem; cursor: pointer; transition: all var(--transition-normal);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+        <h3 style="font-size: 0.95rem; color: var(--text-primary); margin: 0; font-weight: 600; line-height: 1.3;">
+          ${template.name}
+        </h3>
+        ${template.comingSoon ? `
+          <span style="background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">
+            Soon
+          </span>
+        ` : `
+          <span style="font-size: 0.7rem; color: var(--text-muted);">
+            ${template.conditions.length} ${template.conditions.length === 1 ? 'condition' : 'conditions'}
+          </span>
+        `}
       </div>
-      
-      <div class="template-grid">
-        ${templates.map(template => `
-          <div class="template-card" 
-               data-template-id="${template.id}"
-               onclick="selectTemplate('${template.id}')"
-               style="border-top: 4px solid ${template.color}; cursor: pointer;">
-            <div class="template-icon" style="font-size: 3rem; margin-bottom: 1rem;">
-              ${template.icon}
-            </div>
-            <h3 class="template-name" style="font-size: 1.25rem; color: var(--text-primary); margin-bottom: 0.5rem;">
-              ${template.name}
-            </h3>
-            <p class="template-description" style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-              ${template.description}
-            </p>
-            ${template.conditions.length > 0 ? `
-              <div class="template-conditions" style="font-size: 0.75rem; color: ${template.color}; font-weight: 600;">
-                ${template.conditions.length} conditions included
-              </div>
-            ` : ''}
-            ${template.comingSoon ? `
-              <div style="background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); padding: 0.5rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600;">
-                Coming Soon
-              </div>
-            ` : ''}
-          </div>
-        `).join('')}
-      </div>
+      <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0; line-height: 1.4;">
+        ${template.description}
+      </p>
     </div>
-  `;
+  `).join('');
   
-  container.innerHTML = selectorHTML;
-  
-  // Hide empty state
-  const emptyState = document.getElementById('empty-state');
-  if (emptyState) {
-    emptyState.style.display = 'none';
+  // Add hover effects via CSS
+  const style = document.createElement('style');
+  style.id = 'templateModalStyles';
+  if (!document.getElementById('templateModalStyles')) {
+    style.textContent = `
+      .template-card-modal:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent-blue) !important;
+        background: var(--bg-card) !important;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+      }
+    `;
+    document.head.appendChild(style);
   }
   
-  console.log('[UI] ✓ Template selector displayed');
+  console.log('[TEMPLATE] Setting modal display to flex');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+  
+  console.log('[TEMPLATE] ✓ Template modal displayed, display:', modal.style.display);
+  console.log('[TEMPLATE] Modal computed style:', window.getComputedStyle(modal).display);
+}
+
+/**
+ * Close template modal
+ */
+function closeTemplateModal() {
+  const modal = document.getElementById('templateModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = ''; // Restore scrolling
+  }
+}
+
+/**
+ * Select template from modal
+ */
+function selectTemplateFromModal(templateId) {
+  closeTemplateModal();
+  selectTemplate(templateId);
 }
 
 /**
@@ -303,17 +521,12 @@ function selectTemplate(templateId) {
     return;
   }
   
-  // Clear template selector
+  // Clear existing conditions
+  conditions = []; // Clear conditions array
+  
   const container = document.getElementById('conditionsContainer');
   if (container) {
     container.innerHTML = '';
-  }
-  
-  // Start from scratch - show empty form
-  if (template.id === 'scratch') {
-    // Just clear and user can add conditions manually
-    updateAddConditionButton();
-    return;
   }
   
   // Load template conditions
@@ -376,7 +589,7 @@ function addTemplateCondition(conditionConfig) {
     module: moduleId,
     moduleName: moduleData.name,
     operator: conditionConfig.operator,
-    value: conditionConfig.value,
+    value: parseFloat(conditionConfig.value), // Ensure value is a float
     logic: conditionConfig.logic || 'AND',
     config: {},
     note: conditionConfig.note
@@ -403,6 +616,35 @@ function setupEventListeners() {
     console.log('[INIT] ✓ Add condition button listener attached');
   } else {
     console.error('[INIT] ✗ Could not find add-condition button');
+  }
+  
+  // Show templates button
+  const templatesBtn = document.getElementById('show-templates');
+  if (templatesBtn) {
+    templatesBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('[TEMPLATE] Button clicked, showing modal...');
+      showTemplateModal();
+    });
+    console.log('[INIT] ✓ Templates button listener attached');
+  } else {
+    console.error('[INIT] ✗ Could not find show-templates button');
+  }
+  
+  // Close template modal
+  const closeModalBtn = document.getElementById('closeTemplateModal');
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeTemplateModal);
+  }
+  
+  // Close modal on background click
+  const templateModal = document.getElementById('templateModal');
+  if (templateModal) {
+    templateModal.addEventListener('click', function(e) {
+      if (e.target === templateModal) {
+        closeTemplateModal();
+      }
+    });
   }
   
   // Form submission
@@ -752,6 +994,12 @@ function removeCondition(conditionId) {
     card.remove();
   }
   
+  // Show empty state if no conditions left
+  const emptyState = document.getElementById('empty-state');
+  if (emptyState && conditions.length === 0) {
+    emptyState.style.display = 'block';
+  }
+  
   // Update UI
   updateAddConditionButton();
   updateSubmitButton();
@@ -821,7 +1069,9 @@ async function handleFormSubmit(event) {
     conditions: conditions.map(c => ({
       category: c.category,
       module: c.module,
-      config: c.config
+      config: c.config,
+      operator: c.operator,
+      value: parseFloat(c.value)
     }))
   };
   

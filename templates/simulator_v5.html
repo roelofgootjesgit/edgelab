@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Strategy Simulator V5 - ICT Template - QuantMetrics{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/simulator_v5.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="simulator-v5-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h1>Strategy Simulator V5</h1>
+        <p class="subtitle">Simple, fast ICT strategy testing</p>
+    </div>
+
+    <!-- Strategy Info -->
+    <div class="strategy-info">
+        <h2>ICT Template: Structure → Liquidity → Displacement</h2>
+        <p class="strategy-description">
+            <strong>Market Logic:</strong> Trade in the direction of structure after liquidity is taken.
+        </p>
+    </div>
+
+    <!-- Market Context -->
+    <div class="section market-context">
+        <h3>Market Context</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Symbol</label>
+                <select id="symbol" class="form-control">
+                    <option value="XAUUSD">XAUUSD (Gold)</option>
+                    <option value="EURUSD">EURUSD</option>
+                    <option value="GBPUSD">GBPUSD</option>
+                    <option value="USDJPY">USDJPY</option>
+                    <option value="AUDUSD">AUDUSD</option>
+                    <option value="USDCAD">USDCAD</option>
+                    <option value="NZDUSD">NZDUSD</option>
+                    <option value="BTCUSD">BTCUSD</option>
+                    <option value="ETHUSD">ETHUSD</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Entry Timeframe</label>
+                <select id="entryTimeframe" class="form-control">
+                    <option value="5m">5 minutes</option>
+                    <option value="15m">15 minutes</option>
+                    <option value="30m">30 minutes</option>
+                    <option value="1h">1 hour</option>
+                    <option value="4h">4 hours</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Test Mode</label>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="radio" name="testMode" value="quick" id="quickTestMode" checked>
+                        <span>Quick Test (1 month)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="radio" name="testMode" value="full" id="fullTestMode">
+                        <span>Full Test</span>
+                    </label>
+                </div>
+                <small>Quick Test is faster for testing. Full Test provides more robust results.</small>
+            </div>
+            <div class="form-group" id="testPeriodGroup">
+                <label>Test Period</label>
+                <select id="testPeriod" class="form-control">
+                    <option value="1mo">1 month</option>
+                    <option value="2mo">2 months</option>
+                    <option value="3mo">3 months</option>
+                    <option value="4mo">4 months</option>
+                    <option value="5mo">5 months</option>
+                    <option value="6mo">6 months (max)</option>
+                </select>
+                <small id="periodHelp">Full test periods: 1-6 months available</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decision Blocks -->
+    <div class="section decision-blocks">
+        <h3>Decision Blocks</h3>
+        
+        <!-- Block 1: HTF Market Bias -->
+        <div class="decision-block">
+            <div class="block-header">
+                <h4>1. HTF Market Bias</h4>
+                <span class="block-status" id="block1Status">Not configured</span>
+            </div>
+            <div class="block-content">
+                <p class="block-description">
+                    Trade only in the direction of last Break of Structure (BOS) on higher timeframe.
+                </p>
+                <div class="form-group">
+                    <label>HTF Timeframe</label>
+                    <select id="htfTimeframe" class="form-control">
+                        <option value="1h">1 Hour</option>
+                        <option value="4h">4 Hours</option>
+                        <option value="1d">1 Day</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>BOS Lookback Periods</label>
+                    <input type="number" id="bosLookback" class="form-control" value="50" min="20" max="200">
+                    <small>Number of candles to look back for BOS</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Block 2: Liquidity Sweep -->
+        <div class="decision-block">
+            <div class="block-header">
+                <h4>2. Liquidity Sweep</h4>
+                <span class="block-status" id="block2Status">Not configured</span>
+            </div>
+            <div class="block-content">
+                <p class="block-description">
+                    Price takes equal highs/lows or previous session high/low.
+                </p>
+                <div class="form-group">
+                    <label>Sweep Type</label>
+                    <select id="sweepType" class="form-control">
+                        <option value="equal_highs">Equal Highs</option>
+                        <option value="equal_lows">Equal Lows</option>
+                        <option value="session_high">Previous Session High</option>
+                        <option value="session_low">Previous Session Low</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Equal Level Tolerance (%)</label>
+                    <input type="number" id="sweepTolerance" class="form-control" value="0.1" min="0.05" max="1.0" step="0.05">
+                    <small>Price difference tolerance for equal levels</small>
+                </div>
+                <div class="form-group">
+                    <label>Lookback Periods</label>
+                    <input type="number" id="sweepLookback" class="form-control" value="20" min="10" max="100">
+                    <small>Number of candles to look back for equal levels</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Block 3: Displacement Entry -->
+        <div class="decision-block">
+            <div class="block-header">
+                <h4>3. Displacement Entry</h4>
+                <span class="block-status" id="block3Status">Not configured</span>
+            </div>
+            <div class="block-content">
+                <p class="block-description">
+                    Strong impulsive candle away from the sweep. Entry on 50% retrace or first imbalance.
+                </p>
+                <div class="form-group">
+                    <label>Min Body Size (%)</label>
+                    <input type="number" id="displacementBodyPct" class="form-control" value="70" min="50" max="95">
+                    <small>Minimum candle body as % of total range</small>
+                </div>
+                <div class="form-group">
+                    <label>Min Move (%)</label>
+                    <input type="number" id="displacementMovePct" class="form-control" value="1.5" min="0.5" max="5.0" step="0.1">
+                    <small>Minimum price move from sweep</small>
+                </div>
+                <div class="form-group">
+                    <label>Entry Method</label>
+                    <select id="entryMethod" class="form-control">
+                        <option value="50_retrace">50% Retrace</option>
+                        <option value="first_imbalance">First Imbalance</option>
+                        <option value="both">Both (50% retrace OR first imbalance)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional ICT Blocks Container -->
+        <div id="additionalBlocksContainer"></div>
+        
+        <!-- Add Block Button -->
+        <div class="add-block-section">
+            <button id="addIctBlockBtn" class="btn-secondary">
+                + Add ICT Block
+            </button>
+            <p class="help-text">Add additional ICT concepts (Order Blocks, FVG, Kill Zones, etc.)</p>
+        </div>
+    </div>
+
+    <!-- Risk Management -->
+    <div class="section risk-management">
+        <h3>Risk Management</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Stop Loss</label>
+                <select id="stopLoss" class="form-control">
+                    <option value="beyond_sweep">Beyond Liquidity Sweep</option>
+                    <option value="structure">Beyond Structure</option>
+                    <option value="atr">ATR-based</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Take Profit (R-multiples)</label>
+                <input type="number" id="takeProfit" class="form-control" value="2.0" min="1.0" max="5.0" step="0.5">
+                <small>Target: 1R-2R or next structure</small>
+            </div>
+            <div class="form-group">
+                <label>Risk per Trade (R)</label>
+                <input type="number" id="riskPerTrade" class="form-control" value="1.0" min="0.5" max="3.0" step="0.1">
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="section actions">
+        <button id="downloadTestDataBtn" class="btn-secondary btn-large" style="margin-right: 1rem;">
+            📥 Download Test Data (One-time)
+        </button>
+        <button id="runBacktestBtn" class="btn-primary btn-large">
+            Run Backtest
+        </button>
+        <p class="help-text">
+            <strong>Tip:</strong> Download test data once for faster testing. This will cache data locally and speed up subsequent backtests.
+        </p>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/simulator_v5.js') }}"></script>
+{% endblock %}
+

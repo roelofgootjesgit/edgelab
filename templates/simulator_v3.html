@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Strategy Builder - QuantMetrics{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/simulator_v3.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="simulator-v3-container">
+    <!-- Page Header & Mental Promise Section -->
+    <div class="page-header-section">
+        <h1 class="page-title">Strategy Builder</h1>
+        <p class="page-subtitle">Test whether a trading strategy makes sense — before you trade it.</p>
+        
+        <!-- Mental Promise Card -->
+        <div class="mental-promise-card">
+            <div class="promise-main">
+                <p class="promise-text">"Dit scherm helpt mij ordenen wat ik al denk, niet om slimmer te lijken of te optimaliseren."</p>
+            </div>
+            
+            <div class="promise-details">
+                <div class="promise-what-is">
+                    <h3 class="promise-section-title">Wat deze pagina wel is</h3>
+                    <ul class="promise-list">
+                        <li>Een denkinterface</li>
+                        <li>Een testomgeving</li>
+                        <li>Een structuur om ruis te verwijderen</li>
+                    </ul>
+                </div>
+                
+                <div class="promise-what-not">
+                    <h3 class="promise-section-title">Wat deze pagina niet is</h3>
+                    <ul class="promise-list promise-list-not">
+                        <li>Geen optimalisatie-tool</li>
+                        <li>Geen indicator playground</li>
+                        <li>Geen 'beste instellingen'-zoekmachine</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Context Bar (hidden until confirmed) -->
+    <div class="sticky-context-bar" id="stickyContextBar" style="display: none;">
+        <div class="context-bar-content">
+            <span class="context-bar-text" id="contextBarText"></span>
+            <a href="#" class="context-bar-edit" id="contextBarEdit">Edit</a>
+        </div>
+    </div>
+
+    <!-- Main Flow Container -->
+    <div class="flow-container" id="flowContainer">
+        <!-- STAP 0: Market Context -->
+        <div class="flow-section" id="step0">
+            <h2 class="section-title">Market context</h2>
+            <p class="section-subtext">Define where this strategy trades. All rules will be evaluated within this context.</p>
+            
+            <div class="empty-state" id="step0EmptyState">
+                <p class="empty-state-text">Set the market context to continue.</p>
+            </div>
+            
+            <form id="marketContextForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Market</label>
+                    <select id="marketSelect" class="form-select" required>
+                        <option value="">Which market do you want to test?</option>
+                        <option value="XAUUSD">XAUUSD (Gold)</option>
+                        <option value="EURUSD">EURUSD</option>
+                        <option value="GBPUSD">GBPUSD</option>
+                        <option value="BTCUSD">BTCUSD (Bitcoin)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Timeframe</label>
+                    <select id="timeframeSelect" class="form-select" required>
+                        <option value="">Decision timeframe for this strategy.</option>
+                        <option value="1m">1 minute</option>
+                        <option value="5m">5 minutes</option>
+                        <option value="15m">15 minutes</option>
+                        <option value="30m">30 minutes</option>
+                        <option value="1h">1 hour</option>
+                        <option value="4h">4 hours</option>
+                        <option value="1d">1 day</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Session <span class="optional-label">(optional)</span></label>
+                    <select id="sessionSelect" class="form-select">
+                        <option value="">Limit trades to a specific session.</option>
+                        <option value="London">London</option>
+                        <option value="New York">New York</option>
+                        <option value="Asian">Asian</option>
+                        <option value="All">All Sessions</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Direction</label>
+                    <select id="directionSelect" class="form-select" required>
+                        <option value="">Trade direction bias.</option>
+                        <option value="Long">Long</option>
+                        <option value="Short">Short</option>
+                        <option value="Both">Both</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Test period</label>
+                    <select id="testPeriodSelect" class="form-select" required>
+                        <option value="">How far back should we test this idea?</option>
+                        <option value="1mo">1 month</option>
+                        <option value="2mo">2 months</option>
+                        <option value="3mo">3 months</option>
+                        <option value="6mo">6 months</option>
+                        <option value="1yr">1 year</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-primary">Confirm market context</button>
+            </form>
+        </div>
+        
+        <!-- STAP 1: Intent Selection (hidden until market context confirmed) -->
+        <div class="flow-section" id="step1" style="display: none;">
+            <h2 class="section-title">What do you want to test?</h2>
+            <p class="section-subtext">This only changes how we guide you — not what you can build.</p>
+            
+            <div class="empty-state" id="step1EmptyState">
+                <p class="empty-state-text">Choose how you want to build your strategy.</p>
+            </div>
+            
+            <div class="intent-options" id="intentOptions" style="display: none;">
+                <div class="intent-card" data-intent="clear">
+                    <input type="radio" name="intent" id="intentClear" value="clear" class="intent-radio">
+                    <label for="intentClear" class="intent-label">
+                        <div class="intent-card-header">
+                            <h3 class="intent-title">I already have a clear strategy</h3>
+                        </div>
+                        <p class="intent-subtext">I know my rules and want to test or fine-tune them.</p>
+                    </label>
+                </div>
+                
+                <div class="intent-card" data-intent="explore">
+                    <input type="radio" name="intent" id="intentExplore" value="explore" class="intent-radio">
+                    <label for="intentExplore" class="intent-label">
+                        <div class="intent-card-header">
+                            <h3 class="intent-title">I want to explore a strategy idea</h3>
+                        </div>
+                        <p class="intent-subtext">I have an idea and want help structuring it.</p>
+                    </label>
+                </div>
+                
+                <p class="intent-helper">You can change this later.</p>
+            </div>
+        </div>
+        
+        <!-- FLOW A: STAP 2A — Strategy Rules (hidden until intent selected) -->
+        <div class="flow-section" id="step2A" style="display: none;">
+            <h2 class="section-title">Strategy rules</h2>
+            <p class="section-subtext">Add the rules exactly as you would trade them.</p>
+            
+            <div class="rule-counter">
+                Rules used: <span id="ruleCount">0</span> / 4
+            </div>
+            
+            <div class="rule-microcopy" id="ruleMicrocopy">
+                Most robust strategies use 1–3 rules.
+            </div>
+            
+            <div class="empty-state" id="step2AEmptyState">
+                <p class="empty-state-text">No rules added yet. Add the first rule that defines your setup.</p>
+                <button class="btn-primary" id="addFirstRuleBtn" style="margin-top: 1rem;">Add rule</button>
+            </div>
+            
+            <div class="rules-container" id="rulesContainer" style="display: none;">
+                <div id="rulesList"></div>
+                <button class="btn-primary" id="addRuleBtn" style="display: none;">Add rule</button>
+            </div>
+        </div>
+        
+        <!-- FLOW B: STAP 2B — Strategy Idea (hidden until intent selected) -->
+        <div class="flow-section" id="step2B" style="display: none;">
+            <h2 class="section-title">Strategy idea</h2>
+            <p class="section-subtext">What type of market behavior do you want to test?</p>
+            
+            <div class="empty-state" id="step2BEmptyState">
+                <p class="empty-state-text">Select one idea to structure your strategy.</p>
+            </div>
+            
+            <div class="idea-cards" id="ideaCards" style="display: none;">
+                <div class="idea-card" data-idea="trend-continuation">
+                    <h3 class="idea-title">Trend continuation</h3>
+                    <p class="idea-description">Price tends to continue after confirmation.</p>
+                </div>
+                
+                <div class="idea-card" data-idea="mean-reversion">
+                    <h3 class="idea-title">Mean reversion</h3>
+                    <p class="idea-description">Price often returns to value after extension.</p>
+                </div>
+                
+                <div class="idea-card" data-idea="breakout">
+                    <h3 class="idea-title">Breakout</h3>
+                    <p class="idea-description">Price accelerates after leaving a range.</p>
+                </div>
+                
+                <div class="idea-card" data-idea="liquidity-sweep">
+                    <h3 class="idea-title">Liquidity sweep</h3>
+                    <p class="idea-description">Price moves to take stops before reversing or expanding.</p>
+                </div>
+                
+                <div class="idea-card" data-idea="momentum-push">
+                    <h3 class="idea-title">Momentum push</h3>
+                    <p class="idea-description">Strong directional movement continues after impulse.</p>
+                </div>
+            </div>
+            
+            <div class="idea-chip" id="ideaChip" style="display: none;">
+                Idea: <span id="ideaChipText"></span>
+            </div>
+        </div>
+        
+        <!-- FLOW B: STAP 3B — Strategy Logic (hidden until idea selected) -->
+        <div class="flow-section" id="step3B" style="display: none;">
+            <h2 class="section-title">Strategy logic</h2>
+            <p class="section-subtext">Define how this idea is confirmed.</p>
+            
+            <!-- Primary Condition -->
+            <div class="logic-section">
+                <div class="logic-header">
+                    <h3 class="logic-title">Primary condition</h3>
+                    <p class="logic-helper">This is the main signal that triggers a trade.</p>
+                </div>
+                <div class="empty-state logic-empty" id="primaryConditionEmpty">
+                    <p class="empty-state-text">No primary condition defined yet.</p>
+                </div>
+                <button class="btn-primary" id="addPrimaryConditionBtn">Add primary condition</button>
+                <div id="primaryConditionContent" style="display: none;"></div>
+            </div>
+            
+            <!-- Confirmation (optional) -->
+            <div class="logic-section">
+                <div class="logic-header">
+                    <h3 class="logic-title">Confirmation <span class="optional-label">(optional)</span></h3>
+                    <p class="logic-helper">Optional rule to improve trade quality.</p>
+                </div>
+                <button class="btn-secondary" id="addConfirmationBtn">Add confirmation</button>
+                <div id="confirmationContent" style="display: none;"></div>
+            </div>
+            
+            <!-- Filter (optional) -->
+            <div class="logic-section">
+                <div class="logic-header">
+                    <h3 class="logic-title">Filter <span class="optional-label">(optional)</span></h3>
+                    <p class="logic-helper">Optional rule to avoid low-quality trades.</p>
+                </div>
+                <button class="btn-secondary" id="addFilterBtn">Add filter</button>
+                <div id="filterContent" style="display: none;"></div>
+            </div>
+            
+            <!-- Advanced (collapsed) -->
+            <details class="logic-advanced">
+                <summary class="logic-advanced-summary">Advanced logic options</summary>
+                <p class="logic-advanced-text">Use with care.</p>
+            </details>
+        </div>
+        
+        <!-- STAP 4: Exit & Risk (common for both flows) -->
+        <div class="flow-section" id="step4" style="display: none;">
+            <h2 class="section-title">Exit & risk</h2>
+            <p class="section-subtext">Simple exits make results easier to trust.</p>
+            
+            <div class="empty-state" id="step4EmptyState">
+                <p class="empty-state-text">Default exits are used unless changed.</p>
+            </div>
+            
+            <form id="exitRiskForm" style="display: none;">
+                <div class="exit-fields">
+                    <div class="form-group">
+                        <label class="form-label">Stop loss (R)</label>
+                        <input type="number" 
+                               id="stopLossInput" 
+                               class="form-input" 
+                               min="0.5" 
+                               step="0.5" 
+                               value="1"
+                               placeholder="Risk per trade.">
+                        <p class="form-helper">Risk per trade.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Take profit (R)</label>
+                        <input type="number" 
+                               id="takeProfitInput" 
+                               class="form-input" 
+                               min="0.5" 
+                               step="0.5" 
+                               value="2"
+                               placeholder="Reward per trade.">
+                        <p class="form-helper">Reward per trade.</p>
+                    </div>
+                </div>
+                
+                <div class="risk-reward-badge" id="riskRewardBadge">
+                    Risk–Reward: 1 : <span id="riskRewardRatio">2.0</span>
+                </div>
+            </form>
+        </div>
+        
+        <!-- STAP 5: Review & Run (common for both flows) -->
+        <div class="flow-section" id="step5" style="display: none;">
+            <h2 class="section-title">Strategy summary</h2>
+            <p class="section-subtext">This is exactly what will be tested.</p>
+            
+            <div class="summary-container">
+                <div class="summary-status">
+                    <span class="status-indicator">✔</span>
+                    <span class="status-text">Ready to test</span>
+                </div>
+                
+                <div class="summary-sentence" id="summarySentence">
+                    <!-- Dynamic summary will be inserted here -->
+                </div>
+                
+                <button class="btn-primary btn-run-backtest" id="runBacktestBtn">
+                    Run backtest
+                </button>
+                
+                <p class="run-subtext">This tests the strategy as defined — it does not optimize it.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/strategy_builder_v3.js') }}"></script>
+{% endblock %}
+

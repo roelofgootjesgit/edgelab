@@ -1,0 +1,722 @@
+/* =============================================
+   STRATEGY SIMULATOR V3 - Clean & Focused Design
+   ============================================= */
+
+.simulator-v3-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    min-height: 100vh;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition: border-color var(--transition-fast), 
+                background-color var(--transition-fast),
+                color var(--transition-fast);
+}
+
+/* ===== PAGE HEADER & MENTAL PROMISE ===== */
+.page-header-section {
+    margin-bottom: 3rem;
+}
+
+.page-title {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.page-subtitle {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Mental Promise Card */
+.mental-promise-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-top: 2rem;
+    transition: all var(--transition-normal);
+}
+
+.mental-promise-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.promise-main {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.promise-text {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--accent-blue-light);
+    font-style: italic;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.promise-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .promise-details {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+.promise-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.875rem;
+}
+
+.promise-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.promise-list li {
+    padding: 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.promise-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent-green);
+    font-weight: 600;
+}
+
+.promise-list-not li::before {
+    content: '✗';
+    color: var(--accent-red);
+}
+
+/* ===== FLOW CONTAINER ===== */
+.flow-container {
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2.5rem;
+    min-height: 400px;
+}
+
+/* ===== SECTION STYLES ===== */
+.flow-section {
+    margin-bottom: 3rem;
+}
+
+.flow-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.section-subtext {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+/* ===== EMPTY STATES ===== */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state-text {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary:hover {
+    background: var(--accent-blue-dark);
+    box-shadow: var(--shadow-glow-blue);
+    transform: translateY(-2px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--accent-blue-light);
+    border: 2px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* ===== FORM ELEMENTS ===== */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all var(--transition-normal);
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-helper {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+/* ===== STICKY CONTEXT BAR ===== */
+.sticky-context-bar {
+    position: sticky;
+    top: 80px;
+    z-index: 100;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.context-bar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.context-bar-text {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.context-bar-edit {
+    font-size: 0.875rem;
+    color: var(--accent-blue-light);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color var(--transition-fast);
+}
+
+.context-bar-edit:hover {
+    color: var(--accent-blue);
+}
+
+/* ===== FORM ELEMENTS ===== */
+.optional-label {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 0.875rem;
+}
+
+/* ===== INTENT SELECTION ===== */
+.intent-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.intent-card {
+    position: relative;
+}
+
+.intent-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.intent-label {
+    display: block;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.intent-label:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-card);
+}
+
+.intent-radio:checked + .intent-label {
+    border-color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.intent-card-header {
+    margin-bottom: 0.75rem;
+}
+
+.intent-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.intent-subtext {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.intent-helper {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .intent-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== STRATEGY RULES (FLOW A) ===== */
+.rule-counter {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.rule-counter span {
+    color: var(--accent-blue-light);
+    font-weight: 700;
+}
+
+.rule-microcopy {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    font-style: italic;
+}
+
+.rules-container {
+    margin-top: 2rem;
+}
+
+.rule-item {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.rule-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.rule-item-number {
+    font-weight: 700;
+    color: var(--accent-blue-light);
+    font-size: 0.875rem;
+}
+
+.rule-item-remove {
+    background: transparent;
+    border: none;
+    color: var(--accent-red);
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0.25rem 0.5rem;
+    transition: all var(--transition-fast);
+}
+
+.rule-item-remove:hover {
+    color: var(--accent-red);
+    transform: scale(1.1);
+}
+
+/* ===== STRATEGY IDEAS (FLOW B) ===== */
+.idea-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.idea-card {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.idea-card:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-card);
+    transform: translateY(-2px);
+}
+
+.idea-card.selected {
+    border-color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.idea-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.idea-description {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.idea-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 9999px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: var(--accent-blue-light);
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.idea-chip span {
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .idea-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== STRATEGY LOGIC (FLOW B) ===== */
+.logic-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logic-section:last-of-type {
+    border-bottom: none;
+}
+
+.logic-header {
+    margin-bottom: 1rem;
+}
+
+.logic-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.logic-helper {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.logic-empty {
+    margin: 1rem 0;
+    padding: 1.5rem;
+}
+
+.logic-advanced {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.logic-advanced-summary {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    list-style: none;
+}
+
+.logic-advanced-summary::-webkit-details-marker {
+    display: none;
+}
+
+.logic-advanced-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.logic-item {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logic-item-text {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+}
+
+/* ===== EXIT & RISK ===== */
+.exit-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.risk-reward-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 9999px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+    color: var(--accent-green);
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+.risk-reward-badge span {
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .exit-fields {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== REVIEW & RUN ===== */
+.summary-container {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.summary-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 9999px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 2rem;
+    font-size: 0.9375rem;
+    color: var(--accent-green);
+    font-weight: 600;
+}
+
+.status-indicator {
+    font-size: 1.125rem;
+}
+
+.status-text {
+    color: var(--text-primary);
+}
+
+.summary-sentence {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+    line-height: 1.8;
+    text-align: left;
+}
+
+.btn-run-backtest {
+    font-size: 1.125rem;
+    padding: 1rem 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.run-subtext {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 1rem;
+}
+
+/* Loading state for buttons */
+.btn-primary:disabled,
+.btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Focus states for accessibility */
+.form-input:focus,
+.form-select:focus,
+.intent-radio:focus + .intent-label,
+.idea-card:focus {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better spacing for sections */
+.flow-section {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .simulator-v3-container {
+        padding: 1.5rem 1rem;
+    }
+    
+    .mental-promise-card {
+        padding: 1.5rem;
+    }
+    
+    .promise-text {
+        font-size: 1.125rem;
+    }
+    
+    .flow-container {
+        padding: 1.5rem;
+    }
+    
+    .sticky-context-bar {
+        top: 70px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .context-bar-text {
+        font-size: 0.875rem;
+    }
+}
+

@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Strategy Builder V4 - Decision Block Model - QuantMetrics{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/simulator_v4.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Loading Overlay -->
+<div id="backtestLoadingOverlay" class="backtest-loading-overlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <h2 class="loading-title">Running Backtest</h2>
+        <p class="loading-subtitle">Analyzing your strategy against historical data...</p>
+        <div class="loading-steps">
+            <div class="loading-step active" id="step1">Downloading Data</div>
+            <div class="loading-step" id="step2">Calculating Indicators</div>
+            <div class="loading-step" id="step3">Simulating Trades</div>
+            <div class="loading-step" id="step4">Generating Report</div>
+        </div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar"></div>
+        </div>
+    </div>
+</div>
+
+<div class="simulator-v4-container">
+    <!-- Page Header -->
+    <div class="page-header-section">
+        <h1 class="page-title">Strategy Builder</h1>
+        <p class="page-subtitle">Build strategies using Decision Blocks — one decision, multiple confirmations.</p>
+    </div>
+
+    <!-- Template Selector (Step 0) -->
+    <div class="template-selector-section" id="templateSelector">
+        <h2 class="section-title">Choose a Strategy Template</h2>
+        <p class="section-subtext">Templates pre-fill Decision Blocks with proven setups. You can modify everything.</p>
+        
+        <div class="templates-grid" id="templatesGrid">
+            <!-- Templates will be loaded by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Main Builder (hidden until template selected) -->
+    <div class="builder-container" id="builderContainer" style="display: none;">
+        <!-- Market Context (collapsed after selection) -->
+        <div class="market-context-bar" id="marketContextBar" style="display: none;">
+            <div class="context-content">
+                <span class="context-text" id="contextText"></span>
+                <button class="context-edit-btn" id="contextEditBtn" type="button">Edit</button>
+            </div>
+        </div>
+        
+        <!-- Market Context Editor (hidden by default) -->
+        <div class="market-context-editor" id="marketContextEditor" style="display: none;">
+            <h3 class="section-title">Edit Market Context</h3>
+            <div class="form-group">
+                <label class="form-label">Market</label>
+                <select id="editMarket" class="form-select">
+                    <option value="XAUUSD">XAUUSD (Gold)</option>
+                    <option value="EURUSD">EURUSD</option>
+                    <option value="GBPUSD">GBPUSD</option>
+                    <option value="BTCUSD">BTCUSD (Bitcoin)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Timeframe</label>
+                <select id="editTimeframe" class="form-select">
+                    <option value="1m">1 minute</option>
+                    <option value="5m">5 minutes</option>
+                    <option value="15m">15 minutes</option>
+                    <option value="30m">30 minutes</option>
+                    <option value="1h">1 hour</option>
+                    <option value="4h">4 hours</option>
+                    <option value="1d">1 day</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Session</label>
+                <select id="editSession" class="form-select">
+                    <option value="London">London</option>
+                    <option value="New York">New York</option>
+                    <option value="Asian">Asian</option>
+                    <option value="All">All Sessions</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Direction</label>
+                <select id="editDirection" class="form-select">
+                    <option value="Long">Long</option>
+                    <option value="Short">Short</option>
+                    <option value="Both">Both</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Test Period</label>
+                <select id="editTestPeriod" class="form-select">
+                    <option value="1mo">1 month</option>
+                    <option value="2mo">2 months</option>
+                    <option value="3mo">3 months</option>
+                    <option value="6mo">6 months</option>
+                    <option value="1yr">1 year</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn-primary" onclick="saveMarketContext()">Save</button>
+                <button class="btn-secondary" onclick="cancelMarketContextEdit()">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Decision Blocks Section -->
+        <div class="decision-blocks-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Decision Blocks</h2>
+                    <p class="section-subtext">
+                        Groups multiple confirmations into one decision.
+                        <span class="tooltip">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">Multiple confirmations increase confidence, but may reduce flexibility.</span>
+                        </span>
+                    </p>
+                </div>
+                <div class="block-counter">
+                    Decision Blocks: <span id="blockCount">0</span> / 4
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="blocksEmptyState">
+                <p class="empty-state-text">Add your first Decision Block to define a strategy decision point.</p>
+                <button class="btn-primary" id="addFirstBlockBtn">Add Decision Block</button>
+            </div>
+
+            <!-- Decision Blocks Container -->
+            <div class="decision-blocks-container" id="decisionBlocksContainer" style="display: none;">
+                <!-- Decision Blocks will be added here by JavaScript -->
+            </div>
+
+            <!-- Add Block Button -->
+            <button class="btn-primary" id="addBlockBtn" style="display: none;">Add Decision Block</button>
+        </div>
+
+        <!-- Exit & Risk Section -->
+        <div class="exit-risk-section">
+            <h2 class="section-title">Exit & Risk</h2>
+            <p class="section-subtext">Simple exits make results easier to trust.</p>
+            
+            <div class="exit-fields">
+                <div class="form-group">
+                    <label class="form-label">Stop loss (R)</label>
+                    <input type="number" id="stopLossInput" class="form-input" min="0.5" step="0.5" value="1">
+                    <p class="form-helper">Risk per trade.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Take profit (R)</label>
+                    <input type="number" id="takeProfitInput" class="form-input" min="0.5" step="0.5" value="2">
+                    <p class="form-helper">Reward per trade.</p>
+                </div>
+            </div>
+            
+            <div class="risk-reward-badge" id="riskRewardBadge">
+                Risk–Reward: 1 : <span id="riskRewardRatio">2.0</span>
+            </div>
+        </div>
+
+        <!-- Review & Run Section -->
+        <div class="review-run-section">
+            <h2 class="section-title">Strategy Summary</h2>
+            <p class="section-subtext">This is exactly what will be tested.</p>
+            
+            <div class="summary-container">
+                <div class="summary-status">
+                    <span class="status-indicator">✔</span>
+                    <span class="status-text">Ready to test</span>
+                </div>
+                
+                <div class="summary-content" id="summaryContent">
+                    <!-- Summary will be generated by JavaScript -->
+                </div>
+                
+                <div class="backtest-buttons">
+                    <button class="btn-secondary btn-quick-test" id="quickTestBtn">
+                        ⚡ Quick Test (< 30s)
+                    </button>
+                    <button class="btn-primary btn-run-backtest" id="runBacktestBtn">
+                        Run Full Backtest
+                    </button>
+                </div>
+                
+                <p class="run-subtext">
+                    <strong>Quick Test:</strong> Fast preview with 30 days data, max 4 modules<br>
+                    <strong>Full Backtest:</strong> Complete analysis with all data and modules
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/templates/ict_smc_template.js') }}"></script>
+<script src="{{ url_for('static', filename='js/templates/trend_following_template.js') }}"></script>
+<script src="{{ url_for('static', filename='js/templates/mean_reversion_template.js') }}"></script>
+<script src="{{ url_for('static', filename='js/templates/breakout_momentum_template.js') }}"></script>
+<script src="{{ url_for('static', filename='js/templates/golden_cross_template.js') }}"></script>
+<script src="{{ url_for('static', filename='js/templates/supertrend_template.js') }}"></script>
+<script src="{{ url_for('static', filename='js/templates/rsi_bounce_template.js') }}"></script>
+<script src="{{ url_for('static', filename='js/templates/vwap_reversion_template.js') }}"></script>
+<script src="{{ url_for('static', filename='js/templates/momentum_scalping_template.js') }}"></script>
+<script src="{{ url_for('static', filename='js/strategy_builder_v4.js') }}"></script>
+{% endblock %}
+

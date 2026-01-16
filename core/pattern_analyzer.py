@@ -12,6 +12,7 @@ Version: 1.4
 from typing import List, Dict
 from core.quantmetrics_schema import QuantMetricsTrade
 from datetime import datetime
+import pandas as pd
 
 
 class TimingAnalyzer:
@@ -52,7 +53,28 @@ class TimingAnalyzer:
         
         # Group trades by session
         for trade in trades:
-            hour = trade.timestamp_open.hour
+            # Handle different timestamp types (datetime, pandas Timestamp, or int)
+            timestamp = trade.timestamp_open
+            if hasattr(timestamp, 'hour'):
+                hour = timestamp.hour
+            elif isinstance(timestamp, (int, float)):
+                # Unix timestamp - convert using pandas
+                try:
+                    ts = pd.Timestamp(timestamp, unit='s')
+                    hour = ts.hour
+                except (ValueError, TypeError):
+                    try:
+                        ts = pd.Timestamp(timestamp)
+                        hour = ts.hour
+                    except Exception:
+                        hour = 12  # Default to London session if parsing fails
+            else:
+                # Try to convert to pandas Timestamp
+                try:
+                    ts = pd.Timestamp(timestamp)
+                    hour = ts.hour
+                except Exception:
+                    hour = 12  # Default to London session if parsing fails
             
             if 0 <= hour < 8:
                 sessions['Tokyo']['trades'].append(trade)
@@ -111,7 +133,28 @@ class TimingAnalyzer:
         hourly_stats = {}
         
         for trade in trades:
-            hour = trade.timestamp_open.hour
+            # Handle different timestamp types (datetime, pandas Timestamp, or int)
+            timestamp = trade.timestamp_open
+            if hasattr(timestamp, 'hour'):
+                hour = timestamp.hour
+            elif isinstance(timestamp, (int, float)):
+                # Unix timestamp - convert using pandas
+                try:
+                    ts = pd.Timestamp(timestamp, unit='s')
+                    hour = ts.hour
+                except (ValueError, TypeError):
+                    try:
+                        ts = pd.Timestamp(timestamp)
+                        hour = ts.hour
+                    except Exception:
+                        hour = 12  # Default to noon if parsing fails
+            else:
+                # Try to convert to pandas Timestamp
+                try:
+                    ts = pd.Timestamp(timestamp)
+                    hour = ts.hour
+                except Exception:
+                    hour = 12  # Default to noon if parsing fails
             
             if hour not in hourly_stats:
                 hourly_stats[hour] = []
@@ -747,8 +790,53 @@ class LossForensics:
                     continue
             
             # Check if timing within session
-            hour = loss.timestamp_open.hour
-            hour_losses = [t for t in losses if t.timestamp_open.hour == hour]
+            # Handle different timestamp types
+            timestamp = loss.timestamp_open
+            if hasattr(timestamp, 'hour'):
+                hour = timestamp.hour
+            elif isinstance(timestamp, (int, float)):
+                try:
+                    ts = pd.Timestamp(timestamp, unit='s')
+                    hour = ts.hour
+                except (ValueError, TypeError):
+                    try:
+                        ts = pd.Timestamp(timestamp)
+                        hour = ts.hour
+                    except Exception:
+                        hour = 12
+            else:
+                try:
+                    ts = pd.Timestamp(timestamp)
+                    hour = ts.hour
+                except Exception:
+                    hour = 12
+            
+            # Filter losses by same hour
+            hour_losses = []
+            for t in losses:
+                t_timestamp = t.timestamp_open
+                t_hour = None
+                if hasattr(t_timestamp, 'hour'):
+                    t_hour = t_timestamp.hour
+                elif isinstance(t_timestamp, (int, float)):
+                    try:
+                        t_ts = pd.Timestamp(t_timestamp, unit='s')
+                        t_hour = t_ts.hour
+                    except (ValueError, TypeError):
+                        try:
+                            t_ts = pd.Timestamp(t_timestamp)
+                            t_hour = t_ts.hour
+                        except Exception:
+                            continue
+                else:
+                    try:
+                        t_ts = pd.Timestamp(t_timestamp)
+                        t_hour = t_ts.hour
+                    except Exception:
+                        continue
+                
+                if t_hour == hour:
+                    hour_losses.append(t)
             
             if len(hour_losses) >= 2:
                 causes['poor_timing'] += 1

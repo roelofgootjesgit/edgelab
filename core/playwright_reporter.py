@@ -1,5 +1,5 @@
 ﻿"""
-EdgeLab PDF Report Generator - Playwright Version
+QuantMetrics PDF Report Generator - Playwright Version
 Generates professional PDF reports using Playwright (Chrome headless)
 """
 
@@ -71,6 +71,20 @@ class PlaywrightReportGenerator:
             else:
                 return d
         
+        # Extract string from insight item (handles both strings and dicts)
+        def extract_insight_string(item):
+            """Extract string from insight item - handles dicts with observation/message/finding fields."""
+            if isinstance(item, str):
+                return item
+            elif isinstance(item, dict):
+                # Try common field names for insight text
+                return item.get('observation') or item.get('message') or item.get('finding') or item.get('title', '')
+            elif hasattr(item, '__dict__'):
+                # Handle objects - try to get observation/message/finding attributes
+                return getattr(item, 'observation', None) or getattr(item, 'message', None) or getattr(item, 'finding', None) or str(item)
+            else:
+                return str(item)
+        
         # Convert results if it's a dict
         if isinstance(results, dict):
             results_obj = dict_to_obj(results)
@@ -88,9 +102,21 @@ class PlaywrightReportGenerator:
                 'notable_patterns': []
             }
         
-        # Convert insights dict to object if needed
+        # Process insights to ensure they're lists of strings
         if isinstance(insights, dict):
-            insights_obj = dict_to_obj(insights)
+            # Convert findings and patterns to lists of strings
+            processed_insights = {
+                'critical_findings': [extract_insight_string(item) for item in insights.get('critical_findings', [])],
+                'notable_patterns': [extract_insight_string(item) for item in insights.get('notable_patterns', [])]
+            }
+            insights_obj = dict_to_obj(processed_insights)
+        elif hasattr(insights, '__dict__'):
+            # Handle object-based insights
+            processed_insights = {
+                'critical_findings': [extract_insight_string(item) for item in (getattr(insights, 'critical_findings', []) or [])],
+                'notable_patterns': [extract_insight_string(item) for item in (getattr(insights, 'notable_patterns', []) or [])]
+            }
+            insights_obj = dict_to_obj(processed_insights)
         else:
             insights_obj = insights
         

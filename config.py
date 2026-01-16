@@ -92,6 +92,20 @@ class Config:
     # Anthropic API (for AI narratives)
     ANTHROPIC_API_KEY: str = os.getenv('ANTHROPIC_API_KEY', '')
     
+    # ===================
+    # Hard Limits (Beta - Guardrail G8)
+    # ===================
+    
+    # Maximum backtest period (in months)
+    MAX_PERIOD_MONTHS: int = int(os.getenv('MAX_PERIOD_MONTHS', '6'))
+    
+    # Maximum modules per strategy
+    MAX_MODULES_PER_STRATEGY: int = int(os.getenv('MAX_MODULES_PER_STRATEGY', '10'))
+    
+    # Rate limiting: max requests per time window
+    RATE_LIMIT_REQUESTS: int = int(os.getenv('RATE_LIMIT_REQUESTS', '10'))
+    RATE_LIMIT_WINDOW_MINUTES: int = int(os.getenv('RATE_LIMIT_WINDOW_MINUTES', '10'))
+    
     @classmethod
     def get_storage_config(cls) -> Dict[str, Any]:
         """
